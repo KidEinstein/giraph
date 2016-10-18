@@ -313,29 +313,7 @@ end[HADOOP_NON_SECURE]*/
       FileSystem fs = path.getFileSystem(job.getConfiguration());
       long length = file.getLen();
       BlockLocation[] blkLocations = fs.getFileBlockLocations(file, 0, length);
-      if ((length != 0) && isSplitable(job, path)) {
-        long blockSize = file.getBlockSize();
-        long splitSize = computeSplitSize(blockSize, minSize, maxSize);
-
-        long bytesRemaining = length;
-        while (((double) bytesRemaining) / splitSize > SPLIT_SLOP) {
-          int blkIndex = getBlockIndex(blkLocations, length - bytesRemaining);
-          splits.add(new FileSplit(path, length - bytesRemaining, splitSize,
-              blkLocations[blkIndex].getHosts()));
-          bytesRemaining -= splitSize;
-        }
-
-        if (bytesRemaining != 0) {
-          splits.add(new FileSplit(path, length - bytesRemaining,
-              bytesRemaining,
-              blkLocations[blkLocations.length - 1].getHosts()));
-        }
-      } else if (length != 0) {
-        splits.add(new FileSplit(path, 0, length, blkLocations[0].getHosts()));
-      } else {
-        //Create empty hosts array for zero length files
-        splits.add(new FileSplit(path, 0, length, new String[0]));
-      }
+      splits.add(new FileSplit(path, 0, length, blkLocations[0].getHosts()));
     }
     return splits;
   }

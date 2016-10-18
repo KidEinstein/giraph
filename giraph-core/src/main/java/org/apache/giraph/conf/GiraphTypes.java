@@ -26,6 +26,7 @@ import static org.apache.giraph.utils.ConfigurationUtils.getTypesHolderClass;
 import static org.apache.giraph.utils.ReflectionUtils.getTypeArguments;
 
 import org.apache.giraph.graph.DefaultVertex;
+import org.apache.giraph.graph.Subgraph;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
@@ -51,7 +52,7 @@ public class GiraphTypes<I extends WritableComparable, V extends Writable,
   /** Outgoing message value class */
   private Class<? extends Writable> outgoingMessageValueClass;
   /** Vertex implementation class */
-  private Class<? extends Vertex> vertexClass = DefaultVertex.class;
+  private Class<? extends Vertex> vertexClass = Subgraph.class;
 
 
   /**

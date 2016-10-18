@@ -1,7 +1,6 @@
 package org.apache.giraph.examples;
 
 import org.apache.giraph.edge.Edge;
-import org.apache.giraph.edge.OutEdges;
 import org.apache.giraph.graph.*;
 import org.apache.hadoop.io.*;
 
@@ -10,9 +9,11 @@ import java.io.IOException;
 /**
  * Created by anirudh on 27/09/16.
  */
-public class GiraphSandbox extends SubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable> {
+
+// TODO: make a edge class and 
+public class GiraphSandbox extends SubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, NullWritable> {
     @Override
-    public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable> subgraph, Iterable<NullWritable> messages) throws IOException {
+    public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable> subgraph, Iterable<NullWritable> messages) throws IOException {
 
         System.out.print("Hello world from the: " +
                 subgraph.getId().getSubgraphId() + " who is following:");
@@ -21,6 +22,13 @@ public class GiraphSandbox extends SubgraphComputation<LongWritable, LongWritabl
             System.out.print(" " + e.getTargetVertexId().getSubgraphId());
         }
         System.out.println("");
+        System.out.println("Internal contents");
+        SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable> subgraphVertices = subgraph.getSubgraphVertices();
+
+        for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable> vertex : subgraphVertices.getVertices()) {
+            System.out.println("Vertex: " + vertex.getId());
+        }
+
         // signaling the end of the current BSP computation for the current vertex
         subgraph.voteToHalt();
 
