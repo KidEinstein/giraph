@@ -111,6 +111,10 @@ public abstract class AdjacencyListTextSubgraphInputFormat<I extends
                 sanitizedLine = line.toString();
             }
             String [] values = sanitizedLine.split(splitValue);
+            if ((values.length < 2) || (values.length % 2 != 0)) {
+                throw new IllegalArgumentException(
+                        "Line did not split correctly: " + line);
+            }
             return values;
         }
 
@@ -134,7 +138,7 @@ public abstract class AdjacencyListTextSubgraphInputFormat<I extends
 
 
         @Override
-        protected DoubleWritable getValue(String[] values) throws IOException {
+        protected V getValue(String[] values) throws IOException {
             return decodeValue(values[1]);
         }
 
@@ -145,7 +149,7 @@ public abstract class AdjacencyListTextSubgraphInputFormat<I extends
          * @param s Value from line
          * @return Vertex value
          */
-        public abstract DoubleWritable decodeValue(String s);
+        public abstract V decodeValue(String s);
 
         @Override
         protected Iterable<Edge<LongWritable, NullWritable>> getVertexEdges(String[] values) throws
@@ -178,7 +182,6 @@ public abstract class AdjacencyListTextSubgraphInputFormat<I extends
             int i = 2;
             List<Edge<I, E>> edges = Lists.newLinkedList();
             while (i < values.length) {
-                // TODO: No subgraph value
                 edges.add(decodeSubgraphEdge(values[i], values[i + 1]));
                 i += 2;
             }

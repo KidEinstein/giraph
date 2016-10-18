@@ -106,14 +106,13 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
 
 
         @Override
-        public DoubleWritable decodeValue(String s) {
-            return new DoubleWritable(Double.parseDouble(s));
+        public SubgraphVertices decodeValue(String s) {
+            return null;
         }
 
         @Override
         public SubgraphId<LongWritable> getSId(String[] line) {
             SubgraphId<LongWritable> subgraphId = new SubgraphId<LongWritable>(decodeSId(line[0]), decodePId(line[1]));
-            System.out.println("SID: " + subgraphId.getSubgraphId() + " PID: " + subgraphId.getPartitionId());
             return subgraphId;
         }
     }

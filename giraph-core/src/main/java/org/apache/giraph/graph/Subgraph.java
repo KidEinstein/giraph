@@ -10,11 +10,9 @@ import org.apache.hadoop.io.WritableComparable;
  * @param <I> Vertex id
  * @param <V> Vertex value
  * @param <E> Edge data
- * @param <SV> Subgraph Value type
- *
  */
 public class Subgraph<S extends WritableComparable,
-        I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable>
+        I extends WritableComparable, V extends WritableComparable, E extends Writable>
         extends DefaultVertex<SubgraphId<S>, SubgraphVertices<S, I, V, E> , E> {
 
     private Iterable<SubgraphVertex<S, I, Writable, E>> remoteVertices;
@@ -27,7 +25,7 @@ public class Subgraph<S extends WritableComparable,
         return remoteVertices;
     }
 
-    public SubgraphVertices<S, I, V, E> getSubgraphVertices() {
+    public SubgraphVertices getSubgraphVertices() {
         return getValue();
     }
 

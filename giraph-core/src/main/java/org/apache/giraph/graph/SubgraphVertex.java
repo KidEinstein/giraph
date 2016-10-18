@@ -2,8 +2,6 @@ package org.apache.giraph.graph;
 
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.OutEdges;
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -55,23 +53,12 @@ public class SubgraphVertex<S extends WritableComparable, I extends WritableComp
 
     @Override
     public void write(DataOutput dataOutput) throws IOException {
-        subgraphId.write(dataOutput);
-        id.write(dataOutput);
-        value.write(dataOutput);
-        // TODO: Write edges
+
     }
 
     @Override
     public void readFields(DataInput dataInput) throws IOException {
-        subgraphId = new SubgraphId<>();
-        subgraphId.readFields(dataInput);
-        id = (I) new LongWritable();
-        id.readFields(dataInput);
 
-        value = (V) new DoubleWritable();
-        value.readFields(dataInput);
-
-        // TODO: Read edges
     }
 
     //TODO: Do we need hashcode

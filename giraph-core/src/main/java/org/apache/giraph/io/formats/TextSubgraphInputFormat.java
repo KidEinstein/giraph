@@ -51,8 +51,6 @@ public abstract class TextSubgraphInputFormat<I extends WritableComparable,
         V extends Writable, E extends Writable>
         extends VertexInputFormat<I, V, E> {
     /** Uses the GiraphTextInputFormat to do everything */
-
-    //TODO: Change GiraphTextInputFormat to have custom getSplits() implementation
     protected GiraphTextInputFormat textInputFormat = new GiraphTextInputFormat();
 
     @Override public void checkInputSpecs(Configuration conf) { }
@@ -233,7 +231,6 @@ public abstract class TextSubgraphInputFormat<I extends WritableComparable,
         @Override
         public final Vertex<I, V, E> getCurrentVertex() throws IOException,
                 InterruptedException {
-            // TODO: Changed to subgraph
             Vertex<I, V, E> vertex;
             vertex = getConf().createVertex();
             Text line = getRecordReader().getCurrentValue();
@@ -295,7 +292,7 @@ public abstract class TextSubgraphInputFormat<I extends WritableComparable,
          * @throws IOException
          *           exception that can be thrown while reading
          */
-        protected abstract DoubleWritable getValue(T line) throws IOException;
+        protected abstract V getValue(T line) throws IOException;
 
         /**
          * Reads edges from the preprocessed line.
