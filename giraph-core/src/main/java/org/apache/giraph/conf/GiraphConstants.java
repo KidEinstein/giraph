@@ -30,16 +30,7 @@ import org.apache.giraph.edge.ByteArrayEdges;
 import org.apache.giraph.edge.EdgeStoreFactory;
 import org.apache.giraph.edge.InMemoryEdgeStoreFactory;
 import org.apache.giraph.edge.OutEdges;
-import org.apache.giraph.factories.ComputationFactory;
-import org.apache.giraph.factories.DefaultComputationFactory;
-import org.apache.giraph.factories.DefaultEdgeValueFactory;
-import org.apache.giraph.factories.DefaultMessageValueFactory;
-import org.apache.giraph.factories.DefaultVertexIdFactory;
-import org.apache.giraph.factories.DefaultVertexValueFactory;
-import org.apache.giraph.factories.EdgeValueFactory;
-import org.apache.giraph.factories.MessageValueFactory;
-import org.apache.giraph.factories.VertexIdFactory;
-import org.apache.giraph.factories.VertexValueFactory;
+import org.apache.giraph.factories.*;
 import org.apache.giraph.graph.*;
 import org.apache.giraph.io.EdgeInputFormat;
 import org.apache.giraph.io.EdgeOutputFormat;
@@ -74,6 +65,8 @@ import org.apache.giraph.partition.SimplePartition;
 import org.apache.giraph.worker.DefaultWorkerContext;
 import org.apache.giraph.worker.WorkerContext;
 import org.apache.giraph.worker.WorkerObserver;
+import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.OutputFormat;
@@ -155,6 +148,21 @@ public interface GiraphConstants {
   PerGraphTypeBooleanConfOption GRAPH_TYPES_NEEDS_WRAPPERS =
       new PerGraphTypeBooleanConfOption("giraph.jython.type.wrappers",
           false, "Whether user graph types (IVEMM) need Jython wrappers");
+  // subgraph Value factory class -- OURS
+   ClassConfOption<SubgraphValueFactory> SUBGRAPH_VALUE_FACTORY_CLASS =
+          ClassConfOption.create("giraph.subgraphValueFactoryClass",
+                  DefaultSubgraphValueFactory.class, SubgraphValueFactory.class,
+                  "Subgraph Value Factory class- optional");
+
+  ClassConfOption<SubgraphVertexValueFactory> SUBGRAPH_VERTEX_VALUE_FACTORY_CLASS =
+          ClassConfOption.create("giraph.subgraphVertexValueFactoryClass",
+                  DefaultSubgraphVertexValueFactory.class, SubgraphVertexValueFactory.class,
+                  "Subgraph Value Factory class- optional");
+
+  ClassConfOption<EdgeIdFactory> EDGE_ID_FACTORY_CLASS =
+          ClassConfOption.create("giraph.edgeIdFactoryClass",
+                  DefaultEdgeIdFactory.class, EdgeIdFactory.class,
+                  "Edge ID Factory class - optional");
 
   /** Vertex id factory class - optional */
   ClassConfOption<VertexIdFactory> VERTEX_ID_FACTORY_CLASS =
@@ -291,8 +299,36 @@ public interface GiraphConstants {
   /** Vertex class */
   ClassConfOption<Vertex> VERTEX_CLASS =
       ClassConfOption.create("giraph.vertexClass",
-          Subgraph.class, Vertex.class,
+          DefaultVertex.class, Vertex.class,
           "Vertex class");
+// ours
+
+  ClassConfOption<WritableComparable> SUBGRAPH_ID_CLASS =
+          ClassConfOption.create("giraph.subgraphIdClass",
+                  LongWritable.class, WritableComparable.class,
+                  "Subgraph ID class");
+
+  ClassConfOption<WritableComparable> SUBGRAPH_VERTEX_ID_CLASS =
+          ClassConfOption.create("giraph.vertexIdClass",
+                  LongWritable.class, WritableComparable.class,
+                  "Vertex ID class");
+
+  ClassConfOption<WritableComparable> EDGE_ID_CLASS =
+          ClassConfOption.create("giraph.edgeIdClass",
+                  LongWritable.class, WritableComparable.class,
+                  "Edge ID class");
+
+  ClassConfOption<Writable> SUBGRAPH_VALUE_CLASS =
+          ClassConfOption.create("giraph.subgraphValueClass",
+                  DoubleWritable.class, Writable.class,
+                  "Subgraph value class");
+
+  ClassConfOption<Writable> SUBGRAPH_VERTEX_VALUE_CLASS =
+          ClassConfOption.create("giraph.subgraphVertexValueClass",
+                  DoubleWritable.class, Writable.class,
+                  "Subgraph vertex value class");
+
+// upto this point
   /** VertexOutputFormat class */
   ClassConfOption<VertexOutputFormat> VERTEX_OUTPUT_FORMAT_CLASS =
       ClassConfOption.create("giraph.vertexOutputFormatClass", null,

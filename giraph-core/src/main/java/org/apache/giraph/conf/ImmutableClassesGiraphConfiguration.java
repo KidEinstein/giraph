@@ -33,18 +33,8 @@ import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.edge.EdgeStoreFactory;
 import org.apache.giraph.edge.OutEdges;
 import org.apache.giraph.edge.ReusableEdge;
-import org.apache.giraph.factories.ComputationFactory;
-import org.apache.giraph.factories.EdgeValueFactory;
-import org.apache.giraph.factories.MessageValueFactory;
-import org.apache.giraph.factories.ValueFactories;
-import org.apache.giraph.factories.VertexIdFactory;
-import org.apache.giraph.factories.VertexValueFactory;
-import org.apache.giraph.graph.Computation;
-import org.apache.giraph.graph.Language;
-import org.apache.giraph.graph.MapperObserver;
-import org.apache.giraph.graph.Vertex;
-import org.apache.giraph.graph.VertexResolver;
-import org.apache.giraph.graph.VertexValueCombiner;
+import org.apache.giraph.factories.*;
+import org.apache.giraph.graph.*;
 import org.apache.giraph.io.EdgeInputFormat;
 import org.apache.giraph.io.EdgeOutputFormat;
 import org.apache.giraph.io.MappingInputFormat;
@@ -719,6 +709,45 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
   @SuppressWarnings("unchecked")
   public V createVertexValue() {
     return getVertexValueFactory().newInstance();
+  }
+
+  // For supporting subgraphs
+
+  public Class<? extends WritableComparable> getEdgeIdClass() {
+    return classes.getEdgeIdClass();
+  }
+
+  public Class<? extends Writable> getSubgraphValueClass() {
+    return classes.getSubgraphValueClass();
+  }
+
+  public Class<? extends Writable> getSubgraphVertexValueClass() {
+    return classes.getSubgraphVertexValueClass();
+  }
+
+  public SubgraphValueFactory<? extends Writable> getSubgraphValueFactory() {
+    return valueFactories.getSubgraphValueFactory();
+  }
+
+
+  public Writable createSubgraphValue() {
+    return getSubgraphValueFactory().newInstance();
+  }
+
+  public EdgeIdFactory<? extends Writable> getEdgeIdFactory() {
+    return valueFactories.getEdgeIdFactory();
+  }
+
+  public WritableComparable createEdgeId() {
+    return getEdgeIdFactory().newInstance();
+  }
+
+  public SubgraphVertexValueFactory<? extends Writable> getSubgraphVertexValueFactory() {
+    return valueFactories.getSubgraphVertexValueFactory();
+  }
+
+  public Writable getSubgraphVertexValue() {
+    return getSubgraphVertexValueFactory().newInstance();
   }
 
   /**

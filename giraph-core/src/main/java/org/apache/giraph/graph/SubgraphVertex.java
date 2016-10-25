@@ -1,11 +1,14 @@
 package org.apache.giraph.graph;
 
+import org.apache.giraph.conf.GiraphConstants;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.OutEdges;
+import org.apache.giraph.utils.ReflectionUtils;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+import org.weakref.jmx.com.google.common.reflect.Reflection;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -15,13 +18,13 @@ import java.io.IOException;
  * Created by anirudh on 27/09/16.
  */
 public class SubgraphVertex<S extends WritableComparable, I extends WritableComparable,
-        V extends Writable, E extends Writable> implements WritableComparable {
+        V extends Writable, E extends Writable, EI extends WritableComparable> implements WritableComparable {
     private SubgraphId<S> subgraphId;
     private I id;
     private V value;
-    private Iterable<Edge<I, E>> outEdges;
+    private Iterable<SubgraphEdge<I, E, EI>> outEdges;
 
-    public Iterable<Edge<I, E>> getOutEdges() {
+    public Iterable<SubgraphEdge<I, E, EI>> getOutEdges() {
         return outEdges;
     }
 
@@ -38,6 +41,8 @@ public class SubgraphVertex<S extends WritableComparable, I extends WritableComp
         return value;
     }
 
+
+    // TODO: Move to remote vertex
     public SubgraphId<S> getSubgraphId() {
         return subgraphId;
     }
@@ -46,7 +51,7 @@ public class SubgraphVertex<S extends WritableComparable, I extends WritableComp
         return false;
     }
 
-    public void initialize(SubgraphId<S> subgraphId, I vertexId, V value, Iterable<Edge<I, E>> edges) {
+    public void initialize(SubgraphId<S> subgraphId, I vertexId, V value, Iterable<SubgraphEdge<I, E, EI>> edges) {
         this.subgraphId = subgraphId;
         this.id = vertexId;
         this.value = value;
@@ -63,12 +68,17 @@ public class SubgraphVertex<S extends WritableComparable, I extends WritableComp
 
     @Override
     public void readFields(DataInput dataInput) throws IOException {
-        subgraphId = new SubgraphId<>();
+        // Getting the subgraph vertex internals
+        subgraphId = new SubgraphId<S>() {};
         subgraphId.readFields(dataInput);
-        id = (I) new LongWritable();
-        id.readFields(dataInput);
 
-        value = (V) new DoubleWritable();
+        Class<I> idClass = (Class<I>) GiraphConstants.SUBGRAPH_VERTEX_ID_CLASS.getDefaultClass();
+        id = ReflectionUtils.newInstance(idClass);
+
+        Class<V> valueClass = (Class<V>) GiraphConstants.SUBGRAPH_VERTEX_VALUE_CLASS.getDefaultClass();
+        value = ReflectionUtils.newInstance(valueClass);
+
+        id.readFields(dataInput);
         value.readFields(dataInput);
 
         // TODO: Read edges

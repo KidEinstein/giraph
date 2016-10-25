@@ -17,13 +17,11 @@
  */
 package org.apache.giraph.factories;
 
-import static org.apache.giraph.conf.GiraphConstants.EDGE_VALUE_FACTORY_CLASS;
-import static org.apache.giraph.conf.GiraphConstants.VERTEX_ID_FACTORY_CLASS;
-import static org.apache.giraph.conf.GiraphConstants.VERTEX_VALUE_FACTORY_CLASS;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+
+import static org.apache.giraph.conf.GiraphConstants.*;
 
 /**
  * Holder for factories to create user types.
@@ -45,6 +43,11 @@ public class ValueFactories<I extends WritableComparable,
   /** Edge value factory. */
   private final EdgeValueFactory<E> edgeValueFactory;
 
+  private final SubgraphValueFactory<? extends Writable> subgraphValueFactory;
+
+  private final SubgraphVertexValueFactory<? extends Writable> subgraphVertexValueFactory;
+
+  private final EdgeIdFactory<? extends WritableComparable> edgeIdFactory;
   /**
    * Constructor reading from Configuration
    *
@@ -54,6 +57,13 @@ public class ValueFactories<I extends WritableComparable,
     vertexIdFactory = VERTEX_ID_FACTORY_CLASS.newInstance(conf);
     vertexValueFactory = VERTEX_VALUE_FACTORY_CLASS.newInstance(conf);
     edgeValueFactory = EDGE_VALUE_FACTORY_CLASS.newInstance(conf);
+    subgraphValueFactory = SUBGRAPH_VALUE_FACTORY_CLASS.newInstance(conf);
+    subgraphVertexValueFactory = SUBGRAPH_VERTEX_VALUE_FACTORY_CLASS.newInstance(conf);
+    edgeIdFactory = EDGE_ID_FACTORY_CLASS.newInstance(conf);
+  }
+
+  public EdgeIdFactory<? extends WritableComparable> getEdgeIdFactory() {
+    return edgeIdFactory;
   }
 
   public EdgeValueFactory<E> getEdgeValueFactory() {
@@ -67,4 +77,15 @@ public class ValueFactories<I extends WritableComparable,
   public VertexValueFactory<V> getVertexValueFactory() {
     return vertexValueFactory;
   }
+
+  public SubgraphValueFactory<? extends Writable> getSubgraphValueFactory() {
+    return subgraphValueFactory;
+  }
+
+  public SubgraphVertexValueFactory<? extends Writable> getSubgraphVertexValueFactory() {
+    return subgraphVertexValueFactory;
+  }
+
+
+
 }

@@ -1,5 +1,7 @@
 package org.apache.giraph.graph;
 
+import org.apache.giraph.conf.GiraphConstants;
+import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.util.ReflectionUtils;
@@ -70,13 +72,8 @@ import java.lang.reflect.ParameterizedType;
 */
     @Override
     public void readFields(DataInput dataInput) throws IOException {
-        try {
-            subgraphId = (S) subgraphIdClass.newInstance();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e)  {
-            e.printStackTrace();
-        }
+        Class<S> subgraphIdClass = (Class<S>) GiraphConstants.SUBGRAPH_ID_CLASS.getDefaultClass();
+        subgraphId = ReflectionUtils.newInstance(subgraphIdClass, null);
         subgraphId.readFields(dataInput);
         partitionId = dataInput.readInt();
     }

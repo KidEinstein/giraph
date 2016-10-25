@@ -26,9 +26,9 @@ import java.io.IOException;
 
 
 public abstract class SubgraphComputation<S extends WritableComparable,
-        I extends WritableComparable, V extends WritableComparable, E extends Writable, M extends Writable, SV extends Writable> extends BasicComputation<SubgraphId<S>, SubgraphVertices<S, I, V, E>, E, M> {
+        I extends WritableComparable, V extends WritableComparable, E extends Writable, M extends Writable, SV extends Writable, EI extends WritableComparable> extends BasicComputation<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E, M> {
 
-    public abstract void compute(Subgraph<S, I, V, E, SV> subgraph, Iterable<M> messages) throws IOException;
+    public abstract void compute(Subgraph<S, I, V, E, SV, EI> subgraph, Iterable<M> messages) throws IOException;
 
     // TODO: Change to the goffishv3 API
 
@@ -37,7 +37,7 @@ public abstract class SubgraphComputation<S extends WritableComparable,
     // TODO: Have separate remote vertices interface
 
     @Override
-    public void compute(Vertex<SubgraphId<S>, SubgraphVertices<S, I, V, E>, E> vertex, Iterable<M> messages) throws IOException {
+    public void compute(Vertex<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E> vertex, Iterable<M> messages) throws IOException {
         compute((Subgraph)vertex, messages);
     }
 }

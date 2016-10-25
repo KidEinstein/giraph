@@ -5,30 +5,12 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
 /**
- * Created by anirudh on 27/09/16.
- * @param <S> Subgraph id
- * @param <I> Vertex id
- * @param <V> Vertex value
- * @param <E> Edge data
- * @param <SV> Subgraph Value type
- *
+ * Created by anirudh on 23/10/16.
  */
-public class Subgraph<S extends WritableComparable,
-        I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable>
-        extends DefaultVertex<SubgraphId<S>, SubgraphVertices<S, I, V, E> , E> {
+public interface Subgraph<S extends WritableComparable, I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable, EI extends WritableComparable> extends Vertex<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI> , E>{
+    Iterable<Edge<SubgraphId<S>, E>> getRemoteEdges();
 
-    private Iterable<SubgraphVertex<S, I, Writable, E>> remoteVertices;
+    Iterable<SubgraphVertex<S, I, Writable, E, EI>> getRemoteVertices();
 
-    public Iterable<Edge<SubgraphId<S>, E>> getRemoteEdges() {
-        return getEdges();
-    }
-
-    public Iterable<SubgraphVertex<S, I, Writable, E>> getRemoteVertices() {
-        return remoteVertices;
-    }
-
-    public SubgraphVertices<S, I, V, E> getSubgraphVertices() {
-        return getValue();
-    }
-
+    SubgraphVertices<S, I, V, E, SV, EI> getSubgraphVertices();
 }

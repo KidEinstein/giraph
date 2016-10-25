@@ -97,7 +97,7 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
 
         @Override
         public SubgraphVertex readVertex(SubgraphId<LongWritable> sid, String[] line) throws IOException{
-            SubgraphVertex subgraphVertex = new SubgraphVertex();
+            SubgraphVertex subgraphVertex = new SubgraphVertex() {};
             subgraphVertex.initialize(sid, getVId(line), getValue(line), getVertexEdges(line));
             return subgraphVertex;
         }
