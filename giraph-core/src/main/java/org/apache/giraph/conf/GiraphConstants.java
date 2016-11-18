@@ -65,10 +65,7 @@ import org.apache.giraph.partition.SimplePartition;
 import org.apache.giraph.worker.DefaultWorkerContext;
 import org.apache.giraph.worker.WorkerContext;
 import org.apache.giraph.worker.WorkerObserver;
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.OutputFormat;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -164,6 +161,18 @@ public interface GiraphConstants {
                   DefaultEdgeIdFactory.class, EdgeIdFactory.class,
                   "Edge ID Factory class - optional");
 
+  ClassConfOption<SubgraphIdFactory> SUBGRAPH_ID_FACTORY_CLASS =
+          ClassConfOption.create("giraph.subgraphIdFactoryClass",
+                  DefaultSubgraphIdFactory.class, SubgraphIdFactory.class,
+                  "Subgraph ID Factory class - optional");
+
+
+  ClassConfOption<SubgraphVertexIdFactory> SUBGRAPH_VERTEX_ID_FACTORY_CLASS =
+      ClassConfOption.create("giraph.subgraphIdFactoryClass",
+          DefaultSubgraphVertexIdFactory.class, SubgraphVertexIdFactory.class,
+          "Subgraph Vertex ID Factory class - optional");
+
+  // END OURS
   /** Vertex id factory class - optional */
   ClassConfOption<VertexIdFactory> VERTEX_ID_FACTORY_CLASS =
       ClassConfOption.create("giraph.vertexIdFactoryClass",
@@ -302,7 +311,9 @@ public interface GiraphConstants {
           DefaultVertex.class, Vertex.class,
           "Vertex class");
 // ours
-
+  BooleanConfOption IS_SUBGRAPH_COMPUTATION =
+        new BooleanConfOption("giraph.subgraphComputation", false,
+                "Use Giraph for Subgraph input");
   ClassConfOption<WritableComparable> SUBGRAPH_ID_CLASS =
           ClassConfOption.create("giraph.subgraphIdClass",
                   LongWritable.class, WritableComparable.class,

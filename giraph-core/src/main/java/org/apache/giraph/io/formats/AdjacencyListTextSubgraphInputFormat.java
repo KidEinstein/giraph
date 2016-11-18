@@ -19,8 +19,10 @@ package org.apache.giraph.io.formats;
 
 import com.google.common.collect.Lists;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import org.apache.giraph.edge.Edge;
+import org.apache.giraph.graph.SubgraphEdge;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -148,13 +150,13 @@ public abstract class AdjacencyListTextSubgraphInputFormat<I extends
         public abstract DoubleWritable decodeValue(String s);
 
         @Override
-        protected Iterable<Edge<LongWritable, NullWritable>> getVertexEdges(String[] values) throws
+        protected LinkedList<SubgraphEdge> getVertexEdges(String[] values) throws
                 IOException {
             int i = 2;
-            List<Edge<LongWritable, NullWritable>> edges = Lists.newLinkedList();
+            LinkedList<SubgraphEdge> edges = Lists.newLinkedList();
             while (i < values.length) {
                 edges.add(decodeVertexEdge(values[i]));
-                i += 2;
+                i += 1;
             }
             return edges;
         }
@@ -163,10 +165,9 @@ public abstract class AdjacencyListTextSubgraphInputFormat<I extends
          * Decode an edge from the line into an instance of a correctly typed Edge
          *
          * @param id The edge's id from the line
-         * @param value The edge's value from the line
          * @return Edge with given target id and value
          */
-        public abstract Edge<LongWritable, NullWritable> decodeVertexEdge(String id);
+        public abstract SubgraphEdge decodeVertexEdge(String id);
 
         public abstract Edge<I, E> decodeSubgraphEdge(String sid, String pid);
 
@@ -178,7 +179,7 @@ public abstract class AdjacencyListTextSubgraphInputFormat<I extends
             int i = 2;
             List<Edge<I, E>> edges = Lists.newLinkedList();
             while (i < values.length) {
-                // TODO: No subgraph value
+                // TODO: Add subgraph value in our data input format
                 edges.add(decodeSubgraphEdge(values[i], values[i + 1]));
                 i += 2;
             }

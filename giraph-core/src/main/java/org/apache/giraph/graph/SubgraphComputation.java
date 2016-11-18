@@ -21,8 +21,8 @@ import java.io.IOException;
 // E edge value type    -- E is the edge value
 // M msg object type    -- M is the message value type
 // I vertex id      --- I is the vertex id here
-// J edge id        --
-// K subgraph id
+// J edge id        -- EI
+// K subgraph id  ---- S
 
 
 public abstract class SubgraphComputation<S extends WritableComparable,
@@ -30,11 +30,7 @@ public abstract class SubgraphComputation<S extends WritableComparable,
 
     public abstract void compute(Subgraph<S, I, V, E, SV, EI> subgraph, Iterable<M> messages) throws IOException;
 
-    // TODO: Change to the goffishv3 API
-
     // TODO: Take care of state changes for the subgraph passed
-
-    // TODO: Have separate remote vertices interface
 
     @Override
     public void compute(Vertex<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E> vertex, Iterable<M> messages) throws IOException {

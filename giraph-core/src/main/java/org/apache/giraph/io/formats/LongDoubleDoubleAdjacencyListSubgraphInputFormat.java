@@ -1,12 +1,9 @@
 package org.apache.giraph.io.formats;
 
 import com.google.common.collect.Lists;
-import org.apache.giraph.edge.DefaultEdge;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;
-import org.apache.giraph.graph.SubgraphId;
-import org.apache.giraph.graph.SubgraphVertex;
-import org.apache.giraph.graph.SubgraphVertices;
+import org.apache.giraph.graph.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -33,14 +30,15 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
             AdjacencyListTextSubgraphReader {
 
         @Override
-        public Edge<LongWritable, NullWritable> decodeVertexEdge(String id) {
+        public SubgraphEdge<LongWritable, NullWritable, NullWritable> decodeVertexEdge(String id) {
             LongWritable vertexId = new LongWritable(Long.parseLong(id));
-            Edge<LongWritable, NullWritable> edge = EdgeFactory.create(vertexId);
-            return edge;
+            DefaultSubgraphEdge<LongWritable, NullWritable, NullWritable> subgraphEdge = new DefaultSubgraphEdge<>();
+            subgraphEdge.initialize(null, null, vertexId);
+            return subgraphEdge;
         }
 
         @Override
-        public SubgraphVertices getSubgraphVertices(SubgraphId<LongWritable> sid) throws IOException, InterruptedException {
+        public SubgraphVertices getSubgraphVertices() throws IOException, InterruptedException {
             SubgraphVertices subgraphVertices = new SubgraphVertices();
             LinkedList<SubgraphVertex> subgraphVerticesList = Lists.newLinkedList();
             while (getRecordReader().nextKeyValue()) {
@@ -50,7 +48,7 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
                 Text vertexLine = getRecordReader().getCurrentValue();
                 String[] processedLine = preprocessLine(vertexLine);
 
-                SubgraphVertex subgraphVertex = readVertex(sid, processedLine);
+                SubgraphVertex subgraphVertex = readVertex(processedLine);
                 subgraphVerticesList.add(subgraphVertex);
 
             }
@@ -96,9 +94,9 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
 
 
         @Override
-        public SubgraphVertex readVertex(SubgraphId<LongWritable> sid, String[] line) throws IOException{
-            SubgraphVertex subgraphVertex = new SubgraphVertex() {};
-            subgraphVertex.initialize(sid, getVId(line), getValue(line), getVertexEdges(line));
+        public SubgraphVertex readVertex(String[] line) throws IOException{
+            SubgraphVertex subgraphVertex = new DefaultSubgraphVertex();
+            subgraphVertex.initialize(getVId(line), getValue(line), getVertexEdges(line));
             return subgraphVertex;
         }
 
@@ -113,7 +111,7 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
         @Override
         public SubgraphId<LongWritable> getSId(String[] line) {
             SubgraphId<LongWritable> subgraphId = new SubgraphId<LongWritable>(decodeSId(line[0]), decodePId(line[1]));
-            System.out.println("SID: " + subgraphId.getSubgraphId() + " PID: " + subgraphId.getPartitionId());
+            System.out.println("SD: " + subgraphId.getSubgraphId() + " PID: " + subgraphId.getPartitionId());
             return subgraphId;
         }
     }

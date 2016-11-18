@@ -48,6 +48,10 @@ public class ValueFactories<I extends WritableComparable,
   private final SubgraphVertexValueFactory<? extends Writable> subgraphVertexValueFactory;
 
   private final EdgeIdFactory<? extends WritableComparable> edgeIdFactory;
+
+  private final SubgraphIdFactory<? extends WritableComparable> subgraphIdFactory;
+
+  private final SubgraphVertexIdFactory<? extends WritableComparable> subgraphVertexIdFactory;
   /**
    * Constructor reading from Configuration
    *
@@ -60,6 +64,8 @@ public class ValueFactories<I extends WritableComparable,
     subgraphValueFactory = SUBGRAPH_VALUE_FACTORY_CLASS.newInstance(conf);
     subgraphVertexValueFactory = SUBGRAPH_VERTEX_VALUE_FACTORY_CLASS.newInstance(conf);
     edgeIdFactory = EDGE_ID_FACTORY_CLASS.newInstance(conf);
+    subgraphIdFactory = SUBGRAPH_ID_FACTORY_CLASS.newInstance(conf);
+    subgraphVertexIdFactory = SUBGRAPH_VERTEX_ID_FACTORY_CLASS.newInstance(conf);
   }
 
   public EdgeIdFactory<? extends WritableComparable> getEdgeIdFactory() {
@@ -84,6 +90,14 @@ public class ValueFactories<I extends WritableComparable,
 
   public SubgraphVertexValueFactory<? extends Writable> getSubgraphVertexValueFactory() {
     return subgraphVertexValueFactory;
+  }
+
+  public SubgraphIdFactory<? extends WritableComparable> getSubgraphIdFactory() {
+    return subgraphIdFactory;
+  }
+
+  public SubgraphVertexIdFactory<? extends WritableComparable> getSubgraphVertexIdFactory() {
+    return subgraphVertexIdFactory;
   }
 
 

@@ -160,6 +160,7 @@ public class SimplePartitionStore<I extends WritableComparable,
         new VertexIterator<I, V, E>(extendedDataOutput, conf);
 
     Partition<I, V, E> partition = getOrCreatePartition(partitionId);
+    System.out.println("SimplePartitionStore: addPartitionVertices" + partitionId);
     partition.addPartitionVertices(vertexIterator);
     putPartition(partition);
   }

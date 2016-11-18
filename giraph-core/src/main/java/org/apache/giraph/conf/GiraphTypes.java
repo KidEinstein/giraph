@@ -55,6 +55,10 @@ public class GiraphTypes<I extends WritableComparable, V extends Writable,
 
   private Class<? extends Writable> subgraphVertexValueClass;
 
+  private Class<? extends WritableComparable> subgraphIdClass;
+
+  private Class<? extends WritableComparable> subgraphVertexIdClass;
+
   /**
    * Empty Constructor
    */
@@ -133,6 +137,8 @@ public class GiraphTypes<I extends WritableComparable, V extends Writable,
     edgeIdClass = EDGE_ID_CLASS.get(conf);
     subgraphValueClass = SUBGRAPH_VALUE_CLASS.get(conf);
     subgraphVertexValueClass = SUBGRAPH_VERTEX_VALUE_CLASS.get(conf);
+    subgraphIdClass = SUBGRAPH_ID_CLASS.get(conf);
+    subgraphVertexIdClass = SUBGRAPH_VERTEX_ID_CLASS.get(conf);
   }
 
   /**
@@ -191,6 +197,15 @@ public class GiraphTypes<I extends WritableComparable, V extends Writable,
     return vertexClass;
   }
 
+  public Class<? extends WritableComparable> getSubgraphIdClass() {
+    return subgraphIdClass;
+  }
+
+  public Class<? extends WritableComparable> getSubgraphVertexIdClass() {
+    return subgraphVertexIdClass;
+  }
+
+
   public Class<? extends WritableComparable> getEdgeIdClass() {
     return edgeIdClass;
   }
@@ -202,8 +217,6 @@ public class GiraphTypes<I extends WritableComparable, V extends Writable,
   public Class<? extends Writable> getSubgraphVertexValueClass() {
     return subgraphVertexValueClass;
   }
-
-
 
   public void setEdgeValueClass(Class<E> edgeValueClass) {
     this.edgeValueClass = edgeValueClass;

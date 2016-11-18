@@ -4,13 +4,19 @@ import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
+import java.util.LinkedList;
+
 /**
  * Created by anirudh on 23/10/16.
  */
-public interface Subgraph<S extends WritableComparable, I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable, EI extends WritableComparable> extends Vertex<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI> , E>{
-    Iterable<Edge<SubgraphId<S>, E>> getRemoteEdges();
+public interface Subgraph<S extends WritableComparable,
+    I extends WritableComparable, V extends Writable,
+    E extends Writable, SV extends Writable, EI extends WritableComparable>
+    extends Vertex<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E> {
 
-    Iterable<SubgraphVertex<S, I, Writable, E, EI>> getRemoteVertices();
+  LinkedList<RemoteSubgraphVertex<S, I, V, E, EI>> getRemoteVertices();
 
-    SubgraphVertices<S, I, V, E, SV, EI> getSubgraphVertices();
+  SubgraphVertices<S, I, V, E, SV, EI> getSubgraphVertices();
+
+  void setRemoteVertices(LinkedList<RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices);
 }

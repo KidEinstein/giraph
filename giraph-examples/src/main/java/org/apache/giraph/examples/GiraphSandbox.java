@@ -11,9 +11,9 @@ import java.io.IOException;
  */
 
 // TODO: make a edge class and 
-public class GiraphSandbox extends SubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, NullWritable, LongWritable> {
+public class GiraphSandbox extends SubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, Text, NullWritable, LongWritable> {
     @Override
-    public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<NullWritable> messages) throws IOException {
+    public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<Text> messages) throws IOException {
         System.out.print("Hello world from the: " +
                 subgraph.getId().getSubgraphId() + " who is following:");
         // iterating over vertex's neighbors

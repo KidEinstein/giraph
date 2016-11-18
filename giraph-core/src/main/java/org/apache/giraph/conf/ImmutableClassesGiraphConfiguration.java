@@ -713,6 +713,24 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
 
   // For supporting subgraphs
 
+  public SubgraphIdFactory<? extends WritableComparable> getSubgraphIdFactory() {
+    return valueFactories.getSubgraphIdFactory();
+  }
+
+  public WritableComparable createSubgraphId() {
+    return getSubgraphIdFactory().newInstance();
+  }
+
+
+
+  public Class<? extends WritableComparable> getSubgraphIdClass() {
+    return classes.getSubgraphIdClass();
+  }
+
+  public Class<? extends WritableComparable> getSubgraphVertexIdClass() {
+    return classes.getSubgraphVertexIdClass();
+  }
+
   public Class<? extends WritableComparable> getEdgeIdClass() {
     return classes.getEdgeIdClass();
   }
@@ -729,7 +747,6 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
     return valueFactories.getSubgraphValueFactory();
   }
 
-
   public Writable createSubgraphValue() {
     return getSubgraphValueFactory().newInstance();
   }
@@ -744,6 +761,18 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
 
   public SubgraphVertexValueFactory<? extends Writable> getSubgraphVertexValueFactory() {
     return valueFactories.getSubgraphVertexValueFactory();
+  }
+
+  public Writable createSubgraphVertexValue() {
+    return getSubgraphVertexValueFactory().newInstance();
+  }
+
+  public SubgraphVertexIdFactory<? extends WritableComparable> getSubgraphVertexIdFactory() {
+    return valueFactories.getSubgraphVertexIdFactory();
+  }
+
+  public WritableComparable createSubgraphVertexId() {
+    return getSubgraphVertexIdFactory().newInstance();
   }
 
   public Writable getSubgraphVertexValue() {
