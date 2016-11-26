@@ -16,6 +16,6 @@ public class SubgraphMasterCompute extends DefaultMasterCompute {
     } else if (superstep == 2) {
       setComputation(RemoteVerticesFinder3.class);
     } else
-      setComputation(GiraphSandbox.class);
+      setComputation(SubgraphConnectedComponents.class);
   }
 }

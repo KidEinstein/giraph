@@ -8,6 +8,7 @@ import org.apache.hadoop.io.WritableComparable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
@@ -22,30 +23,39 @@ public class SubgraphVertices<S extends WritableComparable,
         I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable, EI extends WritableComparable> implements Writable {
     private long numVertices;
 
-    private LinkedList<SubgraphVertex<S, I, V, E, EI>> vertices;
-
+    private SV subgraphValue;
+    private HashMap<I, SubgraphVertex<S, I, V, E, EI>> vertices;
     public SubgraphVertices() {
-        System.out.println("Calling subgraph vertices constructor");
+//        System.out.println("Calling subgraph vertices constructor");
         try {
-            System.out.println("Inside try");
+//            System.out.println("Inside try");
             throw new Exception("Calling constructor");
         } catch(Exception e) {
-            System.out.println("Inside catch");
-            e.printStackTrace(System.out);
+//            System.out.println("Inside catch");
+//            e.printStackTrace(System.out);
             e.printStackTrace();
         }
     }
+
+
+    public SV getSubgraphValue() {
+        return subgraphValue;
+    }
+
+    public void setSubgraphValue(SV subgraphValue) {
+        this.subgraphValue = subgraphValue;
+    }
+
 
     public long getNumVertices() {
         return vertices.size();
     }
 
-    public LinkedList<SubgraphVertex<S, I, V, E, EI>> getVertices() {
+    public HashMap<I,SubgraphVertex<S, I, V, E, EI>> getVertices() {
         return vertices;
     }
 
-    public void initialize(LinkedList<SubgraphVertex<S, I, V, E, EI>> vertices) {
-        // TODO: Log usage
+    public void initialize(HashMap<I, SubgraphVertex<S, I, V, E, EI>> vertices) {
         this.vertices = vertices;
     }
 
@@ -57,46 +67,36 @@ public class SubgraphVertices<S extends WritableComparable,
 
     @Override
     public void write(DataOutput dataOutput) throws IOException {
+        subgraphValue.write(dataOutput);
         dataOutput.writeInt(vertices.size());
-        for (SubgraphVertex<S, I, V, E, EI> vertex : getVertices()) {
+        for (SubgraphVertex<S, I, V, E, EI> vertex : vertices.values()) {
             vertex.write(dataOutput);
         }
     }
 
     @Override
     public void readFields(DataInput dataInput) throws IOException {
-        try {
-            System.out.println("Read field for subgraph vertices without conf");
-            throw new Exception("Calling readFields without conf");
-        } catch(Exception e) {
-            System.out.println("Inside catch");
-            e.printStackTrace(System.out);
-            e.printStackTrace();
-        }
-        int numVertices = dataInput.readInt();
-        vertices = Lists.newLinkedList();
-        for (int i = 0; i < numVertices; i++) {
-            SubgraphVertex<S, I, V, E, EI> subgraphVertex = new DefaultSubgraphVertex<S, I, V, E, EI>();
-            subgraphVertex.readFields(dataInput);
-            vertices.add(subgraphVertex);
-        }
+        throw new UnsupportedOperationException("read fields without conf is not supported");
     }
+
 
     public void readFields(ImmutableClassesGiraphConfiguration conf, DataInput dataInput) throws IOException {
         try {
-            System.out.println("Read field for subgraph vertices with conf");
+//            System.out.println("Read field for subgraph vertices with conf");
             throw new Exception();
         } catch(Exception e) {
-            System.out.println("Calling readFields with conf");
+//            System.out.println("Calling readFields with conf");
             e.printStackTrace(System.out);
             e.printStackTrace();
         }
+        subgraphValue = (SV) conf.createSubgraphValue();
+        subgraphValue.readFields(dataInput);
         int numVertices = dataInput.readInt();
-        vertices = Lists.newLinkedList();
+        vertices = new HashMap<>();
         for (int i = 0; i < numVertices; i++) {
             SubgraphVertex<S, I, V, E, EI> subgraphVertex = new DefaultSubgraphVertex<S, I, V, E, EI>();
             subgraphVertex.readFields(conf, dataInput);
-            vertices.add(subgraphVertex);
+            vertices.put(subgraphVertex.getId(), subgraphVertex);
         }
     }
 

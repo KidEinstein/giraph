@@ -30,7 +30,6 @@ public class DefaultRemoteSubgraphVertex<S extends WritableComparable,
 
   @Override
   public V getValue() {
-    // TODO: Throw exception
-    return null;
+    throw new UnsupportedOperationException("getValue() not supported for remote vertices");
   }
 }

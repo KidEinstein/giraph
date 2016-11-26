@@ -100,8 +100,6 @@ public class DefaultSubgraphVertex<S extends WritableComparable, I extends Writa
     }
 
 
-    //TODO: Do we need hashcode
-
 
 
 }

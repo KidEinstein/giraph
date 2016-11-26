@@ -18,16 +18,13 @@ import java.util.LinkedList;
 public class RemoteVerticesFinder2 extends SubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, Text, NullWritable, LongWritable> {
   @Override
   public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<Text> messages) throws IOException {
-    System.out.println("Messages: ");
-    System.out.println(messages);
     HashSet<LongWritable> vertexHashSet = new HashSet<>();
     SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
     System.out.println("Subgraph ID: " + subgraph.getId().getSubgraphId());
     System.out.println("SV: " + subgraphVertices);
     System.out.println("SV Linked List: " + subgraphVertices.getVertices());
-    for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> sv : subgraphVertices.getVertices()) {
+    for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> sv : subgraphVertices.getVertices().values()) {
       vertexHashSet.add(sv.getId());
-      System.out.println("santa claus vertex id : " + sv.getId());
     }
     for (Text message : messages) {
       LinkedList<LongWritable> vertexIdsFound = new LinkedList();
@@ -36,16 +33,14 @@ public class RemoteVerticesFinder2 extends SubgraphComputation<LongWritable, Lon
       SubgraphId<LongWritable> senderSubgraphId = new SubgraphId<>();
       ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(message.getBytes());
       senderSubgraphId.readFields(dataInput);
-      System.out.println("captain america sender subgraphID for each message is : " + senderSubgraphId);
+      System.out.println("Sender subgraphID for each message is : " + senderSubgraphId);
       int numVertices = dataInput.readInt();
-      System.out.println("captain america sender no of vertices for each message is : " + numVertices);
+      System.out.println("Sender number of vertices for each message is : " + numVertices);
 
       for (int i = 0; i < numVertices; i++) {
         LongWritable vertexId = new LongWritable();
         vertexId.readFields(dataInput);
-        System.out.println("captain america vertices that he does not own for each message is : " + vertexId);
         if (vertexHashSet.contains(vertexId)) {
-          System.out.println("shaktiman vertex id found in my hashset: " + vertexId);
           vertexIdsFound.add(vertexId);
         }
       }

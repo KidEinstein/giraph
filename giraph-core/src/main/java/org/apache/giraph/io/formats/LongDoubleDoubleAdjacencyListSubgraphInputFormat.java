@@ -9,6 +9,7 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
@@ -39,8 +40,8 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
 
         @Override
         public SubgraphVertices getSubgraphVertices() throws IOException, InterruptedException {
-            SubgraphVertices subgraphVertices = new SubgraphVertices();
-            LinkedList<SubgraphVertex> subgraphVerticesList = Lists.newLinkedList();
+            SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable> subgraphVertices = new SubgraphVertices();
+            HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> subgraphVerticesMap = new HashMap<>();
             while (getRecordReader().nextKeyValue()) {
                 // take all info from each line
 
@@ -48,11 +49,11 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
                 Text vertexLine = getRecordReader().getCurrentValue();
                 String[] processedLine = preprocessLine(vertexLine);
 
-                SubgraphVertex subgraphVertex = readVertex(processedLine);
-                subgraphVerticesList.add(subgraphVertex);
-
+                SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> subgraphVertex = readVertex(processedLine);
+                subgraphVerticesMap.put(subgraphVertex.getId(), subgraphVertex);
             }
-            subgraphVertices.initialize(subgraphVerticesList);
+            subgraphVertices.initialize(subgraphVerticesMap);
+            subgraphVertices.setSubgraphValue(new LongWritable());
             return subgraphVertices;
         }
 

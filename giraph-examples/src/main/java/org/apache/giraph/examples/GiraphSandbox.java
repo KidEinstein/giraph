@@ -24,7 +24,7 @@ public class GiraphSandbox extends SubgraphComputation<LongWritable, LongWritabl
         System.out.println("Internal contents");
         SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
 
-        for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> vertex : subgraphVertices.getVertices()) {
+        for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> vertex : subgraphVertices.getVertices().values()) {
             System.out.println("Vertex: " + vertex.getId());
         }
 

@@ -20,7 +20,7 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
     SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
     System.out.println("SV in 1 : " + subgraphVertices);
     System.out.println("SV Linked List in 1 : " + subgraphVertices.getVertices());
-    for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> sv : subgraphVertices.getVertices()) {
+    for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> sv : subgraphVertices.getVertices().values()) {
       System.out.println("Subgraph Vertex: " + sv.getId());
       vertexHashSet.add(sv.getId());
     }
@@ -30,22 +30,22 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
     Text t = new Text();
     ExtendedByteArrayDataOutput dataOutput = new ExtendedByteArrayDataOutput();
 
-    for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> sv : subgraphVertices.getVertices()) {
+    for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> sv : subgraphVertices.getVertices().values()) {
 
       for (SubgraphEdge<LongWritable, DoubleWritable, LongWritable> se : sv.getOutEdges()) {
-        System.out.println("batman subgraph edges sinks  : " + se.getSinkVertexId());
+        System.out.println("Subgraph edges' sinks  : " + se.getSinkVertexId());
 
         if (!vertexHashSet.contains(se.getSinkVertexId())) {
-          System.out.println("batman parent subgraph not contains the vertex id  : " + se.getSinkVertexId());
+          System.out.println("Parent subgraph does not contain the vertex id  : " + se.getSinkVertexId());
           remoteVertexIds.add(se.getSinkVertexId());
         }
       }
     }
 
     subgraph.getId().write(dataOutput);
-    System.out.println("Batman sender subgraphID is : " + subgraph.getId());
+    System.out.println("Sender subgraphID is : " + subgraph.getId());
     dataOutput.writeInt(remoteVertexIds.size());
-    System.out.println("batman sender number of remote vertices are  : " + remoteVertexIds.size());
+    System.out.println("Sender number of remote vertices are  : " + remoteVertexIds.size());
 
     for (LongWritable remoteSubgraphVertexId : remoteVertexIds) {
       remoteSubgraphVertexId.write(dataOutput);
