@@ -9,6 +9,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -18,14 +19,12 @@ import java.util.LinkedList;
 public class RemoteVerticesFinder2 extends SubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, Text, NullWritable, LongWritable> {
   @Override
   public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<Text> messages) throws IOException {
-    HashSet<LongWritable> vertexHashSet = new HashSet<>();
     SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
     System.out.println("Subgraph ID: " + subgraph.getId().getSubgraphId());
     System.out.println("SV: " + subgraphVertices);
-    System.out.println("SV Linked List: " + subgraphVertices.getVertices());
-    for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> sv : subgraphVertices.getVertices().values()) {
-      vertexHashSet.add(sv.getId());
-    }
+    HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> vertices = subgraphVertices.getVertices();
+    System.out.println("SV Linked List: " + vertices);
+
     for (Text message : messages) {
       LinkedList<LongWritable> vertexIdsFound = new LinkedList();
       Text t = new Text();
@@ -40,7 +39,7 @@ public class RemoteVerticesFinder2 extends SubgraphComputation<LongWritable, Lon
       for (int i = 0; i < numVertices; i++) {
         LongWritable vertexId = new LongWritable();
         vertexId.readFields(dataInput);
-        if (vertexHashSet.contains(vertexId)) {
+        if (vertices.containsKey(vertexId)) {
           vertexIdsFound.add(vertexId);
         }
       }
