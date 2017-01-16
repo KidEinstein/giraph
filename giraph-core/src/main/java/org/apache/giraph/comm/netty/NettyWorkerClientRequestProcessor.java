@@ -225,6 +225,7 @@ public class NettyWorkerClientRequestProcessor<I extends WritableComparable,
         vertexIdMessages.add(vertexId, message);
       }
       if (vertexIdMessages.getSize() > maxMessagesSizePerWorker) {
+        LOG.info("Test, Message Size: " + vertexIdMessages.getSize() + "Destination: "+ partitionId);
         WritableRequest messagesRequest =
             new SendPartitionCurrentMessagesRequest<I, V, E, Writable>(
             partitionId, vertexIdMessages);
