@@ -40,6 +40,11 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.log4j.Logger;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryType;
+import java.lang.management.MemoryUsage;
+
 /**
  * Aggregates the messages to be sent to workers so they can be sent
  * in bulk.  Not thread-safe.
@@ -107,6 +112,7 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
    */
   public int addMessage(WorkerInfo workerInfo,
                         int partitionId, I destVertexId, M message) {
+    LOG.info("Calling addMessage");
     return addData(workerInfo, partitionId, destVertexId, message);
   }
 
@@ -157,6 +163,7 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
    * @param message      The message sent to the target
    */
   public void sendMessageRequest(I destVertexId, M message) {
+    LOG.info("Calling sendMessageRequest");
     PartitionOwner owner =
         getServiceWorker().getVertexPartitionOwner(destVertexId);
     WorkerInfo workerInfo = owner.getWorkerInfo();
@@ -242,7 +249,15 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
     int count = 0;
     while (vertexIdIterator.hasNext()) {
       if (count % 100 == 0) {
-        LOG.info("Free memory: " + freeMemoryMB());
+        for (MemoryPoolMXBean mpBean: ManagementFactory.getMemoryPoolMXBeans()) {
+          if (mpBean.getType() == MemoryType.HEAP) {
+            System.out.printf(
+                "Test, Name: %s: %s\n",
+                mpBean.getName(), mpBean.getUsage()
+            );
+          }
+        }
+        LOG.info("Test, Free memory: " + freeMemoryMB());
         LOG.info("Test, Count: " + count);
       }
       count++;
