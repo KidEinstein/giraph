@@ -125,6 +125,7 @@ public class NettyWorkerClientRequestProcessor<I extends WritableComparable,
       ImmutableClassesGiraphConfiguration<I, V, E> conf,
       CentralizedServiceWorker<I, V, E> serviceWorker,
       boolean useOneMessageToManyIdsEncoding) {
+    LOG.info("Test, MESSAGE_ENCODE_AND_STORE_TYPE: " + GiraphConfiguration.MESSAGE_ENCODE_AND_STORE_TYPE.get(conf));
     this.workerClient = serviceWorker.getWorkerClient();
     this.configuration = conf;
 
@@ -225,6 +226,7 @@ public class NettyWorkerClientRequestProcessor<I extends WritableComparable,
         vertexIdMessages.add(vertexId, message);
       }
       if (vertexIdMessages.getSize() > maxMessagesSizePerWorker) {
+        LOG.info("Test, Message Size: " + vertexIdMessages.getSize() + "Destination: "+ partitionId);
         WritableRequest messagesRequest =
             new SendPartitionCurrentMessagesRequest<I, V, E, Writable>(
             partitionId, vertexIdMessages);

@@ -22,10 +22,10 @@ public class SubgraphConnectedComponents extends SubgraphComputation<LongWritabl
     } else {
       long myMin = subgraph.getSubgraphVertices().getSubgraphValue().get();
       long currentMin = myMin;
-      System.out.println("My Min: " + myMin);
+      //System.out.println("My Min: " + myMin);
       for (LongWritable message : messages) {
         long neighborMin = message.get();
-        System.out.println("Message from neighbor: " + neighborMin);
+        //System.out.println("Message from neighbor: " + neighborMin);
         if (neighborMin < currentMin) {
           currentMin = neighborMin;
         }

@@ -26,15 +26,15 @@ public class SubgraphVertices<S extends WritableComparable,
     private SV subgraphValue;
     private HashMap<I, SubgraphVertex<S, I, V, E, EI>> vertices;
     public SubgraphVertices() {
-//        System.out.println("Calling subgraph vertices constructor");
-        try {
-//            System.out.println("Inside try");
-            throw new Exception("Calling constructor");
-        } catch(Exception e) {
-//            System.out.println("Inside catch");
-//            e.printStackTrace(System.out);
-            e.printStackTrace();
-        }
+////        System.out.println("Calling subgraph vertices constructor");
+//        try {
+////            System.out.println("Inside try");
+//            throw new Exception("Calling constructor");
+//        } catch(Exception e) {
+////            System.out.println("Inside catch");
+////            e.printStackTrace(System.out);
+//            e.printStackTrace();
+//        }
     }
 
 
@@ -81,14 +81,14 @@ public class SubgraphVertices<S extends WritableComparable,
 
 
     public void readFields(ImmutableClassesGiraphConfiguration conf, DataInput dataInput) throws IOException {
-        try {
-//            System.out.println("Read field for subgraph vertices with conf");
-            throw new Exception();
-        } catch(Exception e) {
-//            System.out.println("Calling readFields with conf");
-            e.printStackTrace(System.out);
-            e.printStackTrace();
-        }
+//        try {
+////            System.out.println("Read field for subgraph vertices with conf");
+//            throw new Exception();
+//        } catch(Exception e) {
+////            System.out.println("Calling readFields with conf");
+//            e.printStackTrace(System.out);
+//            e.printStackTrace();
+//        }
         subgraphValue = (SV) conf.createSubgraphValue();
         subgraphValue.readFields(dataInput);
         int numVertices = dataInput.readInt();

@@ -20,6 +20,7 @@ package org.apache.giraph.comm;
 
 import static org.apache.giraph.conf.GiraphConstants.ADDITIONAL_MSG_REQUEST_SIZE;
 import static org.apache.giraph.conf.GiraphConstants.MAX_MSG_REQUEST_SIZE;
+import static org.apache.giraph.utils.MemoryUtils.freeMemoryMB;
 
 import java.util.Iterator;
 
@@ -39,6 +40,11 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.log4j.Logger;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryType;
+import java.lang.management.MemoryUsage;
+
 /**
  * Aggregates the messages to be sent to workers so they can be sent
  * in bulk.  Not thread-safe.
@@ -49,29 +55,40 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("unchecked")
 public class SendMessageCache<I extends WritableComparable, M extends Writable>
     extends SendVertexIdDataCache<I, M, VertexIdMessages<I, M>> {
-  /** Class logger */
+  /**
+   * Class logger
+   */
   private static final Logger LOG =
       Logger.getLogger(SendMessageCache.class);
-  /** Messages sent during the last superstep */
+  /**
+   * Messages sent during the last superstep
+   */
   protected long totalMsgsSentInSuperstep = 0;
-  /** Message bytes sent during the last superstep */
+  /**
+   * Message bytes sent during the last superstep
+   */
   protected long totalMsgBytesSentInSuperstep = 0;
-  /** Max message size sent to a worker */
+  /**
+   * Max message size sent to a worker
+   */
   protected final int maxMessagesSizePerWorker;
-  /** NettyWorkerClientRequestProcessor for message sending */
+  /**
+   * NettyWorkerClientRequestProcessor for message sending
+   */
   protected final NettyWorkerClientRequestProcessor<I, ?, ?> clientProcessor;
+
   /**
    * Constructor
    *
-   * @param conf Giraph configuration
+   * @param conf          Giraph configuration
    * @param serviceWorker Service worker
-   * @param processor NettyWorkerClientRequestProcessor
-   * @param maxMsgSize Max message size sent to a worker
+   * @param processor     NettyWorkerClientRequestProcessor
+   * @param maxMsgSize    Max message size sent to a worker
    */
   public SendMessageCache(ImmutableClassesGiraphConfiguration conf,
-      CentralizedServiceWorker<?, ?, ?> serviceWorker,
-      NettyWorkerClientRequestProcessor<I, ?, ?> processor,
-      int maxMsgSize) {
+                          CentralizedServiceWorker<?, ?, ?> serviceWorker,
+                          NettyWorkerClientRequestProcessor<I, ?, ?> processor,
+                          int maxMsgSize) {
     super(conf, serviceWorker, MAX_MSG_REQUEST_SIZE.get(conf),
         ADDITIONAL_MSG_REQUEST_SIZE.get(conf));
     maxMessagesSizePerWorker = maxMsgSize;
@@ -87,32 +104,33 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
   /**
    * Add a message to the cache.
    *
-   * @param workerInfo the remote worker destination
-   * @param partitionId the remote Partition this message belongs to
+   * @param workerInfo   the remote worker destination
+   * @param partitionId  the remote Partition this message belongs to
    * @param destVertexId vertex id that is ultimate destination
-   * @param message Message to send to remote worker
+   * @param message      Message to send to remote worker
    * @return Size of messages for the worker.
    */
   public int addMessage(WorkerInfo workerInfo,
                         int partitionId, I destVertexId, M message) {
+    //LOG.info("Calling addMessage");
     return addData(workerInfo, partitionId, destVertexId, message);
   }
 
   /**
    * Add a message to the cache with serialized ids.
    *
-   * @param workerInfo The remote worker destination
-   * @param partitionId The remote Partition this message belongs to
-   * @param serializedId Serialized vertex id that is ultimate destination
+   * @param workerInfo      The remote worker destination
+   * @param partitionId     The remote Partition this message belongs to
+   * @param serializedId    Serialized vertex id that is ultimate destination
    * @param idSerializerPos The end position of serialized id in the byte array
-   * @param message Message to send to remote worker
+   * @param message         Message to send to remote worker
    * @return Size of messages for the worker.
    */
   protected int addMessage(WorkerInfo workerInfo, int partitionId,
-      byte[] serializedId, int idSerializerPos, M message) {
+                           byte[] serializedId, int idSerializerPos, M message) {
     return addData(
-      workerInfo, partitionId, serializedId,
-      idSerializerPos, message);
+        workerInfo, partitionId, serializedId,
+        idSerializerPos, message);
   }
 
   /**
@@ -121,7 +139,7 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
    * @param workerInfo the address of the worker who owns the data
    *                   partitions that are receiving the messages
    * @return List of pairs (partitionId, ByteArrayVertexIdMessages),
-   *         where all partition ids belong to workerInfo
+   * where all partition ids belong to workerInfo
    */
   protected PairList<Integer, VertexIdMessages<I, M>>
   removeWorkerMessages(WorkerInfo workerInfo) {
@@ -142,28 +160,29 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
    * Send a message to a target vertex id.
    *
    * @param destVertexId Target vertex id
-   * @param message The message sent to the target
+   * @param message      The message sent to the target
    */
   public void sendMessageRequest(I destVertexId, M message) {
+    //LOG.info("Calling sendMessageRequest");
     PartitionOwner owner =
-      getServiceWorker().getVertexPartitionOwner(destVertexId);
+        getServiceWorker().getVertexPartitionOwner(destVertexId);
     WorkerInfo workerInfo = owner.getWorkerInfo();
     final int partitionId = owner.getPartitionId();
     if (LOG.isTraceEnabled()) {
       LOG.trace("sendMessageRequest: Send bytes (" + message.toString() +
-        ") to " + destVertexId + " on worker " + workerInfo);
+          ") to " + destVertexId + " on worker " + workerInfo);
     }
     ++totalMsgsSentInSuperstep;
     // Add the message to the cache
     int workerMessageSize = addMessage(
-      workerInfo, partitionId, destVertexId, message);
+        workerInfo, partitionId, destVertexId, message);
     // Send a request if the cache of outgoing message to
     // the remote worker 'workerInfo' is full enough to be flushed
     if (workerMessageSize >= maxMessagesSizePerWorker) {
       PairList<Integer, VertexIdMessages<I, M>>
-        workerMessages = removeWorkerMessages(workerInfo);
+          workerMessages = removeWorkerMessages(workerInfo);
       WritableRequest writableRequest =
-        new SendWorkerMessagesRequest<I, M>(workerMessages);
+          new SendWorkerMessagesRequest<I, M>(workerMessages);
       totalMsgBytesSentInSuperstep += writableRequest.getSerializedSize();
       clientProcessor.doRequest(workerInfo, writableRequest);
       // Notify sending
@@ -177,7 +196,9 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
    */
   public static class TargetVertexIdIterator<I extends WritableComparable>
       implements Iterator<I> {
-    /** An edge iterator */
+    /**
+     * An edge iterator
+     */
     private final Iterator<Edge<I, Writable>> edgesIterator;
 
     /**
@@ -187,7 +208,7 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
      */
     public TargetVertexIdIterator(Vertex<I, ?, ?> vertex) {
       edgesIterator =
-        ((Vertex<I, Writable, Writable>) vertex).getEdges().iterator();
+          ((Vertex<I, Writable, Writable>) vertex).getEdges().iterator();
     }
 
     @Override
@@ -209,12 +230,12 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
   /**
    * Send message to all its neighbors
    *
-   * @param vertex The source vertex
+   * @param vertex  The source vertex
    * @param message The message sent to a worker
    */
   public void sendMessageToAllRequest(Vertex<I, ?, ?> vertex, M message) {
     TargetVertexIdIterator targetVertexIterator =
-      new TargetVertexIdIterator(vertex);
+        new TargetVertexIdIterator(vertex);
     sendMessageToAllRequest(targetVertexIterator, message);
   }
 
@@ -222,10 +243,24 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
    * Send message to the target ids in the iterator
    *
    * @param vertexIdIterator The iterator of target vertex ids
-   * @param message The message sent to a worker
+   * @param message          The message sent to a worker
    */
   public void sendMessageToAllRequest(Iterator<I> vertexIdIterator, M message) {
+//    int count = 0;
     while (vertexIdIterator.hasNext()) {
+//      if (count % 100 == 0) {
+//        for (MemoryPoolMXBean mpBean: ManagementFactory.getMemoryPoolMXBeans()) {
+//          if (mpBean.getType() == MemoryType.HEAP) {
+//            System.out.printf(
+//                "Test, Name: %s: %s\n",
+//                mpBean.getName(), mpBean.getUsage()
+//            );
+//          }
+//        }
+//        LOG.info("Test, Free memory: " + freeMemoryMB());
+//        LOG.info("Test, Count: " + count);
+//      }
+//      count++;
       sendMessageRequest(vertexIdIterator.next(), message);
     }
   }
@@ -236,18 +271,18 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
   public void flush() {
     PairList<WorkerInfo, PairList<Integer,
         VertexIdMessages<I, M>>>
-    remainingMessageCache = removeAllMessages();
+        remainingMessageCache = removeAllMessages();
     PairList<WorkerInfo, PairList<
         Integer, VertexIdMessages<I, M>>>.Iterator
-    iterator = remainingMessageCache.getIterator();
+        iterator = remainingMessageCache.getIterator();
     while (iterator.hasNext()) {
       iterator.next();
       WritableRequest writableRequest =
-        new SendWorkerMessagesRequest<I, M>(
-          iterator.getCurrentSecond());
+          new SendWorkerMessagesRequest<I, M>(
+              iterator.getCurrentSecond());
       totalMsgBytesSentInSuperstep += writableRequest.getSerializedSize();
       clientProcessor.doRequest(
-        iterator.getCurrentFirst(), writableRequest);
+          iterator.getCurrentFirst(), writableRequest);
     }
   }
 
