@@ -79,7 +79,7 @@ public abstract class SendVertexIdDataCache<I extends WritableComparable, T,
     // Get the data collection
     VertexIdData<I, T> partitionData =
         getPartitionData(workerInfo, partitionId);
-    LOG.info("VertexIDData Class: " + partitionData.getClass());
+    //LOG.info("VertexIDData Class: " + partitionData.getClass());
     int originalSize = partitionData.getSize();
     partitionData.add(destVertexId, data);
     // Update the size of cached, outgoing data per worker

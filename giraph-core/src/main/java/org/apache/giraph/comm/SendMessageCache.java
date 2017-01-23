@@ -112,7 +112,7 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
    */
   public int addMessage(WorkerInfo workerInfo,
                         int partitionId, I destVertexId, M message) {
-    LOG.info("Calling addMessage");
+    //LOG.info("Calling addMessage");
     return addData(workerInfo, partitionId, destVertexId, message);
   }
 
@@ -163,7 +163,7 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
    * @param message      The message sent to the target
    */
   public void sendMessageRequest(I destVertexId, M message) {
-    LOG.info("Calling sendMessageRequest");
+    //LOG.info("Calling sendMessageRequest");
     PartitionOwner owner =
         getServiceWorker().getVertexPartitionOwner(destVertexId);
     WorkerInfo workerInfo = owner.getWorkerInfo();
@@ -246,21 +246,21 @@ public class SendMessageCache<I extends WritableComparable, M extends Writable>
    * @param message          The message sent to a worker
    */
   public void sendMessageToAllRequest(Iterator<I> vertexIdIterator, M message) {
-    int count = 0;
+//    int count = 0;
     while (vertexIdIterator.hasNext()) {
-      if (count % 100 == 0) {
-        for (MemoryPoolMXBean mpBean: ManagementFactory.getMemoryPoolMXBeans()) {
-          if (mpBean.getType() == MemoryType.HEAP) {
-            System.out.printf(
-                "Test, Name: %s: %s\n",
-                mpBean.getName(), mpBean.getUsage()
-            );
-          }
-        }
-        LOG.info("Test, Free memory: " + freeMemoryMB());
-        LOG.info("Test, Count: " + count);
-      }
-      count++;
+//      if (count % 100 == 0) {
+//        for (MemoryPoolMXBean mpBean: ManagementFactory.getMemoryPoolMXBeans()) {
+//          if (mpBean.getType() == MemoryType.HEAP) {
+//            System.out.printf(
+//                "Test, Name: %s: %s\n",
+//                mpBean.getName(), mpBean.getUsage()
+//            );
+//          }
+//        }
+//        LOG.info("Test, Free memory: " + freeMemoryMB());
+//        LOG.info("Test, Count: " + count);
+//      }
+//      count++;
       sendMessageRequest(vertexIdIterator.next(), message);
     }
   }

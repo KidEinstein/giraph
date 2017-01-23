@@ -28,14 +28,14 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
     HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> vertices = subgraphVertices.getVertices();
     //System.out.println("SV Linked List in 1 : " + vertices);
 
-    for (MemoryPoolMXBean mpBean: ManagementFactory.getMemoryPoolMXBeans()) {
-      if (mpBean.getType() == MemoryType.HEAP) {
-        System.out.printf(
-            "Test 1, Name: %s: %s\n",
-            mpBean.getName(), mpBean.getUsage()
-        );
-      }
-    }
+//    for (MemoryPoolMXBean mpBean: ManagementFactory.getMemoryPoolMXBeans()) {
+//      if (mpBean.getType() == MemoryType.HEAP) {
+//        System.out.printf(
+//            "Test 1, Name: %s: %s\n",
+//            mpBean.getName(), mpBean.getUsage()
+//        );
+//      }
+//    }
     LOG.info("Test 1, Free memory: " + freeMemoryMB());
 
     HashSet<LongWritable> remoteVertexIds = new HashSet<>();
@@ -43,7 +43,7 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
     ExtendedByteArrayDataOutput dataOutput = new ExtendedByteArrayDataOutput();
 
     for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> sv : vertices.values()) {
-      LOG.info("Test, Number of vertex edges: " + sv.getOutEdges().size());
+      //LOG.info("Test, Number of vertex edges: " + sv.getOutEdges().size());
       for (SubgraphEdge<LongWritable, DoubleWritable, LongWritable> se : sv.getOutEdges()) {
         //System.out.println("Subgraph ID  : " + subgraph.getId().getSubgraphId() +"\t its vertex : " + sv.getId() + " has edge pointing to " + se.getSinkVertexId()+"\n");
 
@@ -55,11 +55,11 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
     }
 
     subgraph.getId().write(dataOutput);
-    LOG.info("Test, Sender subgraphID is : " + subgraph.getId());
+//    LOG.info("Test, Sender subgraphID is : " + subgraph.getId());
     dataOutput.writeInt(remoteVertexIds.size());
-    LOG.info("Test, Sender number of remote vertices are  : " + remoteVertexIds.size());
-    LOG.info("Test, Number of edges: " + subgraph.getNumEdges());
-    LOG.info("Test, Number of  vertices are " + vertices.size());
+//    LOG.info("Test, Sender number of remote vertices are  : " + remoteVertexIds.size());
+//    LOG.info("Test, Number of edges: " + subgraph.getNumEdges());
+//    LOG.info("Test, Number of  vertices are " + vertices.size());
 
     for (LongWritable remoteSubgraphVertexId : remoteVertexIds) {
       remoteSubgraphVertexId.write(dataOutput);
@@ -67,16 +67,16 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
 
     BytesWritable bw = new BytesWritable(dataOutput.getByteArray());
 
-    LOG.info("Test, DataOutput size " + dataOutput.size());
-
-    for (MemoryPoolMXBean mpBean: ManagementFactory.getMemoryPoolMXBeans()) {
-      if (mpBean.getType() == MemoryType.HEAP) {
-        System.out.printf(
-            "Test 2, Name: %s: %s\n",
-            mpBean.getName(), mpBean.getUsage()
-        );
-      }
-    }
+//    LOG.info("Test, DataOutput size " + dataOutput.size());
+//
+//    for (MemoryPoolMXBean mpBean: ManagementFactory.getMemoryPoolMXBeans()) {
+//      if (mpBean.getType() == MemoryType.HEAP) {
+//        System.out.printf(
+//            "Test 2, Name: %s: %s\n",
+//            mpBean.getName(), mpBean.getUsage()
+//        );
+//      }
+//    }
     LOG.info("Test 2, Free memory: " + freeMemoryMB());
 
     sendMessageToAllEdges(subgraph, bw);

@@ -17,7 +17,7 @@ public class RemoteVerticesFinder2 extends SubgraphComputation<LongWritable, Lon
   @Override
   public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<BytesWritable> messages) throws IOException {
     SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
-    System.out.println("RVF2 Subgraph ID: " + subgraph.getId().getSubgraphId());
+    //System.out.println("RVF2 Subgraph ID: " + subgraph.getId().getSubgraphId());
     int msgcount=0;
     HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> vertices = subgraphVertices.getVertices();
     for (BytesWritable message : messages) {
@@ -27,9 +27,9 @@ public class RemoteVerticesFinder2 extends SubgraphComputation<LongWritable, Lon
       SubgraphId<LongWritable> senderSubgraphId = new SubgraphId<>();
       ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(message.getBytes());
       senderSubgraphId.readFields(dataInput);
-      System.out.println("Sender subgraphID for each message is : " + senderSubgraphId);
+      //System.out.println("Sender subgraphID for each message is : " + senderSubgraphId);
       int numVertices = dataInput.readInt();
-      System.out.println("Sender number of vertices for each message is : " + numVertices);
+      //System.out.println("Sender number of vertices for each message is : " + numVertices);
 
       for (int i = 0; i < numVertices; i++) {
         LongWritable vertexId = new LongWritable();
@@ -48,7 +48,7 @@ public class RemoteVerticesFinder2 extends SubgraphComputation<LongWritable, Lon
         sendMessage(senderSubgraphId, bw);
       }
     }
-    System.out.println("for subgraph id : "+subgraph.getId().getSubgraphId() + " incoming messages in RVF2 are :" +msgcount);
+    //System.out.println("for subgraph id : "+subgraph.getId().getSubgraphId() + " incoming messages in RVF2 are :" +msgcount);
 
   }
 }

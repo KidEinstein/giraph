@@ -138,7 +138,6 @@ public class NettyWorkerClientRequestProcessor<I extends WritableComparable,
     maxVerticesSizePerWorker =
         GiraphConfiguration.MAX_VERTEX_REQUEST_SIZE.get(conf);
     if (useOneMessageToManyIdsEncoding) {
-      LOG.info("Test, Using useOneMessageToManyIdsEncoding");
       sendMessageCache =
         new SendOneMessageToManyCache<I, Writable>(conf, serviceWorker,
           this, maxMessagesSizePerWorker);
