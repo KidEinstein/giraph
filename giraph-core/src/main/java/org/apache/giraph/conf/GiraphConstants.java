@@ -172,6 +172,12 @@ public interface GiraphConstants {
           DefaultSubgraphVertexIdFactory.class, SubgraphVertexIdFactory.class,
           "Subgraph Vertex ID Factory class - optional");
 
+  ClassConfOption<SubgraphMessageValueFactory> SUBGRAPH_MESSAGE_VALUE_FACTORY_CLASS =
+      ClassConfOption.create("giraph.subgraphMessageValueFactoryClass",
+          DefaultSubgraphMessageValueFactory.class, SubgraphMessageValueFactory.class,
+          "Subgraph Vertex ID Factory class - optional");
+
+
   // END OURS
   /** Vertex id factory class - optional */
   ClassConfOption<VertexIdFactory> VERTEX_ID_FACTORY_CLASS =
@@ -324,6 +330,11 @@ public interface GiraphConstants {
                   LongWritable.class, WritableComparable.class,
                   "Vertex ID class");
 
+  ClassConfOption<Writable> SUBGRAPH_MESSAGE_VALUE_CLASS =
+      ClassConfOption.create("giraph.subgraphMessageValueClass",
+          LongWritable.class, Writable.class,
+          "Subgraph message value class");
+
   ClassConfOption<WritableComparable> EDGE_ID_CLASS =
           ClassConfOption.create("giraph.edgeIdClass",
                   LongWritable.class, WritableComparable.class,
@@ -338,6 +349,9 @@ public interface GiraphConstants {
           ClassConfOption.create("giraph.subgraphVertexValueClass",
                   DoubleWritable.class, Writable.class,
                   "Subgraph vertex value class");
+
+  LongConfOption SUBGRAPH_SOURCE_VERTEX =
+          new LongConfOption("giraph.subgraphSourceVertex", 0, "Source vertex for algorithms like SSP");
 
 // upto this point
   /** VertexOutputFormat class */

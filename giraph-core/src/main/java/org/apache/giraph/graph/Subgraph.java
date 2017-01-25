@@ -4,6 +4,7 @@ import org.apache.giraph.edge.Edge;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -15,9 +16,9 @@ public interface Subgraph<S extends WritableComparable,
     E extends Writable, SV extends Writable, EI extends WritableComparable>
     extends Vertex<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E> {
 
-  HashSet<RemoteSubgraphVertex<S, I, V, E, EI>> getRemoteVertices();
+  HashMap<S, RemoteSubgraphVertex<S, I, V, E, EI>> getRemoteVertices();
 
   SubgraphVertices<S, I, V, E, SV, EI> getSubgraphVertices();
 
-  void setRemoteVertices(HashSet<RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices);
+  void setRemoteVertices(HashMap<S, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices);
 }

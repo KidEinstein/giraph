@@ -42,6 +42,11 @@ public class DefaultSubgraphVertex<S extends WritableComparable, I extends Writa
     }
 
     @Override
+    public void setValue(V value) {
+        this.value = value;
+    }
+
+    @Override
     public boolean isRemote() {
         return false;
     }

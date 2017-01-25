@@ -1,5 +1,6 @@
 package org.apache.giraph.graph;
 
+import org.apache.giraph.comm.messages.SubgraphMessage;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -26,14 +27,24 @@ import java.io.IOException;
 
 
 public abstract class SubgraphComputation<S extends WritableComparable,
-        I extends WritableComparable, V extends WritableComparable, E extends Writable, M extends Writable, SV extends Writable, EI extends WritableComparable> extends BasicComputation<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E, M> {
+        I extends WritableComparable, V extends WritableComparable, E extends Writable, M extends Writable, SV extends Writable, EI extends WritableComparable> extends BasicComputation<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E, SubgraphMessage<S, M>> {
 
-    public abstract void compute(Subgraph<S, I, V, E, SV, EI> subgraph, Iterable<M> messages) throws IOException;
+    public abstract void compute(Subgraph<S, I, V, E, SV, EI> subgraph, Iterable<SubgraphMessage<S, M>> messages) throws IOException;
 
     // TODO: Take care of state changes for the subgraph passed
 
-    @Override
-    public void compute(Vertex<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E> vertex, Iterable<M> messages) throws IOException {
+    public void compute(Vertex<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E> vertex, Iterable<SubgraphMessage<S, M>> messages) throws IOException {
         compute((Subgraph)vertex, messages);
+    }
+
+    public void sendMessageToAllNeighboringSubgraphs(Subgraph<S, I, V, E, SV, EI> subgraph, M message) {
+        WritableComparable subgraphId = subgraph.getId().getSubgraphId();
+        SubgraphMessage sm = new SubgraphMessage(subgraphId, message);
+        super.sendMessageToAllEdges(subgraph, sm);
+    }
+
+    public void sendMessage(SubgraphId<S> subgraphId, M message) {
+        SubgraphMessage sm = new SubgraphMessage(subgraphId.getSubgraphId(), message);
+        sendMessage(subgraphId, sm);
     }
 }

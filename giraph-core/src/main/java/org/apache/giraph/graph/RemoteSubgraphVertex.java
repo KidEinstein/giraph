@@ -10,6 +10,6 @@ import org.python.antlr.op.Sub;
 public interface RemoteSubgraphVertex<S extends WritableComparable,
     I extends WritableComparable, V extends Writable, E extends Writable, EI extends WritableComparable>
     extends SubgraphVertex<S, I, V, E, EI> {
-  S getSubgraphId();
+  SubgraphId<S> getSubgraphId();
 
 }

@@ -265,6 +265,10 @@ public class GiraphClasses<I extends WritableComparable,
   public Class<? extends Writable> getSubgraphValueClass() {
     return giraphTypes.getSubgraphValueClass();
   }
+  public Class<? extends Writable> getSubgraphMessageValueClass() {
+    return giraphTypes.getSubgraphMessageValueClass();
+  }
+
 
   public Class<? extends Writable> getSubgraphVertexValueClass() {
     return giraphTypes.getSubgraphVertexValueClass();

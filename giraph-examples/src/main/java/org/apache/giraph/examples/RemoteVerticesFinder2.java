@@ -1,5 +1,6 @@
 package org.apache.giraph.examples;
 
+import org.apache.giraph.comm.messages.SubgraphMessage;
 import org.apache.giraph.graph.*;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
@@ -15,17 +16,15 @@ import java.util.LinkedList;
  */
 public class RemoteVerticesFinder2 extends SubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, BytesWritable, NullWritable, LongWritable> {
   @Override
-  public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<BytesWritable> messages) throws IOException {
+  public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<SubgraphMessage<LongWritable, BytesWritable>> messages) throws IOException {
     SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
     //System.out.println("RVF2 Subgraph ID: " + subgraph.getId().getSubgraphId());
-    int msgcount=0;
     HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> vertices = subgraphVertices.getVertices();
-    for (BytesWritable message : messages) {
-      msgcount++;
+    for (SubgraphMessage<LongWritable, BytesWritable> message : messages) {
       LinkedList<LongWritable> vertexIdsFound = new LinkedList();
       ExtendedByteArrayDataOutput dataOutput = new ExtendedByteArrayDataOutput();
       SubgraphId<LongWritable> senderSubgraphId = new SubgraphId<>();
-      ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(message.getBytes());
+      ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(message.getMessage().getBytes());
       senderSubgraphId.readFields(dataInput);
       //System.out.println("Sender subgraphID for each message is : " + senderSubgraphId);
       int numVertices = dataInput.readInt();

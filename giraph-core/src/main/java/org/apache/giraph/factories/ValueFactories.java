@@ -52,7 +52,11 @@ public class ValueFactories<I extends WritableComparable,
   private final SubgraphIdFactory<? extends WritableComparable> subgraphIdFactory;
 
   private final SubgraphVertexIdFactory<? extends WritableComparable> subgraphVertexIdFactory;
+
+  private final SubgraphMessageValueFactory<? extends WritableComparable> subgraphMessageValueFactory;
+
   /**
+   *
    * Constructor reading from Configuration
    *
    * @param conf Configuration to read from
@@ -66,6 +70,7 @@ public class ValueFactories<I extends WritableComparable,
     edgeIdFactory = EDGE_ID_FACTORY_CLASS.newInstance(conf);
     subgraphIdFactory = SUBGRAPH_ID_FACTORY_CLASS.newInstance(conf);
     subgraphVertexIdFactory = SUBGRAPH_VERTEX_ID_FACTORY_CLASS.newInstance(conf);
+    subgraphMessageValueFactory = SUBGRAPH_MESSAGE_VALUE_FACTORY_CLASS.newInstance(conf);
   }
 
   public EdgeIdFactory<? extends WritableComparable> getEdgeIdFactory() {
@@ -99,6 +104,11 @@ public class ValueFactories<I extends WritableComparable,
   public SubgraphVertexIdFactory<? extends WritableComparable> getSubgraphVertexIdFactory() {
     return subgraphVertexIdFactory;
   }
+
+  public SubgraphMessageValueFactory<? extends Writable> getSubgraphMessageValueFactory() {
+    return subgraphMessageValueFactory;
+  }
+
 
 
 

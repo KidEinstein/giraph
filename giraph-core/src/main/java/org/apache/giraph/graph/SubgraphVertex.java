@@ -22,6 +22,8 @@ public interface SubgraphVertex<S extends WritableComparable, I extends Writable
 
   V getValue();
 
+  void setValue(V value);
+
   boolean isRemote();
 
   void initialize(I vertexId, V value, LinkedList<SubgraphEdge<I, E, EI>> edges);

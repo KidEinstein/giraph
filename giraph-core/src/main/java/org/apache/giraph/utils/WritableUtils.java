@@ -542,6 +542,7 @@ public class WritableUtils {
       Vertex<I, V, E> vertex,
       ImmutableClassesGiraphConfiguration<I, V, E> conf)
     throws IOException {
+    // TODO:
     if (GiraphConstants.IS_SUBGRAPH_COMPUTATION.get(conf)) {
       ((SubgraphId)vertex.getId()).readFields(conf, input);
       ((SubgraphVertices)vertex.getValue()).readFields(conf, input);

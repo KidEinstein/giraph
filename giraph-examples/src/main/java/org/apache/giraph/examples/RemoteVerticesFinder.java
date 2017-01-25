@@ -1,5 +1,6 @@
 package org.apache.giraph.examples;
 
+import org.apache.giraph.comm.messages.SubgraphMessage;
 import org.apache.giraph.graph.*;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.*;
@@ -22,7 +23,8 @@ import static org.apache.giraph.utils.MemoryUtils.freeMemoryMB;
 public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, BytesWritable, NullWritable, LongWritable> {
   public static final Logger LOG = Logger.getLogger(RemoteVerticesFinder.class);
   @Override
-  public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<BytesWritable> messages) throws IOException {
+  public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
+    HashSet<LongWritable> vertexHashSet = new HashSet<>();
     SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
     //System.out.println("SV in RVF 1 : " + subgraphVertices);
     HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> vertices = subgraphVertices.getVertices();
@@ -64,7 +66,6 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
     for (LongWritable remoteSubgraphVertexId : remoteVertexIds) {
       remoteSubgraphVertexId.write(dataOutput);
     }
-
     BytesWritable bw = new BytesWritable(dataOutput.getByteArray());
 
 //    LOG.info("Test, DataOutput size " + dataOutput.size());
@@ -79,9 +80,7 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
 //    }
     LOG.info("Test 2, Free memory: " + freeMemoryMB());
 
-    sendMessageToAllEdges(subgraph, bw);
-
     // LOG.info("Test, All messages sent");
-
+    sendMessageToAllNeighboringSubgraphs(subgraph, bw);
   }
 }
