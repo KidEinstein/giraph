@@ -20,6 +20,8 @@ public interface SubgraphVertex<S extends WritableComparable, I extends Writable
 
   I getId();
 
+  void setId(I id);
+
   V getValue();
 
   void setValue(V value);

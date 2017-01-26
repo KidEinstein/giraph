@@ -44,74 +44,72 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
         BytesWritable subgraphMessageValue = subgraphMessage.getMessage();
 
         ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(subgraphMessageValue.getBytes());
-        int numVertices = dataInput.readInt();
-        for (int i = 0; i < numVertices; i++) {
-          long sinkVertex = dataInput.readLong();
-          long sinkDistance = dataInput.readLong();
-          SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> currentVertex = vertices.get(new LongWritable(sinkVertex));
-          long distance = currentVertex.getValue().get();
-          if (sinkDistance < distance) {
-            currentVertex.setValue(new LongWritable(sinkDistance));
-            localUpdateQueue.add(new DistanceVertex(currentVertex, sinkDistance));
-          }
+
+        long sinkVertex = dataInput.readLong();
+        long sinkDistance = dataInput.readLong();
+        SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> currentVertex = vertices.get(new LongWritable(sinkVertex));
+        long distance = currentVertex.getValue().get();
+        if (sinkDistance < distance) {
+          currentVertex.setValue(new LongWritable(sinkDistance));
+          localUpdateQueue.add(new DistanceVertex(currentVertex, sinkDistance));
         }
+
       }
+    }
 
-      // Dijkstra's
-      HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates = new HashMap<>();
-      DistanceVertex currentDistanceVertex;
-      while ((currentDistanceVertex = localUpdateQueue.poll()) != null) {
+    // Dijkstra's
+    HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates = new HashMap<>();
+    DistanceVertex currentDistanceVertex;
+    while ((currentDistanceVertex = localUpdateQueue.poll()) != null) {
 
-        SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> updatedVertex = currentDistanceVertex.vertex;
-        for (SubgraphEdge<LongWritable, NullWritable, NullWritable> edge : updatedVertex.getOutEdges()) {
-          long newDistance = currentDistanceVertex.distance + edge.getValue();
-          LongWritable newDistanceLongWritable = new LongWritable(newDistance);
-          LongWritable sinkVertexId = edge.getSinkVertexId();
-          HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> remoteVertices = subgraph.getRemoteVertices();
-          if (!remoteVertices.containsKey(sinkVertexId)) {
-            // Local neighboring vertex
-            SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> neighborVertex = vertices.get(sinkVertexId);
-            if (neighborVertex.getValue().compareTo(newDistanceLongWritable) > 0) {
-              neighborVertex.setValue(newDistanceLongWritable);
-              DistanceVertex distanceVertex = new DistanceVertex(neighborVertex, newDistance);
-              if (!localUpdateQueue.contains(distanceVertex)) {
-                localUpdateQueue.add(distanceVertex);
-              } else {
-                // Works because of overriding equals to only compare the vertex object and not the distance
-                localUpdateQueue.remove(distanceVertex);
-                localUpdateQueue.add(distanceVertex);
-              }
-            }
-          } else {
-            // Remote neighboring vertex
-            RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> remoteSubgraphVertex = remoteVertices.get(sinkVertexId);
-            if (!remoteVertexUpdates.containsKey(remoteSubgraphVertex)) {
-              // Every subsequent iteration of the while loop would have a greater distance for the remote
-              remoteVertexUpdates.put(remoteSubgraphVertex, newDistance);
+      SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> updatedVertex = currentDistanceVertex.vertex;
+      for (SubgraphEdge<LongWritable, NullWritable, NullWritable> edge : updatedVertex.getOutEdges()) {
+        // TODO: Change 1 to edge.getValue()
+        long newDistance = currentDistanceVertex.distance + 1;
+        LongWritable newDistanceLongWritable = new LongWritable(newDistance);
+        LongWritable sinkVertexId = edge.getSinkVertexId();
+        HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> remoteVertices = subgraph.getRemoteVertices();
+        if (!remoteVertices.containsKey(sinkVertexId)) {
+          // Local neighboring vertex
+          SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> neighborVertex = vertices.get(sinkVertexId);
+          if (neighborVertex.getValue().compareTo(newDistanceLongWritable) > 0) {
+            neighborVertex.setValue(newDistanceLongWritable);
+            DistanceVertex distanceVertex = new DistanceVertex(neighborVertex, newDistance);
+            if (!localUpdateQueue.contains(distanceVertex)) {
+              localUpdateQueue.add(distanceVertex);
             } else {
-              Long distance = remoteVertexUpdates.get(remoteSubgraphVertex);
-              if (distance > newDistance) {
-                remoteVertexUpdates.put(remoteSubgraphVertex, newDistance);
-              }
+              // Works because of overriding equals to only compare the vertex object and not the distance
+              localUpdateQueue.remove(distanceVertex);
+              localUpdateQueue.add(distanceVertex);
+            }
+          }
+        } else {
+          // Remote neighboring vertex
+          RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> remoteSubgraphVertex = remoteVertices.get(sinkVertexId);
+          if (!remoteVertexUpdates.containsKey(remoteSubgraphVertex)) {
+            // Every subsequent iteration of the while loop would have a greater distance for the remote
+            remoteVertexUpdates.put(remoteSubgraphVertex, newDistance);
+          } else {
+            Long distance = remoteVertexUpdates.get(remoteSubgraphVertex);
+            if (distance > newDistance) {
+              remoteVertexUpdates.put(remoteSubgraphVertex, newDistance);
             }
           }
         }
-
       }
-
-
-     ;
-      for (Map.Entry<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> entries : remoteVertexUpdates.entrySet()) {
-        ExtendedByteArrayDataOutput dataOutput = new ExtendedByteArrayDataOutput();
-        RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> remoteSubgraphVertex = entries.getKey();
-        dataOutput.writeLong(remoteSubgraphVertex.getId().get());
-        dataOutput.writeLong(entries.getValue());
-        BytesWritable message = new BytesWritable((dataOutput.getByteArray()));
-        sendMessage(remoteSubgraphVertex.getSubgraphId(), message);
-      }
-
 
     }
+
+    for (Map.Entry<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> entries : remoteVertexUpdates.entrySet()) {
+      ExtendedByteArrayDataOutput dataOutput = new ExtendedByteArrayDataOutput();
+      RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> remoteSubgraphVertex = entries.getKey();
+      dataOutput.writeLong(remoteSubgraphVertex.getId().get());
+      dataOutput.writeLong(entries.getValue());
+      BytesWritable message = new BytesWritable((dataOutput.getByteArray()));
+      sendMessage(remoteSubgraphVertex.getSubgraphId(), message);
+    }
+    subgraph.voteToHalt();
+
   }
 
   private static class DistanceVertex implements Comparable<DistanceVertex> {
@@ -127,7 +125,7 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
     public boolean equals(Object obj) {
       if (obj instanceof DistanceVertex) {
         DistanceVertex other = (DistanceVertex) obj;
-        return vertex.equals(other.vertex)
+        return vertex.equals(other.vertex);
       }
       return super.equals(obj);
     }

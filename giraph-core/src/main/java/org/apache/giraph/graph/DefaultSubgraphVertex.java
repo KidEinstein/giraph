@@ -17,6 +17,8 @@ import java.util.LinkedList;
 public class DefaultSubgraphVertex<S extends WritableComparable, I extends WritableComparable,
         V extends Writable, E extends Writable, EI extends WritableComparable> implements SubgraphVertex<S, I, V, E, EI> {
 
+
+
     private I id;
     private V value;
     private LinkedList<SubgraphEdge<I, E, EI>> outEdges;
@@ -34,6 +36,11 @@ public class DefaultSubgraphVertex<S extends WritableComparable, I extends Writa
     @Override
     public I getId() {
         return id;
+    }
+
+    @Override
+    public void setId(I id) {
+        this.id = id;
     }
 
     @Override

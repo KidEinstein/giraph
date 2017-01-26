@@ -14,15 +14,15 @@ import java.util.LinkedList;
 /**
  * Created by anirudh on 06/11/16.
  */
-public class RemoteVerticesFinder3 extends SubgraphComputation<LongWritable,p
+public class RemoteVerticesFinder3 extends SubgraphComputation<LongWritable,
     LongWritable, DoubleWritable, DoubleWritable, BytesWritable, NullWritable, LongWritable> {
   @Override
   public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<SubgraphMessage<LongWritable, BytesWritable>> messages) throws IOException {
     HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> remoteVertices = new HashMap<>();
     //System.out.println("IN RVF 3\n");
     for (SubgraphMessage<LongWritable, BytesWritable> message : messages) {
-      SubgraphId<LongWritable> senderSubgraphId = new SubgraphId<>();
       ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(message.getMessage().getBytes());
+      SubgraphId<LongWritable> senderSubgraphId = new SubgraphId<>();
       senderSubgraphId.readFields(dataInput);
       //System.out.println("Message received from subgraph  ID :" + senderSubgraphId.getSubgraphId() + "to subgraph :"+subgraph.getId().getSubgraphId());
       int numVertices = dataInput.readInt();
@@ -32,7 +32,8 @@ public class RemoteVerticesFinder3 extends SubgraphComputation<LongWritable,p
         LongWritable rsvId = new LongWritable();
         rsvId.readFields(dataInput);
         //System.out.println("Remote Edge: From subgraph " + subgraph.getId().getSubgraphId() + " is To vertex : " + rsvId +" in neighbor subgraph with ID: " + senderSubgraphId);
-        rsv.setSubgraphId(rsvId);
+        rsv.setSubgraphId(senderSubgraphId);
+        rsv.setId(rsvId);
         remoteVertices.put(rsvId, rsv);
       }
     }
