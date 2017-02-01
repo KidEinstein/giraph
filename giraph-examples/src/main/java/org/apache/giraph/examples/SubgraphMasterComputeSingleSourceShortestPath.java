@@ -5,7 +5,7 @@ import org.apache.giraph.master.DefaultMasterCompute;
 /**
  * Created by anirudh on 02/11/16.
  */
-public class SubgraphMasterCompute extends DefaultMasterCompute {
+public class SubgraphMasterComputeSingleSourceShortestPath extends DefaultMasterCompute {
   @Override
   public void compute() {
     long superstep = getSuperstep();

@@ -46,7 +46,7 @@ public class SubgraphMessage<S extends WritableComparable, M extends Writable> i
 
   @Override
   public void write(DataOutput dataOutput) throws IOException {
-    LOG.info("Writing message, ID: " + subgraphId + " Value: " + message);
+    //LOG.info("Writing message, ID: " + subgraphId + " Value: " + message);
     subgraphId.write(dataOutput);
     message.write(dataOutput);
   }

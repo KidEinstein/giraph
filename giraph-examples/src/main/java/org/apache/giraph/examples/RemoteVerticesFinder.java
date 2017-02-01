@@ -38,14 +38,14 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
 //        );
 //      }
 //    }
-    LOG.info("Test 1, Free memory: " + freeMemoryMB());
+    //LOG.info("Test 1, Free memory: " + freeMemoryMB());
 
     HashSet<LongWritable> remoteVertexIds = new HashSet<>();
 
     ExtendedByteArrayDataOutput dataOutput = new ExtendedByteArrayDataOutput();
 
     for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> sv : vertices.values()) {
-      //LOG.info("Test, Number of vertex edges: " + sv.getOutEdges().size());
+      // LOG.info("Test, Number of vertex edges: " + sv.getOutEdges().size());
       for (SubgraphEdge<LongWritable, DoubleWritable, LongWritable> se : sv.getOutEdges()) {
         //System.out.println("Subgraph ID  : " + subgraph.getId().getSubgraphId() +"\t its vertex : " + sv.getId() + " has edge pointing to " + se.getSinkVertexId()+"\n");
 
@@ -61,7 +61,7 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
     dataOutput.writeInt(remoteVertexIds.size());
 //    LOG.info("Test, Sender number of remote vertices are  : " + remoteVertexIds.size());
 //    LOG.info("Test, Number of edges: " + subgraph.getNumEdges());
-//    LOG.info("Test, Number of  vertices are " + vertices.size());
+    //LOG.info("Test, Number of  vertices are " + vertices.size());
 
     for (LongWritable remoteSubgraphVertexId : remoteVertexIds) {
       remoteSubgraphVertexId.write(dataOutput);
@@ -78,7 +78,7 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
 //        );
 //      }
 //    }
-    LOG.info("Test 2, Free memory: " + freeMemoryMB());
+    //LOG.info("Test 2, Free memory: " + freeMemoryMB());
 
     // LOG.info("Test, All messages sent");
     sendMessageToAllNeighboringSubgraphs(subgraph, bw);
