@@ -24,7 +24,7 @@ public class SubgraphConnectedComponents extends SubgraphComputation<LongWritabl
     LOG.info("Intial value: " + temp);
     temp = subgraph.getId().getSubgraphId().get();
     LOG.info("Final value: " + temp);
-    if (getSuperstep() == 3) {
+    if (getSuperstep() == 0) {
       LongWritable sid = subgraph.getId().getSubgraphId();
       subgraph.getSubgraphVertices().setSubgraphValue(sid);
       sendMessageToAllNeighboringSubgraphs(subgraph, new BytesWritable(Longs.toByteArray(sid.get())));

@@ -47,4 +47,9 @@ public abstract class SubgraphComputation<S extends WritableComparable,
         SubgraphMessage sm = new SubgraphMessage(subgraphId.getSubgraphId(), message);
         sendMessage(subgraphId, sm);
     }
+
+    @Override
+    public long getSuperstep() {
+        return super.getSuperstep() - 3;
+    }
 }
