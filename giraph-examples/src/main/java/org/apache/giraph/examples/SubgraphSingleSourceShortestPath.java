@@ -27,7 +27,7 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
     LOG.info("Number of vertices, " + vertices.size());
     long startTime = System.currentTimeMillis();
     // Initialization step
-    if (getSuperstep() == 3) {
+    if (getSuperstep() == 0) {
       // Initializing distance to max distance
       for (SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> vertex : vertices.values()) {
         vertex.setValue(new LongWritable(Long.MAX_VALUE));
@@ -79,13 +79,12 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
       for (SubgraphEdge<LongWritable, NullWritable, NullWritable> edge : updatedVertex.getOutEdges()) {
         // TODO: Change 1 to edge.getValue()
         long newDistance = currentDistanceVertex.distance + 1;
-        LongWritable newDistanceLongWritable = new LongWritable(newDistance);
         LongWritable sinkVertexId = edge.getSinkVertexId();
         if (!remoteVertices.containsKey(sinkVertexId)) {
           // Local neighboring vertex
           SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> neighborVertex = vertices.get(sinkVertexId);
-          if (neighborVertex.getValue().compareTo(newDistanceLongWritable) > 0) {
-            neighborVertex.setValue(newDistanceLongWritable);
+          if (neighborVertex.getValue().get() > newDistance) {
+            neighborVertex.setValue(new LongWritable(newDistance));
             DistanceVertex distanceVertex = new DistanceVertex(neighborVertex, newDistance);
             if (!localUpdateQueue.contains(distanceVertex)) {
               localUpdateQueue.add(distanceVertex);
