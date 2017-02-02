@@ -19,13 +19,16 @@ import java.util.*;
 public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWritable,
     LongWritable, LongWritable, NullWritable, BytesWritable, LongWritable, NullWritable> {
   public static final Logger LOG = Logger.getLogger(SubgraphSingleSourceShortestPath.class);
+  private long state = 0;
   @Override
   public void compute(Subgraph<LongWritable, LongWritable, LongWritable, NullWritable, LongWritable, NullWritable> subgraph, Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
+//    LOG.info("Super step: " + getSuperstep() + "SubgraphID: " + subgraph.getId().getSubgraphId() + " State: " + state);
+//    state = subgraph.getId().getSubgraphId().get();
     SubgraphVertices<LongWritable, LongWritable, LongWritable, NullWritable, LongWritable, NullWritable> subgraphVertices = subgraph.getSubgraphVertices();
     HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> vertices = subgraphVertices.getVertices();
-    PriorityQueue<DistanceVertex> localUpdateQueue = new PriorityQueue<>();
     LOG.info("Number of vertices, " + vertices.size());
     long startTime = System.currentTimeMillis();
+    HashMap<LongWritable, DistanceVertex> localUpdateMap = new HashMap<>();
     // Initialization step
     if (getSuperstep() == 0) {
       // Initializing distance to max distance
@@ -39,7 +42,8 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
         LOG.info("Found source vertex, source id " + sourceId + " subgraph ID " + subgraph.getId().getSubgraphId() + " partition id " + subgraph.getId().getPartitionId() );
         SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> sourceVertex = vertices.get(sourceIdLongWritable);
         sourceVertex.setValue(new LongWritable(0));
-        localUpdateQueue.add(new DistanceVertex(sourceVertex, 0));
+        DistanceVertex distanceVertex = new DistanceVertex(sourceVertex, 0);
+        localUpdateMap.put(sourceVertex.getId(), distanceVertex);
       }
     }
     // Update steps
@@ -61,7 +65,7 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
           long distance = currentVertex.getValue().get();
           if (sinkDistance < distance) {
             currentVertex.setValue(new LongWritable(sinkDistance));
-            localUpdateQueue.add(new DistanceVertex(currentVertex, sinkDistance));
+            localUpdateMap.put(currentVertex.getId(), new DistanceVertex(currentVertex, sinkDistance));
           }
         }
       }
@@ -73,6 +77,7 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
     DistanceVertex currentDistanceVertex;
     int count = 0;
     HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> remoteVertices = subgraph.getRemoteVertices();
+    PriorityQueue<DistanceVertex> localUpdateQueue = new PriorityQueue<>(localUpdateMap.values());
     while ((currentDistanceVertex = localUpdateQueue.poll()) != null) {
       count++;
       SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> updatedVertex = currentDistanceVertex.vertex;
@@ -86,7 +91,8 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
           if (neighborVertex.getValue().get() > newDistance) {
             neighborVertex.setValue(new LongWritable(newDistance));
             DistanceVertex distanceVertex = new DistanceVertex(neighborVertex, newDistance);
-            if (!localUpdateQueue.contains(distanceVertex)) {
+            if (!localUpdateMap.containsKey(neighborVertex.getId())) {
+              localUpdateMap.put(neighborVertex.getId(), distanceVertex);
               localUpdateQueue.add(distanceVertex);
             } else {
               // Works because of overriding equals to only compare the vertex object and not the distance
