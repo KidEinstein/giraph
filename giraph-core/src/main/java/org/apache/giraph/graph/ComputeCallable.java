@@ -319,7 +319,7 @@ public class ComputeCallable<I extends WritableComparable, V extends Writable,
       }
       messageStore.clearPartition(partition.getId());
     }
-    LOG.info("Test,PartitionID," + partition.getId() +",Superstep,"+ serviceWorker.getSuperstep() + ",Time," + (System.currentTimeMillis() - startTime));
+    LOG.info("Superstep,PartitionID,Time:" + serviceWorker.getSuperstep() + "," + partition.getId() + "," + (System.currentTimeMillis() - startTime));
     WorkerProgress.get().addVerticesComputed(verticesComputedProgress);
     WorkerProgress.get().incrementPartitionsComputed();
     return partitionStats;
