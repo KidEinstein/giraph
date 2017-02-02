@@ -5,17 +5,10 @@ import org.apache.giraph.master.DefaultMasterCompute;
 /**
  * Created by anirudh on 02/11/16.
  */
-public class SubgraphMasterComputeSingleSourceShortestPath extends DefaultMasterCompute {
+public class SubgraphMasterComputeSingleSourceShortestPath extends SubgraphMasterCompute {
   @Override
-  public void compute() {
-    long superstep = getSuperstep();
-    if (superstep == 0) {
-      setComputation(RemoteVerticesFinder.class);
-    } else if (superstep == 1) {
-      setComputation(RemoteVerticesFinder2.class);
-    } else if (superstep == 2) {
-      setComputation(RemoteVerticesFinder3.class);
-    } else
-      setComputation(SubgraphSingleSourceShortestPath.class);
+  public void subgraphCompute() {
+    long superstep = getSubgraphSuperstep();
+    setComputation(SubgraphSingleSourceShortestPath.class);
   }
 }
