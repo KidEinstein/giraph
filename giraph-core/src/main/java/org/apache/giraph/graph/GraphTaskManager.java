@@ -788,6 +788,7 @@ end[PURE_YARN]*/
     for (Integer partitionId : partitionStore.getPartitionIds()) {
       verticesToCompute += partitionStore.getPartitionVertexCount(partitionId);
     }
+    LOG.info(serviceWorker.getServerData().getIncomingMessageStore().getClass());
     WorkerProgress.get().startSuperstep(
         serviceWorker.getSuperstep(), verticesToCompute,
         serviceWorker.getPartitionStore().getNumPartitions());

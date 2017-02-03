@@ -172,7 +172,7 @@ public class SimplePartition<I extends WritableComparable,
       progress();
       Vertex<I, V, E> vertex =
           WritableUtils.readVertexFromDataInput(input, getConf());
-      DefaultSubgraph<LongWritable, ?, ?, ?, ?, ?> sv = (DefaultSubgraph<LongWritable, ?, ?, ?, ?, ?>) vertex;
+//      DefaultSubgraph<LongWritable, ?, ?, ?, ?, ?> sv = (DefaultSubgraph<LongWritable, ?, ?, ?, ?, ?>) vertex;
 //      System.out.println("ABDUL: Partition: " + getId() + " Subgraph Id: " + sv.getId().getSubgraphId() + " Partition ID: " + sv.getId().getPartitionId());
 
       if (vertexMap.put(vertex.getId(), vertex) != null) {
