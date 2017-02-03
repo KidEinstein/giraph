@@ -9,7 +9,6 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.log4j.Logger;
 
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.*;
 
@@ -20,14 +19,15 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
     LongWritable, LongWritable, NullWritable, BytesWritable, LongWritable, NullWritable> {
   public static final Logger LOG = Logger.getLogger(SubgraphSingleSourceShortestPath.class);
   private long state = 0;
+
   @Override
   public void compute(Subgraph<LongWritable, LongWritable, LongWritable, NullWritable, LongWritable, NullWritable> subgraph, Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
 //    LOG.info("Super step: " + getSuperstep() + "SubgraphID: " + subgraph.getId().getSubgraphId() + " State: " + state);
 //    state = subgraph.getId().getSubgraphId().get();
     SubgraphVertices<LongWritable, LongWritable, LongWritable, NullWritable, LongWritable, NullWritable> subgraphVertices = subgraph.getSubgraphVertices();
     HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> vertices = subgraphVertices.getVertices();
-    LOG.info("Number of vertices, " + vertices.size());
-    long startTime = System.currentTimeMillis();
+//    LOG.info("Number of vertices, " + vertices.size());
+//    long startTime = System.currentTimeMillis();
     HashMap<LongWritable, DistanceVertex> localUpdateMap = new HashMap<>();
     // Initialization step
     if (getSuperstep() == 0) {
@@ -39,7 +39,7 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
       long sourceId = getConf().getSubgraphSourceVertex();
       LongWritable sourceIdLongWritable = new LongWritable(sourceId);
       if (vertices.containsKey(sourceIdLongWritable)) {
-        LOG.info("Found source vertex, source id " + sourceId + " subgraph ID " + subgraph.getId().getSubgraphId() + " partition id " + subgraph.getId().getPartitionId() );
+        LOG.info("Found source vertex, source id " + sourceId + " subgraph ID " + subgraph.getId().getSubgraphId() + " partition id " + subgraph.getId().getPartitionId());
         SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> sourceVertex = vertices.get(sourceIdLongWritable);
         sourceVertex.setValue(new LongWritable(0));
         DistanceVertex distanceVertex = new DistanceVertex(sourceVertex, 0);
@@ -51,7 +51,7 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
       for (SubgraphMessage<LongWritable, BytesWritable> subgraphMessage : subgraphMessages) {
         BytesWritable subgraphMessageValue = subgraphMessage.getMessage();
         ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(subgraphMessageValue.getBytes());
-        while(!dataInput.endOfInput()) {
+        while (!dataInput.endOfInput()) {
           long sinkVertex = dataInput.readLong();
           if (sinkVertex == -1) {
             break;
@@ -70,13 +70,26 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
         }
       }
     }
-    LOG.info("Message processing time: " + (System.currentTimeMillis() - startTime));
-    startTime = System.currentTimeMillis();
+//    LOG.info("Message processing time: " + (System.currentTimeMillis() - startTime));
+//    startTime = System.currentTimeMillis();
+    HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates = aStar(localUpdateMap, vertices, subgraph.getRemoteVertices());
+//    LOG.info("Number of vertices processed in queue: " + count);
+//    LOG.info("Dijkstra time: " + (System.currentTimeMillis() - startTime));
+//    startTime = System.currentTimeMillis();
+    packAndSendMessages(remoteVertexUpdates);
+//    LOG.info("Pack and send time: " + (System.currentTimeMillis() - startTime));
+    subgraph.voteToHalt();
+
+  }
+
+  private HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long>
+  aStar(HashMap<LongWritable, DistanceVertex> localUpdateMap,
+        HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> vertices,
+        HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> remoteVertices) {
     // Dijkstra's
     HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates = new HashMap<>();
     DistanceVertex currentDistanceVertex;
     int count = 0;
-    HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> remoteVertices = subgraph.getRemoteVertices();
     PriorityQueue<DistanceVertex> localUpdateQueue = new PriorityQueue<>(localUpdateMap.values());
     while ((currentDistanceVertex = localUpdateQueue.poll()) != null) {
       count++;
@@ -115,13 +128,7 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
         }
       }
     }
-    LOG.info("Number of vertices processed in queue: " + count);
-    LOG.info("Dijkstra time: " + (System.currentTimeMillis() - startTime));
-    startTime = System.currentTimeMillis();
-    packAndSendMessages(remoteVertexUpdates);
-    LOG.info("Pack and send time: " + (System.currentTimeMillis() - startTime));
-    subgraph.voteToHalt();
-
+    return remoteVertexUpdates;
   }
 
   void packAndSendMessages(HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates) throws IOException {
@@ -147,10 +154,10 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
   }
 
   private static class DistanceVertex implements Comparable<DistanceVertex> {
-    public long distance;
-    public SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> vertex;
+    long distance;
+    SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> vertex;
 
-    public DistanceVertex(SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> vertex_, long distance_) {
+    DistanceVertex(SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> vertex_, long distance_) {
       vertex = vertex_;
       distance = distance_;
     }
