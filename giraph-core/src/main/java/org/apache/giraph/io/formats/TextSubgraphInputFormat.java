@@ -51,7 +51,8 @@ public abstract class TextSubgraphInputFormat<I extends WritableComparable,
         V extends Writable, E extends Writable>
         extends VertexInputFormat<I, V, E> {
     /** Uses the GiraphTextInputFormat to do everything */
-    protected GiraphTextInputFormat textInputFormat = new GiraphTextInputFormat();
+
+    protected GiraphSubgraphTextInputFormat subgraphTextInputFormat = new GiraphSubgraphTextInputFormat();
 
     @Override public void checkInputSpecs(Configuration conf) { }
 
@@ -60,7 +61,7 @@ public abstract class TextSubgraphInputFormat<I extends WritableComparable,
             throws IOException, InterruptedException {
         // Ignore the hint of numWorkers here since we are using
         // GiraphTextInputFormat to do this for us
-        return textInputFormat.getVertexSplits(context);
+        return subgraphTextInputFormat.getVertexSplits(context);
     }
 
     /**
@@ -121,7 +122,7 @@ public abstract class TextSubgraphInputFormat<I extends WritableComparable,
         protected RecordReader<LongWritable, Text>
         createLineRecordReader(InputSplit inputSplit, TaskAttemptContext context)
                 throws IOException, InterruptedException {
-            return textInputFormat.createRecordReader(inputSplit, context);
+            return subgraphTextInputFormat.createRecordReader(inputSplit, context);
         }
 
         @Override
@@ -231,6 +232,7 @@ public abstract class TextSubgraphInputFormat<I extends WritableComparable,
         @Override
         public final Vertex<I, V, E> getCurrentVertex() throws IOException,
                 InterruptedException {
+            // TODO: Changed to subgraph
             Vertex<I, V, E> vertex;
             vertex = getConf().createVertex();
             Text line = getRecordReader().getCurrentValue();
@@ -242,7 +244,7 @@ public abstract class TextSubgraphInputFormat<I extends WritableComparable,
             Iterable<Edge<I, E>> subgraphNeighbors = getSubgraphNeighbors(processed);
 
             // Initializing internals of a subgraph
-            V subgraphVertices = getSubgraphVertices(sid);
+            V subgraphVertices = getSubgraphVertices();
 
             // Initializing the subgraph object (vertex in Giraph's case)
             vertex.initialize(sid, subgraphVertices,
@@ -253,10 +255,10 @@ public abstract class TextSubgraphInputFormat<I extends WritableComparable,
 
         public abstract I getSId(T line);
 
-        public abstract SubgraphVertex readVertex(I sid, T line) throws IOException;
+        public abstract SubgraphVertex readVertex(T line) throws IOException;
 
 
-        public abstract V getSubgraphVertices(I sid) throws IOException, InterruptedException;
+        public abstract V getSubgraphVertices() throws IOException, InterruptedException;
         /**,
          * Preprocess the line so other methods can easily read necessary
          * information for creating vertex.
@@ -292,7 +294,7 @@ public abstract class TextSubgraphInputFormat<I extends WritableComparable,
          * @throws IOException
          *           exception that can be thrown while reading
          */
-        protected abstract V getValue(T line) throws IOException;
+        protected abstract DoubleWritable getValue(T line) throws IOException;
 
         /**
          * Reads edges from the preprocessed line.
@@ -305,7 +307,7 @@ public abstract class TextSubgraphInputFormat<I extends WritableComparable,
          * @throws IOException
          *           exception that can be thrown while reading
          */
-        protected abstract Iterable<Edge<LongWritable, NullWritable>> getVertexEdges(T line) throws IOException;
+        protected abstract Iterable<SubgraphEdge> getVertexEdges(T line) throws IOException;
 
         protected abstract Iterable<Edge<I, E>> getSubgraphNeighbors(T line) throws IOException;
 

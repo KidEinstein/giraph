@@ -30,25 +30,8 @@ import org.apache.giraph.edge.ByteArrayEdges;
 import org.apache.giraph.edge.EdgeStoreFactory;
 import org.apache.giraph.edge.InMemoryEdgeStoreFactory;
 import org.apache.giraph.edge.OutEdges;
-import org.apache.giraph.factories.ComputationFactory;
-import org.apache.giraph.factories.DefaultComputationFactory;
-import org.apache.giraph.factories.DefaultEdgeValueFactory;
-import org.apache.giraph.factories.DefaultMessageValueFactory;
-import org.apache.giraph.factories.DefaultVertexIdFactory;
-import org.apache.giraph.factories.DefaultVertexValueFactory;
-import org.apache.giraph.factories.EdgeValueFactory;
-import org.apache.giraph.factories.MessageValueFactory;
-import org.apache.giraph.factories.VertexIdFactory;
-import org.apache.giraph.factories.VertexValueFactory;
-import org.apache.giraph.graph.Computation;
-import org.apache.giraph.graph.DefaultVertex;
-import org.apache.giraph.graph.DefaultVertexResolver;
-import org.apache.giraph.graph.DefaultVertexValueCombiner;
-import org.apache.giraph.graph.Language;
-import org.apache.giraph.graph.MapperObserver;
-import org.apache.giraph.graph.Vertex;
-import org.apache.giraph.graph.VertexResolver;
-import org.apache.giraph.graph.VertexValueCombiner;
+import org.apache.giraph.factories.*;
+import org.apache.giraph.graph.*;
 import org.apache.giraph.io.EdgeInputFormat;
 import org.apache.giraph.io.EdgeOutputFormat;
 import org.apache.giraph.io.MappingInputFormat;
@@ -82,8 +65,7 @@ import org.apache.giraph.partition.SimplePartition;
 import org.apache.giraph.worker.DefaultWorkerContext;
 import org.apache.giraph.worker.WorkerContext;
 import org.apache.giraph.worker.WorkerObserver;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.OutputFormat;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -163,7 +145,40 @@ public interface GiraphConstants {
   PerGraphTypeBooleanConfOption GRAPH_TYPES_NEEDS_WRAPPERS =
       new PerGraphTypeBooleanConfOption("giraph.jython.type.wrappers",
           false, "Whether user graph types (IVEMM) need Jython wrappers");
+  // subgraph Value factory class -- OURS
+   ClassConfOption<SubgraphValueFactory> SUBGRAPH_VALUE_FACTORY_CLASS =
+          ClassConfOption.create("giraph.subgraphValueFactoryClass",
+                  DefaultSubgraphValueFactory.class, SubgraphValueFactory.class,
+                  "Subgraph Value Factory class- optional");
 
+  ClassConfOption<SubgraphVertexValueFactory> SUBGRAPH_VERTEX_VALUE_FACTORY_CLASS =
+          ClassConfOption.create("giraph.subgraphVertexValueFactoryClass",
+                  DefaultSubgraphVertexValueFactory.class, SubgraphVertexValueFactory.class,
+                  "Subgraph Value Factory class- optional");
+
+  ClassConfOption<EdgeIdFactory> EDGE_ID_FACTORY_CLASS =
+          ClassConfOption.create("giraph.edgeIdFactoryClass",
+                  DefaultEdgeIdFactory.class, EdgeIdFactory.class,
+                  "Edge ID Factory class - optional");
+
+  ClassConfOption<SubgraphIdFactory> SUBGRAPH_ID_FACTORY_CLASS =
+          ClassConfOption.create("giraph.subgraphIdFactoryClass",
+                  DefaultSubgraphIdFactory.class, SubgraphIdFactory.class,
+                  "Subgraph ID Factory class - optional");
+
+
+  ClassConfOption<SubgraphVertexIdFactory> SUBGRAPH_VERTEX_ID_FACTORY_CLASS =
+      ClassConfOption.create("giraph.subgraphIdFactoryClass",
+          DefaultSubgraphVertexIdFactory.class, SubgraphVertexIdFactory.class,
+          "Subgraph Vertex ID Factory class - optional");
+
+  ClassConfOption<SubgraphMessageValueFactory> SUBGRAPH_MESSAGE_VALUE_FACTORY_CLASS =
+      ClassConfOption.create("giraph.subgraphMessageValueFactoryClass",
+          DefaultSubgraphMessageValueFactory.class, SubgraphMessageValueFactory.class,
+          "Subgraph Vertex ID Factory class - optional");
+
+
+  // END OURS
   /** Vertex id factory class - optional */
   ClassConfOption<VertexIdFactory> VERTEX_ID_FACTORY_CLASS =
       ClassConfOption.create("giraph.vertexIdFactoryClass",
@@ -301,6 +316,44 @@ public interface GiraphConstants {
       ClassConfOption.create("giraph.vertexClass",
           DefaultVertex.class, Vertex.class,
           "Vertex class");
+// ours
+  BooleanConfOption IS_SUBGRAPH_COMPUTATION =
+        new BooleanConfOption("giraph.subgraphComputation", false,
+                "Use Giraph for Subgraph input");
+  ClassConfOption<WritableComparable> SUBGRAPH_ID_CLASS =
+          ClassConfOption.create("giraph.subgraphIdClass",
+                  LongWritable.class, WritableComparable.class,
+                  "Subgraph ID class");
+
+  ClassConfOption<WritableComparable> SUBGRAPH_VERTEX_ID_CLASS =
+          ClassConfOption.create("giraph.vertexIdClass",
+                  LongWritable.class, WritableComparable.class,
+                  "Vertex ID class");
+
+  ClassConfOption<Writable> SUBGRAPH_MESSAGE_VALUE_CLASS =
+      ClassConfOption.create("giraph.subgraphMessageValueClass",
+          LongWritable.class, Writable.class,
+          "Subgraph message value class");
+
+  ClassConfOption<WritableComparable> EDGE_ID_CLASS =
+          ClassConfOption.create("giraph.edgeIdClass",
+                  LongWritable.class, WritableComparable.class,
+                  "Edge ID class");
+
+  ClassConfOption<Writable> SUBGRAPH_VALUE_CLASS =
+          ClassConfOption.create("giraph.subgraphValueClass",
+                  DoubleWritable.class, Writable.class,
+                  "Subgraph value class");
+
+  ClassConfOption<Writable> SUBGRAPH_VERTEX_VALUE_CLASS =
+          ClassConfOption.create("giraph.subgraphVertexValueClass",
+                  DoubleWritable.class, Writable.class,
+                  "Subgraph vertex value class");
+
+  LongConfOption SUBGRAPH_SOURCE_VERTEX =
+          new LongConfOption("giraph.subgraphSourceVertex", 0, "Source vertex for algorithms like SSP");
+
+// upto this point
   /** VertexOutputFormat class */
   ClassConfOption<VertexOutputFormat> VERTEX_OUTPUT_FORMAT_CLASS =
       ClassConfOption.create("giraph.vertexOutputFormatClass", null,

@@ -1,68 +1,37 @@
 package org.apache.giraph.graph;
 
-import org.apache.giraph.edge.Edge;
-import org.apache.giraph.edge.OutEdges;
+import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.LinkedList;
 
 /**
- * Created by anirudh on 27/09/16.
+ * Created by anirudh on 02/11/16.
  */
-public class SubgraphVertex<S extends WritableComparable, I extends WritableComparable,
-        V extends Writable, E extends Writable> implements WritableComparable {
-    private SubgraphId<S> subgraphId;
-    private I id;
-    private V value;
-    private Iterable<Edge<I, E>> outEdges;
+public interface SubgraphVertex<S extends WritableComparable, I extends WritableComparable, V extends Writable, E extends Writable, EI extends WritableComparable> extends WritableComparable {
+  LinkedList<SubgraphEdge<I, E, EI>> getOutEdges();
 
-    public Iterable<Edge<I, E>> getOutEdges() {
-        return outEdges;
-    }
+  @Override
+  int compareTo(Object o);
 
-    @Override
-    public int compareTo(Object o) {
-        return 0;
-    }
+  I getId();
 
-    public I getId() {
-        return id;
-    }
+  void setId(I id);
 
-    public V getValue() {
-        return value;
-    }
+  V getValue();
 
-    public SubgraphId<S> getSubgraphId() {
-        return subgraphId;
-    }
+  void setValue(V value);
 
-    public boolean isRemote() {
-        return false;
-    }
+  boolean isRemote();
 
-    public void initialize(SubgraphId<S> subgraphId, I vertexId, V value, Iterable<Edge<I, E>> edges) {
-        this.subgraphId = subgraphId;
-        this.id = vertexId;
-        this.value = value;
-        this.outEdges = edges;
-    }
+  void initialize(I vertexId, V value, LinkedList<SubgraphEdge<I, E, EI>> edges);
 
-    @Override
-    public void write(DataOutput dataOutput) throws IOException {
+  @Override
+  void write(DataOutput dataOutput) throws IOException;
 
-    }
-
-    @Override
-    public void readFields(DataInput dataInput) throws IOException {
-
-    }
-
-    //TODO: Do we need hashcode
-
-
-
+  void readFields(ImmutableClassesGiraphConfiguration conf, DataInput dataInput) throws IOException;
 }

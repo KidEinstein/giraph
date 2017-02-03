@@ -17,11 +17,7 @@
  */
 package org.apache.giraph.conf;
 
-import static org.apache.giraph.conf.GiraphConstants.EDGE_VALUE_CLASS;
-import static org.apache.giraph.conf.GiraphConstants.OUTGOING_MESSAGE_VALUE_CLASS;
-import static org.apache.giraph.conf.GiraphConstants.VERTEX_CLASS;
-import static org.apache.giraph.conf.GiraphConstants.VERTEX_ID_CLASS;
-import static org.apache.giraph.conf.GiraphConstants.VERTEX_VALUE_CLASS;
+import static org.apache.giraph.conf.GiraphConstants.*;
 import static org.apache.giraph.utils.ConfigurationUtils.getTypesHolderClass;
 import static org.apache.giraph.utils.ReflectionUtils.getTypeArguments;
 
@@ -53,6 +49,16 @@ public class GiraphTypes<I extends WritableComparable, V extends Writable,
   /** Vertex implementation class */
   private Class<? extends Vertex> vertexClass = DefaultVertex.class;
 
+  private Class<? extends WritableComparable> edgeIdClass;
+
+  private Class<? extends Writable> subgraphValueClass;
+  private Class<? extends Writable> subgraphMessageValueClass;
+
+  private Class<? extends Writable> subgraphVertexValueClass;
+
+  private Class<? extends WritableComparable> subgraphIdClass;
+
+  private Class<? extends WritableComparable> subgraphVertexIdClass;
 
   /**
    * Empty Constructor
@@ -129,6 +135,12 @@ public class GiraphTypes<I extends WritableComparable, V extends Writable,
     edgeValueClass = (Class<E>) EDGE_VALUE_CLASS.get(conf);
     outgoingMessageValueClass = OUTGOING_MESSAGE_VALUE_CLASS.get(conf);
     vertexClass = VERTEX_CLASS.get(conf);
+    edgeIdClass = EDGE_ID_CLASS.get(conf);
+    subgraphValueClass = SUBGRAPH_VALUE_CLASS.get(conf);
+    subgraphVertexValueClass = SUBGRAPH_VERTEX_VALUE_CLASS.get(conf);
+    subgraphIdClass = SUBGRAPH_ID_CLASS.get(conf);
+    subgraphVertexIdClass = SUBGRAPH_VERTEX_ID_CLASS.get(conf);
+    subgraphMessageValueClass = SUBGRAPH_MESSAGE_VALUE_CLASS.get(conf);
   }
 
   /**
@@ -185,6 +197,31 @@ public class GiraphTypes<I extends WritableComparable, V extends Writable,
 
   public Class<? extends Vertex> getVertexClass() {
     return vertexClass;
+  }
+
+  public Class<? extends WritableComparable> getSubgraphIdClass() {
+    return subgraphIdClass;
+  }
+
+  public Class<? extends WritableComparable> getSubgraphVertexIdClass() {
+    return subgraphVertexIdClass;
+  }
+
+
+  public Class<? extends WritableComparable> getEdgeIdClass() {
+    return edgeIdClass;
+  }
+
+  public Class<? extends Writable> getSubgraphValueClass() {
+    return subgraphValueClass;
+  }
+
+  public Class<? extends Writable> getSubgraphMessageValueClass() {
+    return subgraphMessageValueClass;
+  }
+
+  public Class<? extends Writable> getSubgraphVertexValueClass() {
+    return subgraphVertexValueClass;
   }
 
   public void setEdgeValueClass(Class<E> edgeValueClass) {

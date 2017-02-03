@@ -96,6 +96,7 @@ public abstract class BasicPartition<I extends WritableComparable,
   @Override
   public void addPartitionVertices(VertexIterator<I, V, E> vertexIterator) {
     while (vertexIterator.hasNext()) {
+
       vertexIterator.next();
       // Release the vertex if it was put, otherwise reuse as an optimization
       if (putOrCombine(vertexIterator.getVertex())) {

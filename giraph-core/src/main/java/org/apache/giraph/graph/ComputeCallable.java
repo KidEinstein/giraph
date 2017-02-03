@@ -272,6 +272,7 @@ public class ComputeCallable<I extends WritableComparable, V extends Writable,
         new PartitionStats(partition.getId(), 0, 0, 0, 0, 0);
     long verticesComputedProgress = 0;
     // Make sure this is thread-safe across runs
+    long startTime = System.currentTimeMillis();
     synchronized (partition) {
       int count = 0;
       for (Vertex<I, V, E> vertex : partition) {
@@ -316,9 +317,9 @@ public class ComputeCallable<I extends WritableComparable, V extends Writable,
           verticesComputedProgress = 0;
         }
       }
-
       messageStore.clearPartition(partition.getId());
     }
+    LOG.info("Superstep,PartitionID,Time:" + serviceWorker.getSuperstep() + "," + partition.getId() + "," + (System.currentTimeMillis() - startTime));
     WorkerProgress.get().addVerticesComputed(verticesComputedProgress);
     WorkerProgress.get().incrementPartitionsComputed();
     return partitionStats;

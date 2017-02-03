@@ -18,6 +18,7 @@
 package org.apache.giraph;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.giraph.graph.DefaultSubgraph;
 import org.apache.giraph.utils.ConfigurationUtils;
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.job.GiraphJob;
@@ -72,6 +73,9 @@ public class GiraphRunner implements Tool {
     }
     GiraphConfiguration giraphConf = new GiraphConfiguration(getConf());
     CommandLine cmd = ConfigurationUtils.parseArgs(giraphConf, args);
+
+    giraphConf.setVertexClass(DefaultSubgraph.class);
+
     if (null == cmd) {
       return 0; // user requested help/info printout, don't run a job.
     }

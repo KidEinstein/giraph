@@ -24,6 +24,7 @@ import java.io.IOException;
 import org.apache.giraph.combiner.MessageCombiner;
 import org.apache.giraph.comm.messages.MessageEncodeAndStoreType;
 import org.apache.giraph.factories.DefaultMessageValueFactory;
+import org.apache.giraph.factories.DefaultSubgraphMessageFactory;
 import org.apache.giraph.factories.MessageValueFactory;
 import org.apache.giraph.utils.ReflectionUtils;
 import org.apache.giraph.utils.WritableUtils;
@@ -85,6 +86,8 @@ public class DefaultMessageClasses
       ImmutableClassesGiraphConfiguration conf) {
     if (messageValueFactoryClass.equals(DefaultMessageValueFactory.class)) {
       return new DefaultMessageValueFactory<>(messageClass, conf);
+    } else if (messageValueFactoryClass.equals(DefaultSubgraphMessageFactory.class)) {
+      return new DefaultSubgraphMessageFactory<>(messageClass, conf);
     }
 
     MessageValueFactory factory = ReflectionUtils.newInstance(

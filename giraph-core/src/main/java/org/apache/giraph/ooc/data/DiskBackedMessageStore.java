@@ -90,6 +90,7 @@ public class DiskBackedMessageStore<I extends WritableComparable,
                                 MessageStore<I, M> messageStore,
                                 boolean useMessageCombiner, long superstep) {
     super(config, oocEngine);
+    LOG.info("Test, using out-of-core capabilities");
     this.config = config;
     this.messageStore = messageStore;
     this.useMessageCombiner = useMessageCombiner;

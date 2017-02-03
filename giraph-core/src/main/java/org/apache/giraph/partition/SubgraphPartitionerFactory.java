@@ -15,7 +15,7 @@ public class SubgraphPartitionerFactory<I extends WritableComparable,
     @Override
     public int getPartition(I id, int partitionCount, int workerCount) {
         SubgraphId subgraphId = (SubgraphId) id;
-        return subgraphId.getPartitionId();
+        return subgraphId.getPartitionId() % partitionCount;
     }
 
     // TODO: Ideally metis partition should end up in same worker. How to do that?

@@ -140,8 +140,8 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
     verifyOutEdgesGenericTypes();
     verifyVertexInputFormatGenericTypes();
     verifyEdgeInputFormatGenericTypes();
-    verifyVertexOutputFormatGenericTypes();
-    verifyEdgeOutputFormatGenericTypes();
+    // verifyVertexOutputFormatGenericTypes();
+    // verifyEdgeOutputFormatGenericTypes();
     verifyVertexResolverGenericTypes();
     verifyVertexValueCombinerGenericTypes();
     verifyMessageCombinerGenericTypes();
