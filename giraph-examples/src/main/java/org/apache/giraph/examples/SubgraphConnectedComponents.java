@@ -16,14 +16,9 @@ import java.io.IOException;
  */
 public class SubgraphConnectedComponents extends SubgraphComputation<LongWritable,
     LongWritable, NullWritable, NullWritable, BytesWritable, LongWritable, NullWritable> {
-  public static final Logger LOG = Logger.getLogger(SubgraphConnectedComponents.class);
 
-  private long temp = 0;
   @Override
   public void compute(Subgraph<LongWritable, LongWritable, NullWritable, NullWritable, LongWritable, NullWritable> subgraph, Iterable<SubgraphMessage<LongWritable, BytesWritable>> messages) throws IOException {
-    LOG.info("Intial value: " + temp);
-    temp = subgraph.getId().getSubgraphId().get();
-    LOG.info("Final value: " + temp);
     if (getSuperstep() == 0) {
       LongWritable sid = subgraph.getId().getSubgraphId();
       subgraph.getSubgraphVertices().setSubgraphValue(sid);
