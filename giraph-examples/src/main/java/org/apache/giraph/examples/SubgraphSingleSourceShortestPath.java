@@ -18,11 +18,10 @@ import java.util.*;
 public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWritable,
     LongWritable, LongWritable, NullWritable, BytesWritable, LongWritable, NullWritable> {
   public static final Logger LOG = Logger.getLogger(SubgraphSingleSourceShortestPath.class);
-  private long state = 0;
 
   @Override
   public void compute(Subgraph<LongWritable, LongWritable, LongWritable, NullWritable, LongWritable, NullWritable> subgraph, Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
-//    LOG.info("Super step: " + getSuperstep() + "SubgraphID: " + subgraph.getId().getSubgraphId() + " State: " + state);
+//    LOG.info("Super step: " + getSuperstep() + "SubgraphID: " + subgraph.getId().getSubgraphId());
 //    state = subgraph.getId().getSubgraphId().get();
     SubgraphVertices<LongWritable, LongWritable, LongWritable, NullWritable, LongWritable, NullWritable> subgraphVertices = subgraph.getSubgraphVertices();
     HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> vertices = subgraphVertices.getVertices();
@@ -146,11 +145,14 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
       dataOutput.writeLong(entry.getValue());
       // LOG.info("SubgraphID" + remoteSubgraphVertex.getSubgraphId() + " Sending vertex id " + remoteSubgraphVertex.getId().get() + " distance "+ entry.getValue());
     }
+    int messageCount = 0;
     for (Map.Entry<SubgraphId<LongWritable>, ExtendedByteArrayDataOutput> entry : messagesMap.entrySet()) {
       ExtendedByteArrayDataOutput dataOutput = entry.getValue();
       dataOutput.writeLong(-1);
       sendMessage(entry.getKey(), new BytesWritable(dataOutput.getByteArray()));
+      messageCount++;
     }
+    LOG.info("Number of messages sent: " + messageCount);
   }
 
   private static class DistanceVertex implements Comparable<DistanceVertex> {
