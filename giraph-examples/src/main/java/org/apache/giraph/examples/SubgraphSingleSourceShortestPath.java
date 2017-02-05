@@ -75,6 +75,8 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
 //    LOG.info("Number of vertices processed in queue: " + count);
 //    LOG.info("Dijkstra time: " + (System.currentTimeMillis() - startTime));
 //    startTime = System.currentTimeMillis();
+    LOG.info("MESSAGE STATS: ");
+    LOG.info("Partition ID : " + subgraph.getId().getPartitionId() +" -- Subgraph ID : " + subgraph.getId().getSubgraphId());
     packAndSendMessages(remoteVertexUpdates);
 //    LOG.info("Pack and send time: " + (System.currentTimeMillis() - startTime));
     subgraph.voteToHalt();
