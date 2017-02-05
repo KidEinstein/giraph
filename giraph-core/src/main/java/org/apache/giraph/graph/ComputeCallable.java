@@ -289,7 +289,9 @@ public class ComputeCallable<I extends WritableComparable, V extends Writable,
         }
         if (!vertex.isHalted()) {
           context.progress();
+          long tempTime = System.currentTimeMillis();
           computation.compute(vertex, messages);
+          LOG.info("ComputationTime for each subgraph:" + (System.currentTimeMillis() - tempTime));
           // Need to unwrap the mutated edges (possibly)
           vertex.unwrapMutableEdges();
           //Compact edges representation if possible

@@ -75,8 +75,7 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
 //    LOG.info("Number of vertices processed in queue: " + count);
 //    LOG.info("Dijkstra time: " + (System.currentTimeMillis() - startTime));
 //    startTime = System.currentTimeMillis();
-    LOG.info("MESSAGE STATS: ");
-    LOG.info("Partition ID : " + subgraph.getId().getPartitionId() +" -- Subgraph ID : " + subgraph.getId().getSubgraphId());
+    LOG.info("MESSAGE STATS-PartitionID,SubgraphID,Superstep:," + subgraph.getId().getPartitionId() + "," + subgraph.getId().getSubgraphId() + "," + getSuperstep());
     packAndSendMessages(remoteVertexUpdates);
 //    LOG.info("Pack and send time: " + (System.currentTimeMillis() - startTime));
     subgraph.voteToHalt();
@@ -154,7 +153,7 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
       sendMessage(entry.getKey(), new BytesWritable(dataOutput.getByteArray()));
       messageCount++;
     }
-    LOG.info("Number of messages sent: " + messageCount);
+    LOG.info("Number of messages sent:" + messageCount);
   }
 
   private static class DistanceVertex implements Comparable<DistanceVertex> {
