@@ -75,8 +75,9 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
 //    LOG.info("Number of vertices processed in queue: " + count);
 //    LOG.info("Dijkstra time: " + (System.currentTimeMillis() - startTime));
 //    startTime = System.currentTimeMillis();
-    LOG.info("MESSAGE STATS-PartitionID,SubgraphID,Superstep:," + subgraph.getId().getPartitionId() + "," + subgraph.getId().getSubgraphId() + "," + getSuperstep());
-    packAndSendMessages(remoteVertexUpdates);
+    int messageCount = packAndSendMessages(remoteVertexUpdates);
+    LOG.info("MESSAGE STATS-PartitionID,SubgraphID,Superstep,messages," + subgraph.getId().getPartitionId() + "," + subgraph.getId().getSubgraphId() + "," + getSuperstep() + "," + messageCount);
+
 //    LOG.info("Pack and send time: " + (System.currentTimeMillis() - startTime));
     subgraph.voteToHalt();
 
@@ -131,7 +132,7 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
     return remoteVertexUpdates;
   }
 
-  void packAndSendMessages(HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates) throws IOException {
+  int packAndSendMessages(HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates) throws IOException {
     HashMap<SubgraphId<LongWritable>, ExtendedByteArrayDataOutput> messagesMap = new HashMap<>();
     for (Map.Entry<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> entry : remoteVertexUpdates.entrySet()) {
       RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> remoteSubgraphVertex = entry.getKey();
@@ -153,7 +154,7 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
       sendMessage(entry.getKey(), new BytesWritable(dataOutput.getByteArray()));
       messageCount++;
     }
-    LOG.info("Number of messages sent:" + messageCount);
+    return messageCount;
   }
 
   private static class DistanceVertex implements Comparable<DistanceVertex> {
