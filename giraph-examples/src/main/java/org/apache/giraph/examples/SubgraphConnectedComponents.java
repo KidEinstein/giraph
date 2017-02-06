@@ -7,7 +7,6 @@ import org.apache.giraph.graph.SubgraphComputation;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
