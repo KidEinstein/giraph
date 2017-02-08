@@ -74,8 +74,6 @@ public class GiraphRunner implements Tool {
     GiraphConfiguration giraphConf = new GiraphConfiguration(getConf());
     CommandLine cmd = ConfigurationUtils.parseArgs(giraphConf, args);
 
-    giraphConf.setVertexClass(DefaultSubgraph.class);
-
     if (null == cmd) {
       return 0; // user requested help/info printout, don't run a job.
     }

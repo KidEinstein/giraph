@@ -5,6 +5,7 @@ import org.apache.giraph.graph.*;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.*;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import java.util.LinkedList;
  */
 public class RemoteVerticesFinder3 extends SubgraphComputation<LongWritable,
     LongWritable, DoubleWritable, DoubleWritable, BytesWritable, NullWritable, LongWritable> {
+
   @Override
   public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<SubgraphMessage<LongWritable, BytesWritable>> messages) throws IOException {
     HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> remoteVertices = new HashMap<>();
@@ -37,7 +39,7 @@ public class RemoteVerticesFinder3 extends SubgraphComputation<LongWritable,
         remoteVertices.put(rsvId, rsv);
       }
     }
-    subgraph.setRemoteVertices(remoteVertices);
+    subgraph.getSubgraphVertices().setRemoteVertices(remoteVertices);
   }
 }
 

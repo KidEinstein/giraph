@@ -20,6 +20,11 @@ public class DefaultRemoteSubgraphVertex<S extends WritableComparable,
   }
 
   @Override
+  public boolean isRemote() {
+    return true;
+  }
+
+  @Override
   public SubgraphId<S> getSubgraphId() {
     return subgraphId;
   }

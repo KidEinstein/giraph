@@ -16,4 +16,6 @@ public interface SubgraphEdge<I extends WritableComparable, E extends Writable, 
     EI getEdgeId();
 
     void setValue(E value);
+
+
 }

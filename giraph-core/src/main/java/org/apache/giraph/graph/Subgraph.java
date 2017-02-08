@@ -16,9 +16,6 @@ public interface Subgraph<S extends WritableComparable,
     E extends Writable, SV extends Writable, EI extends WritableComparable>
     extends Vertex<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E> {
 
-  HashMap<S, RemoteSubgraphVertex<S, I, V, E, EI>> getRemoteVertices();
-
   SubgraphVertices<S, I, V, E, SV, EI> getSubgraphVertices();
 
-  void setRemoteVertices(HashMap<S, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices);
 }
