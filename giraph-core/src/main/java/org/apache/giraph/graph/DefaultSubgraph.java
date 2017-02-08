@@ -21,15 +21,9 @@ public class DefaultSubgraph<S extends WritableComparable,
     I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable, EI extends WritableComparable>
     extends DefaultVertex<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E> implements Subgraph<S, I, V, E, SV, EI> {
 
-  private HashMap<S, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices;
-
   public void setRemoteVertices(HashMap<S, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices) {
-    this.remoteVertices = remoteVertices;
-  }
-
-  @Override
-  public HashMap<S, RemoteSubgraphVertex<S, I, V, E, EI>> getRemoteVertices() {
-    return remoteVertices;
+    SubgraphVertices<S, I, V, E, SV, EI> subgraphVertices = getValue();
+    subgraphVertices.setRemoteVertices(remoteVertices);
   }
 
   @Override

@@ -24,7 +24,6 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
   public static final Logger LOG = Logger.getLogger(RemoteVerticesFinder.class);
   @Override
   public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
-    HashSet<LongWritable> vertexHashSet = new HashSet<>();
     SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
     //System.out.println("SV in RVF 1 : " + subgraphVertices);
     HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> vertices = subgraphVertices.getVertices();
@@ -44,7 +43,10 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
 
     ExtendedByteArrayDataOutput dataOutput = new ExtendedByteArrayDataOutput();
 
+    int edgeCount = 0;
+
     for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> sv : vertices.values()) {
+      edgeCount += sv.getOutEdges().size();
       // LOG.info("Test, Number of vertex edges: " + sv.getOutEdges().size());
       for (SubgraphEdge<LongWritable, DoubleWritable, LongWritable> se : sv.getOutEdges()) {
         //System.out.println("Subgraph ID  : " + subgraph.getId().getSubgraphId() +"\t its vertex : " + sv.getId() + " has edge pointing to " + se.getSinkVertexId()+"\n");
@@ -55,6 +57,8 @@ public class RemoteVerticesFinder extends SubgraphComputation<LongWritable, Long
         }
       }
     }
+
+    LOG.info("Partition,Subgraph,Vertices,RemoteVertices,Edges:" + subgraph.getId().getPartitionId() + "," + subgraph.getId().getSubgraphId() + "," + subgraph.getSubgraphVertices().getVertices().size() + "," + remoteVertexIds.size() + "," + edgeCount);
 
     subgraph.getId().write(dataOutput);
 //    LOG.info("Test, Sender subgraphID is : " + subgraph.getId());

@@ -51,4 +51,9 @@ public class DefaultSubgraphEdge<I extends WritableComparable, E extends Writabl
     public void readFields(DataInput dataInput) throws IOException {
 
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this.getSinkVertexId().equals(((SubgraphEdge)obj).getSinkVertexId());
+    }
 }

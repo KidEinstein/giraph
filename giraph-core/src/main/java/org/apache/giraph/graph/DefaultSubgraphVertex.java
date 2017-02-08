@@ -18,7 +18,6 @@ public class DefaultSubgraphVertex<S extends WritableComparable, I extends Writa
         V extends Writable, E extends Writable, EI extends WritableComparable> implements SubgraphVertex<S, I, V, E, EI> {
 
 
-
     private I id;
     private V value;
     private LinkedList<SubgraphEdge<I, E, EI>> outEdges;

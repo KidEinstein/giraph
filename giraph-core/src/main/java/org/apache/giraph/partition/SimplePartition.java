@@ -76,24 +76,6 @@ public class SimplePartition<I extends WritableComparable,
 
   @Override
   public Vertex<I, V, E> putVertex(Vertex<I, V, E> vertex) {
-    DefaultSubgraph<LongWritable, ?, ?, ?, ?, ?> sv = (DefaultSubgraph<LongWritable, ?, ?, ?, ?, ?>) vertex;
-//    System.out.println("ANIRUDH: Partition: " + getId() + " Subgraph Id: " + sv.getId().getSubgraphId() + " Partition ID: " + sv.getId().getPartitionId());
-    for (Map.Entry<I, Vertex<I, V, E>> setEntry: vertexMap.entrySet()
-         ) {
-      SubgraphId subgraphId = (SubgraphId) setEntry.getKey();
-//      System.out.println("Subgraph ID: " + subgraphId.getSubgraphId() + " Partition ID: " + subgraphId.getPartitionId());
-
-    }
-    Subgraph<LongWritable, ?, ?, ?, ?, ?> s = (Subgraph) vertex;
-//    System.out.println("Subgraph being put: " + s.getId().getSubgraphId() + " Partition: " + s.getId().getPartitionId());
-//    try {
-//      System.out.println("Inside putVertex");
-//      throw new Exception("Calling putVertex");
-//    } catch(Exception e) {
-//      System.out.println("Inside catch");
-//      e.printStackTrace(System.out);
-//      e.printStackTrace();
-//    }
     return vertexMap.put(vertex.getId(), vertex);
   }
 
@@ -105,7 +87,6 @@ public class SimplePartition<I extends WritableComparable,
   @Override
   public boolean putOrCombine(Vertex<I, V, E> vertex) {
     Vertex<I, V, E> originalVertex = vertexMap.get(vertex.getId());
-    SubgraphId subgraphId = (SubgraphId) vertex.getId();
 //    System.out.println("Received vertex: " + subgraphId.getSubgraphId());
     if (originalVertex == null) {
 //      System.out.println("Inserting above vertex");

@@ -13,6 +13,7 @@ import java.util.LinkedList;
 
 /**
  * Created by anirudh on 27/09/16.
+ *
  * @param <S> Subgraph id
  * @param <I> Vertex id
  * @param <V> Vertex data
@@ -20,12 +21,14 @@ import java.util.LinkedList;
  */
 
 public class SubgraphVertices<S extends WritableComparable,
-        I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable, EI extends WritableComparable> implements Writable {
-    private long numVertices;
+    I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable, EI extends WritableComparable> implements Writable {
+  private long numVertices;
 
-    private SV subgraphValue;
-    private HashMap<I, SubgraphVertex<S, I, V, E, EI>> vertices;
-    public SubgraphVertices() {
+  private HashMap<S, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices;
+  private SV subgraphValue;
+  private HashMap<I, SubgraphVertex<S, I, V, E, EI>> vertices;
+
+  public SubgraphVertices() {
 ////        System.out.println("Calling subgraph vertices constructor");
 //        try {
 ////            System.out.println("Inside try");
@@ -35,52 +38,63 @@ public class SubgraphVertices<S extends WritableComparable,
 ////            e.printStackTrace(System.out);
 //            e.printStackTrace();
 //        }
+  }
+
+  public HashMap<S, RemoteSubgraphVertex<S, I, V, E, EI>> getRemoteVertices() {
+    return remoteVertices;
+  }
+
+  public void setRemoteVertices(HashMap<S, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices) {
+    this.remoteVertices = remoteVertices;
+  }
+
+  public SV getSubgraphValue() {
+    return subgraphValue;
+  }
+
+  public void setSubgraphValue(SV subgraphValue) {
+    this.subgraphValue = subgraphValue;
+  }
+
+  public long getNumVertices() {
+    return vertices.size();
+  }
+
+  public HashMap<I, SubgraphVertex<S, I, V, E, EI>> getVertices() {
+    return vertices;
+  }
+
+  public SubgraphVertex<S, I, V, E, EI> getVertexById(I vertexId) {
+    SubgraphVertex<S, I, V, E, EI> subgraphVertex = vertices.get(vertexId);
+    return subgraphVertex != null ? subgraphVertex : remoteVertices.get(vertexId);
+  }
+
+  public void initialize(HashMap<I, SubgraphVertex<S, I, V, E, EI>> vertices) {
+    this.vertices = vertices;
+  }
+
+  public Iterable<SubgraphEdge<I, E, EI>> getEdges() {
+    // TODO: Loop through all vertices and return edges
+    return null;
+  }
+
+
+  @Override
+  public void write(DataOutput dataOutput) throws IOException {
+    subgraphValue.write(dataOutput);
+    dataOutput.writeInt(vertices.size());
+    for (SubgraphVertex<S, I, V, E, EI> vertex : vertices.values()) {
+      vertex.write(dataOutput);
     }
+  }
+
+  @Override
+  public void readFields(DataInput dataInput) throws IOException {
+    throw new UnsupportedOperationException("read fields without conf is not supported");
+  }
 
 
-    public SV getSubgraphValue() {
-        return subgraphValue;
-    }
-
-    public void setSubgraphValue(SV subgraphValue) {
-        this.subgraphValue = subgraphValue;
-    }
-
-
-    public long getNumVertices() {
-        return vertices.size();
-    }
-
-    public HashMap<I,SubgraphVertex<S, I, V, E, EI>> getVertices() {
-        return vertices;
-    }
-
-    public void initialize(HashMap<I, SubgraphVertex<S, I, V, E, EI>> vertices) {
-        this.vertices = vertices;
-    }
-
-    public Iterable<SubgraphEdge<I, E, EI>> getEdges() {
-        // TODO: Loop through all vertices and return edges
-        return null;
-    }
-
-
-    @Override
-    public void write(DataOutput dataOutput) throws IOException {
-        subgraphValue.write(dataOutput);
-        dataOutput.writeInt(vertices.size());
-        for (SubgraphVertex<S, I, V, E, EI> vertex : vertices.values()) {
-            vertex.write(dataOutput);
-        }
-    }
-
-    @Override
-    public void readFields(DataInput dataInput) throws IOException {
-        throw new UnsupportedOperationException("read fields without conf is not supported");
-    }
-
-
-    public void readFields(ImmutableClassesGiraphConfiguration conf, DataInput dataInput) throws IOException {
+  public void readFields(ImmutableClassesGiraphConfiguration conf, DataInput dataInput) throws IOException {
 //        try {
 ////            System.out.println("Read field for subgraph vertices with conf");
 //            throw new Exception();
@@ -89,15 +103,15 @@ public class SubgraphVertices<S extends WritableComparable,
 //            e.printStackTrace(System.out);
 //            e.printStackTrace();
 //        }
-        subgraphValue = (SV) conf.createSubgraphValue();
-        subgraphValue.readFields(dataInput);
-        int numVertices = dataInput.readInt();
-        vertices = new HashMap<>();
-        for (int i = 0; i < numVertices; i++) {
-            SubgraphVertex<S, I, V, E, EI> subgraphVertex = new DefaultSubgraphVertex<S, I, V, E, EI>();
-            subgraphVertex.readFields(conf, dataInput);
-            vertices.put(subgraphVertex.getId(), subgraphVertex);
-        }
+    subgraphValue = (SV) conf.createSubgraphValue();
+    subgraphValue.readFields(dataInput);
+    int numVertices = dataInput.readInt();
+    vertices = new HashMap<>();
+    for (int i = 0; i < numVertices; i++) {
+      SubgraphVertex<S, I, V, E, EI> subgraphVertex = new DefaultSubgraphVertex<S, I, V, E, EI>();
+      subgraphVertex.readFields(conf, dataInput);
+      vertices.put(subgraphVertex.getId(), subgraphVertex);
     }
+  }
 
 }

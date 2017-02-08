@@ -71,7 +71,7 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
     }
 //    LOG.info("Message processing time: " + (System.currentTimeMillis() - startTime));
 //    startTime = System.currentTimeMillis();
-    HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates = aStar(localUpdateMap, vertices, subgraph.getRemoteVertices());
+    HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates = aStar(localUpdateMap, vertices, subgraph.getSubgraphVertices().getRemoteVertices());
 //    LOG.info("Number of vertices processed in queue: " + count);
 //    LOG.info("Dijkstra time: " + (System.currentTimeMillis() - startTime));
 //    startTime = System.currentTimeMillis();
