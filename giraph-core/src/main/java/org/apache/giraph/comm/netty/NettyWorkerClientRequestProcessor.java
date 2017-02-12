@@ -33,13 +33,7 @@ import org.apache.giraph.comm.ServerData;
 import org.apache.giraph.comm.WorkerClient;
 import org.apache.giraph.comm.WorkerClientRequestProcessor;
 import org.apache.giraph.comm.messages.MessageStore;
-import org.apache.giraph.comm.requests.SendPartitionCurrentMessagesRequest;
-import org.apache.giraph.comm.requests.SendPartitionMutationsRequest;
-import org.apache.giraph.comm.requests.SendVertexRequest;
-import org.apache.giraph.comm.requests.SendWorkerEdgesRequest;
-import org.apache.giraph.comm.requests.SendWorkerVerticesRequest;
-import org.apache.giraph.comm.requests.WorkerRequest;
-import org.apache.giraph.comm.requests.WritableRequest;
+import org.apache.giraph.comm.requests.*;
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.edge.Edge;
@@ -467,6 +461,11 @@ public class NettyWorkerClientRequestProcessor<I extends WritableComparable,
   public void doRequest(WorkerInfo workerInfo,
                          WritableRequest writableRequest) {
     // If this is local, execute locally
+//    RequestType type = writableRequest.getType();
+//    if (type == RequestType.SEND_WORKER_MESSAGES_REQUEST) {
+//      LOG.info("WorkedId,Superstep:");
+//    }
+
     if (serviceWorker.getWorkerInfo().getTaskId() ==
         workerInfo.getTaskId()) {
       ((WorkerRequest) writableRequest).doRequest(serverData);
