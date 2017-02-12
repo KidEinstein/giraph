@@ -25,11 +25,14 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
 //    state = subgraph.getId().getSubgraphId().get();
     SubgraphVertices<LongWritable, LongWritable, LongWritable, NullWritable, LongWritable, NullWritable> subgraphVertices = subgraph.getSubgraphVertices();
     HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> vertices = subgraphVertices.getVertices();
-//    LOG.info("Number of vertices, " + vertices.size());
 //    long startTime = System.currentTimeMillis();
     HashMap<LongWritable, DistanceVertex> localUpdateMap = new HashMap<>();
+    int messageReceivedCount = 0;
+    int messageReceivedUnpackedCount = 0;
+    int insertionCount = 0;
     // Initialization step
     if (getSuperstep() == 0) {
+      LOG.info("Partition,Subgraph,Vertices:" + subgraph.getId().getPartitionId() + "," + subgraph.getId().getSubgraphId() + "," + subgraph.getSubgraphVertices().getVertices().size());
       // Initializing distance to max distance
       for (SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> vertex : vertices.values()) {
         vertex.setValue(new LongWritable(Long.MAX_VALUE));
@@ -48,9 +51,11 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
     // Update steps
     else {
       for (SubgraphMessage<LongWritable, BytesWritable> subgraphMessage : subgraphMessages) {
+        messageReceivedCount++;
         BytesWritable subgraphMessageValue = subgraphMessage.getMessage();
         ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(subgraphMessageValue.getBytes());
         while (!dataInput.endOfInput()) {
+          messageReceivedUnpackedCount++;
           long sinkVertex = dataInput.readLong();
           if (sinkVertex == -1) {
             break;
@@ -63,22 +68,26 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
           //LOG.info("Test, Current vertex: " + currentVertex.getId());
           long distance = currentVertex.getValue().get();
           if (sinkDistance < distance) {
+            insertionCount++;
             currentVertex.setValue(new LongWritable(sinkDistance));
             localUpdateMap.put(currentVertex.getId(), new DistanceVertex(currentVertex, sinkDistance));
           }
         }
       }
+
     }
 //    LOG.info("Message processing time: " + (System.currentTimeMillis() - startTime));
-//    startTime = System.currentTimeMillis();
-    HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates = aStar(localUpdateMap, vertices, subgraph.getSubgraphVertices().getRemoteVertices());
+    long startTime = System.currentTimeMillis();
+    HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates = aStar(localUpdateMap, vertices, subgraph.getSubgraphVertices().getRemoteVertices(), subgraph.getId());
 //    LOG.info("Number of vertices processed in queue: " + count);
-//    LOG.info("Dijkstra time: " + (System.currentTimeMillis() - startTime));
-//    startTime = System.currentTimeMillis();
+    long dijkstraTime = System.currentTimeMillis() - startTime;
+    long startTime2 = System.currentTimeMillis();
     int messageCount = packAndSendMessages(remoteVertexUpdates);
     LOG.info("MESSAGE STATS-PartitionID,SubgraphID,Superstep,messages," + subgraph.getId().getPartitionId() + "," + subgraph.getId().getSubgraphId() + "," + getSuperstep() + "," + messageCount);
-
-//    LOG.info("Pack and send time: " + (System.currentTimeMillis() - startTime));
+    LOG.info("Partition,Superstep,Subgraph,MessageCount,MessageUnpackedCount,LocalMapSize,InsertionCount,DijstraTime,packandsendTime:" +
+        subgraph.getId().getPartitionId() + "," + getSuperstep() + "," + subgraph.getId().getSubgraphId() + ","
+        + messageReceivedCount + "," + messageReceivedUnpackedCount + "," + localUpdateMap.size() + "," + insertionCount
+        + "," + dijkstraTime + "," + (System.currentTimeMillis() - startTime2));
     subgraph.voteToHalt();
 
   }
@@ -86,11 +95,11 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
   private HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long>
   aStar(HashMap<LongWritable, DistanceVertex> localUpdateMap,
         HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> vertices,
-        HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> remoteVertices) {
+        HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> remoteVertices, SubgraphId subgraphId) {
     // Dijkstra's
     HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates = new HashMap<>();
     DistanceVertex currentDistanceVertex;
-    int count = 0;
+    int count = 0, addedNew = 0, replacedOld = 0, remoteAddNew = 0, remoteReplaced = 0;
     PriorityQueue<DistanceVertex> localUpdateQueue = new PriorityQueue<>(localUpdateMap.values());
     while ((currentDistanceVertex = localUpdateQueue.poll()) != null) {
       count++;
@@ -108,10 +117,12 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
             if (!localUpdateMap.containsKey(neighborVertex.getId())) {
               localUpdateMap.put(neighborVertex.getId(), distanceVertex);
               localUpdateQueue.add(distanceVertex);
+              addedNew++;
             } else {
               // Works because of overriding equals to only compare the vertex object and not the distance
               localUpdateQueue.remove(distanceVertex);
               localUpdateQueue.add(distanceVertex);
+              replacedOld++;
             }
           }
         } else {
@@ -120,15 +131,20 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
           if (!remoteVertexUpdates.containsKey(remoteSubgraphVertex)) {
             // Every subsequent iteration of the while loop would have a greater distance for the remote
             remoteVertexUpdates.put(remoteSubgraphVertex, newDistance);
+            remoteAddNew++;
           } else {
             Long distance = remoteVertexUpdates.get(remoteSubgraphVertex);
             if (distance > newDistance) {
               remoteVertexUpdates.put(remoteSubgraphVertex, newDistance);
+              remoteReplaced++;
             }
           }
         }
       }
     }
+    LOG.info("Superstep,Parition,SubgraphId,pollCount,addedNew,replacedOld,remoteAddNew,remoteReplaced:" +
+    getSuperstep() + "," + subgraphId.getPartitionId() + "," + subgraphId.getSubgraphId() + "," + count + "," +
+    addedNew + "," + replacedOld + "," + remoteAddNew + "," + remoteReplaced);
     return remoteVertexUpdates;
   }
 
