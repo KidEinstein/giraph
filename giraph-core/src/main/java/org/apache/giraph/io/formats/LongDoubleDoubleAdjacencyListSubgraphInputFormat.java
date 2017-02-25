@@ -35,7 +35,7 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
         public SubgraphEdge<LongWritable, NullWritable, NullWritable> decodeVertexEdge(String id) {
             LongWritable vertexId = new LongWritable(Long.parseLong(id));
             DefaultSubgraphEdge<LongWritable, NullWritable, NullWritable> subgraphEdge = new DefaultSubgraphEdge<>();
-            subgraphEdge.initialize(null, null, vertexId);
+            subgraphEdge.initialize(NullWritable.get(), NullWritable.get(), vertexId);
             return subgraphEdge;
         }
 
