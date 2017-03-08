@@ -3,6 +3,7 @@ package org.apache.giraph.graph;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -76,6 +77,7 @@ public class DefaultSubgraphVertex<S extends WritableComparable, I extends Writa
         for (SubgraphEdge<I, E, EI> edge : outEdges) {
 //            System.out.println("Write: " + "Edge:" + edge.getSinkVertexId() + " Class: " + edge.getSinkVertexId().getClass().getSimpleName());
             edge.getSinkVertexId().write(dataOutput);
+            edge.getValue().write(dataOutput);
         }
     }
 
@@ -104,8 +106,10 @@ public class DefaultSubgraphVertex<S extends WritableComparable, I extends Writa
             //System.out.println("\n THIS IS I :  "+ i);
             DefaultSubgraphEdge<I, E, EI> se = new DefaultSubgraphEdge<>();
             I targetId = (I) conf.createSubgraphVertexId();
+            E edgeValue = (E) conf.createSubgraphEdgeValue();
             targetId.readFields(dataInput);
-            se.initialize(null, null, targetId);
+            edgeValue.readFields(dataInput);
+            se.initialize(null, edgeValue, targetId);
             //System.out.println("Read: " + "Edge:" + se.getSinkVertexId() + " Class: " + se.getSinkVertexId().getClass().getSimpleName());
             outEdges.add(se);
         }

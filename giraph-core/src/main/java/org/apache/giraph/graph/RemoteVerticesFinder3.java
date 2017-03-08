@@ -1,28 +1,26 @@
-package org.apache.giraph.examples;
+package org.apache.giraph.graph;
 
 import org.apache.giraph.comm.messages.SubgraphMessage;
 import org.apache.giraph.graph.*;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
-import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.*;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 
 /**
  * Created by anirudh on 06/11/16.
  */
-public class RemoteVerticesFinder3 extends SubgraphComputation<LongWritable,
+public class RemoteVerticesFinder3 extends UserSubgraphComputation<LongWritable,
     LongWritable, DoubleWritable, DoubleWritable, BytesWritable, NullWritable, LongWritable> {
 
   @Override
-  public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<SubgraphMessage<LongWritable, BytesWritable>> messages) throws IOException {
-    HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> remoteVertices = new HashMap<>();
+  public void compute(Iterable<SubgraphMessage<LongWritable, BytesWritable>> messages) throws IOException {
+    Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph = getSubgraph();
+    HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> remoteVertices = subgraph.getSubgraphVertices().getRemoteVertices();
     //System.out.println("IN RVF 3\n");
     for (SubgraphMessage<LongWritable, BytesWritable> message : messages) {
+      System.out.println("Received a message, TADA" + message.getMessage());
       ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(message.getMessage().getBytes());
       SubgraphId<LongWritable> senderSubgraphId = new SubgraphId<>();
       senderSubgraphId.readFields(dataInput);
@@ -39,7 +37,6 @@ public class RemoteVerticesFinder3 extends SubgraphComputation<LongWritable,
         remoteVertices.put(rsvId, rsv);
       }
     }
-    subgraph.getSubgraphVertices().setRemoteVertices(remoteVertices);
   }
 }
 

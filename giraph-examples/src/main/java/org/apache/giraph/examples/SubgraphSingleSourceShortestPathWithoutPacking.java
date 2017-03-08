@@ -15,15 +15,16 @@ import java.util.*;
 /**
  * Created by anirudh on 25/01/17.
  */
-public class SubgraphSingleSourceShortestPathWithoutPacking extends SubgraphComputation<LongWritable,
+public class SubgraphSingleSourceShortestPathWithoutPacking extends UserSubgraphComputation<LongWritable,
     LongWritable, LongWritable, NullWritable, BytesWritable, LongWritable, NullWritable> {
-  public static final Logger LOG = Logger.getLogger(SubgraphSingleSourceShortestPath.class);
+  public static final Logger LOG = Logger.getLogger(SubgraphSingleSourceShortestPathWithoutPacking.class);
   private long state = 0;
 
   @Override
-  public void compute(Subgraph<LongWritable, LongWritable, LongWritable, NullWritable, LongWritable, NullWritable> subgraph, Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
+  public void compute(Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
+    DefaultSubgraph<LongWritable, LongWritable, LongWritable, NullWritable, LongWritable, NullWritable> subgraph = (DefaultSubgraph)getSubgraph();
     SubgraphVertices<LongWritable, LongWritable, LongWritable, NullWritable, LongWritable, NullWritable> subgraphVertices = subgraph.getSubgraphVertices();
-    HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> vertices = subgraphVertices.getVertices();
+    HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> vertices = subgraphVertices.getLocalVertices();
 //    LOG.info("Number of vertices, " + vertices.size());
 //    long startTime = System.currentTimeMillis();
     HashMap<LongWritable, DistanceVertex> localUpdateMap = new HashMap<>();
@@ -70,7 +71,7 @@ public class SubgraphSingleSourceShortestPathWithoutPacking extends SubgraphComp
 //    LOG.info("Dijkstra time: " + (System.currentTimeMillis() - startTime));
 //    startTime = System.currentTimeMillis();
     int messageCount = sendMessages(remoteVertexUpdates);
-    LOG.info("MESSAGE STATS-PartitionID,SubgraphID,Superstep,messages," + subgraph.getId().getPartitionId() + "," + subgraph.getId().getSubgraphId() + "," + getSuperstep() + "," + messageCount);
+    LOG.info("MESSAGE STATS-PartitionID,SubgraphID,Superstep,messages," + subgraph.getPartitionId() + "," + subgraph.getSubgraphId() + "," + getSuperstep() + "," + messageCount);
     subgraph.voteToHalt();
 
   }
