@@ -291,7 +291,7 @@ public class ComputeCallable<I extends WritableComparable, V extends Writable,
           context.progress();
           long tempTime = System.currentTimeMillis();
           computation.compute(vertex, messages);
-//          LOG.info("Superstep,PartitionID,subgraphID,Time:" + serviceWorker.getSuperstep() + "," + partition.getId() + "," + ((Subgraph<SubgraphId<LongWritable>,?,?,?,?,?>)vertex).getId().getSubgraphId() + "," + (System.currentTimeMillis() - tempTime));
+          LOG.info("Superstep,PartitionID,subgraphID,Time:" + serviceWorker.getSuperstep() + "," + partition.getId() + "," + ((Subgraph<SubgraphId<LongWritable>,?,?,?,?,?>)vertex).getSubgraphId() + "," + (System.currentTimeMillis() - tempTime));
           // Need to unwrap the mutated edges (possibly)
           vertex.unwrapMutableEdges();
           //Compact edges representation if possible

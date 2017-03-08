@@ -1,15 +1,5 @@
 package org.apache.giraph.examples;
 
-import org.apache.giraph.edge.Edge;
-import org.apache.giraph.graph.BasicComputation;
-import org.apache.giraph.graph.Subgraph;
-import org.apache.giraph.graph.SubgraphComputation;
-import org.apache.giraph.graph.SubgraphVertices;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
-
-import java.io.IOException;
-
 /**
  * Created by anirudh on 27/09/16.
  */

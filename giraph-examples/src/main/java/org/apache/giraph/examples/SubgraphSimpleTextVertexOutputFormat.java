@@ -43,7 +43,7 @@ public class SubgraphSimpleTextVertexOutputFormat extends
       throws IOException, InterruptedException {
       Subgraph<LongWritable, LongWritable, NullWritable, NullWritable, LongWritable, NullWritable> subgraph = (Subgraph) vertex;
       getRecordWriter().write(
-          new Text(subgraph.getId().getSubgraphId().toString()),
+          new Text(subgraph.getSubgraphId().toString()),
           new Text(subgraph.getSubgraphVertices().getSubgraphValue().toString()));
     }
   }

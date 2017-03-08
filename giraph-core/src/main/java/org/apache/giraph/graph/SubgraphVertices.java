@@ -9,6 +9,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
@@ -24,7 +25,7 @@ public class SubgraphVertices<S extends WritableComparable,
     I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable, EI extends WritableComparable> implements Writable {
   private long numVertices;
 
-  private HashMap<S, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices;
+  private HashMap<I, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices;
   private SV subgraphValue;
   private HashMap<I, SubgraphVertex<S, I, V, E, EI>> vertices;
 
@@ -40,12 +41,52 @@ public class SubgraphVertices<S extends WritableComparable,
 //        }
   }
 
-  public HashMap<S, RemoteSubgraphVertex<S, I, V, E, EI>> getRemoteVertices() {
+  public HashMap<I, RemoteSubgraphVertex<S, I, V, E, EI>> getRemoteVertices() {
     return remoteVertices;
   }
 
-  public void setRemoteVertices(HashMap<S, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices) {
+  public long getNumRemoteVertices() {
+    return (long) remoteVertices.size();
+  }
+
+  public void setRemoteVertices(HashMap<I, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices) {
     this.remoteVertices = remoteVertices;
+  }
+
+  public Iterable<SubgraphVertex<S, I, V, E, EI>> getVertices() {
+    return new Iterable<SubgraphVertex<S, I, V, E, EI>>() {
+
+      private Iterator<SubgraphVertex<S, I, V, E, EI>> localVertexIterator = vertices.values().iterator();
+      private Iterator<RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertexIterator = remoteVertices.values().iterator();
+
+      @Override
+      public Iterator<SubgraphVertex<S, I, V, E, EI>> iterator() {
+        return new Iterator<SubgraphVertex<S, I, V, E, EI>>() {
+          @Override
+          public boolean hasNext() {
+            if (localVertexIterator.hasNext()) {
+              return true;
+            } else {
+              return remoteVertexIterator.hasNext();
+            }
+          }
+
+          @Override
+          public SubgraphVertex<S, I, V, E, EI> next() {
+            if (localVertexIterator.hasNext()) {
+              return localVertexIterator.next();
+            } else {
+              return remoteVertexIterator.next();
+            }
+          }
+
+          @Override
+          public void remove() {
+
+          }
+        };
+      }
+    };
   }
 
   public SV getSubgraphValue() {
@@ -60,7 +101,7 @@ public class SubgraphVertices<S extends WritableComparable,
     return vertices.size();
   }
 
-  public HashMap<I, SubgraphVertex<S, I, V, E, EI>> getVertices() {
+  public HashMap<I, SubgraphVertex<S, I, V, E, EI>> getLocalVertices() {
     return vertices;
   }
 
@@ -71,19 +112,18 @@ public class SubgraphVertices<S extends WritableComparable,
 
   public void initialize(HashMap<I, SubgraphVertex<S, I, V, E, EI>> vertices) {
     this.vertices = vertices;
+    this.remoteVertices = new HashMap<>();
   }
-
-  public Iterable<SubgraphEdge<I, E, EI>> getEdges() {
-    // TODO: Loop through all vertices and return edges
-    return null;
-  }
-
 
   @Override
   public void write(DataOutput dataOutput) throws IOException {
     subgraphValue.write(dataOutput);
     dataOutput.writeInt(vertices.size());
     for (SubgraphVertex<S, I, V, E, EI> vertex : vertices.values()) {
+      vertex.write(dataOutput);
+    }
+    dataOutput.writeInt(remoteVertices.size());
+    for (RemoteSubgraphVertex<S, I, V, E, EI> vertex : remoteVertices.values()) {
       vertex.write(dataOutput);
     }
   }
@@ -111,6 +151,13 @@ public class SubgraphVertices<S extends WritableComparable,
       SubgraphVertex<S, I, V, E, EI> subgraphVertex = new DefaultSubgraphVertex<S, I, V, E, EI>();
       subgraphVertex.readFields(conf, dataInput);
       vertices.put(subgraphVertex.getId(), subgraphVertex);
+    }
+    remoteVertices = new HashMap<>();
+    int numRemoteVertices = dataInput.readInt();
+    for (int i = 0; i < numRemoteVertices; i++) {
+      RemoteSubgraphVertex<S, I, V, E, EI> remoteSubgraphVertex = new DefaultRemoteSubgraphVertex<>();
+      remoteSubgraphVertex.readFields(conf, dataInput);
+      remoteVertices.put(remoteSubgraphVertex.getId(), remoteSubgraphVertex);
     }
   }
 

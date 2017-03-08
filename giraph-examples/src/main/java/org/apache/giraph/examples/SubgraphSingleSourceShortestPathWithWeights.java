@@ -20,6 +20,7 @@ import org.apache.giraph.graph.*;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.log4j.Logger;
@@ -41,10 +42,10 @@ import java.util.*;
  * @author simmhan
  *
  */
-public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComputation<LongWritable,
-    LongWritable, LongWritable, NullWritable, BytesWritable, ShortestPathSubgraphValue, NullWritable> {
+public class SubgraphSingleSourceShortestPathWithWeights extends UserSubgraphComputation<LongWritable,
+    LongWritable, LongWritable, DoubleWritable, BytesWritable, ShortestPathSubgraphValue, NullWritable> {
+  public static final Logger LOG = Logger.getLogger(SubgraphSingleSourceShortestPathWithWeights.class);
 
-  public static final Logger LOG = Logger.getLogger(SingleSourceShortestPathOnTemplateNoParent.class);
   // Input Variables
 
   // Output Variables
@@ -68,7 +69,7 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
    */
   private static class DistanceVertex implements Comparable<DistanceVertex> {
     public short distance;
-    public SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> vertex;
+    public SubgraphVertex<LongWritable, LongWritable, LongWritable, DoubleWritable, NullWritable> vertex;
 
     public DistanceVertex(SubgraphVertex vertex_, short distance_) {
       vertex = vertex_;
@@ -88,9 +89,7 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
   @Override
   public void compute(Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
 //    long subgraphStartTime = System.currentTimeMillis();
-
-    Subgraph<LongWritable, LongWritable, LongWritable, NullWritable, ShortestPathSubgraphValue, NullWritable> subgraph = getSubgraph();
-
+    Subgraph<LongWritable, LongWritable, LongWritable, DoubleWritable, ShortestPathSubgraphValue, NullWritable> subgraph = getSubgraph();
     try {
       // init IDs for logging
       // FIXME: Charith, we need an init() method later on
@@ -102,7 +101,7 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
 
 //      log("START superstep with received input messages count = " + packedSubGraphMessages.size());
 
-      Set<SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> rootVertices = null;
+      Set<SubgraphVertex<LongWritable, LongWritable, LongWritable, DoubleWritable, NullWritable>> rootVertices = null;
 
       ///////////////////////////////////////////////////////////
       // First superstep. Get source superstep as input.
@@ -126,11 +125,11 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
         ShortestPathSubgraphValue subgraphValue = new ShortestPathSubgraphValue();
         subgraph.getSubgraphVertices().setSubgraphValue(subgraphValue);
         subgraphValue.shortestDistanceMap = new HashMap<Long, Short>((int) subgraph.getSubgraphVertices().getNumVertices());
-        for (SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> v : subgraph.getSubgraphVertices().getLocalVertices().values()) {
+        for (SubgraphVertex<LongWritable, LongWritable, LongWritable, DoubleWritable, NullWritable> v : subgraph.getSubgraphVertices().getLocalVertices().values()) {
           subgraphValue.shortestDistanceMap.put(v.getId().get(), Short.MAX_VALUE);
         }
 
-        for (SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> v : subgraph.getSubgraphVertices().getRemoteVertices().values()) {
+        for (SubgraphVertex<LongWritable, LongWritable, LongWritable, DoubleWritable, NullWritable> v : subgraph.getSubgraphVertices().getRemoteVertices().values()) {
           subgraphValue.shortestDistanceMap.put(v.getId().get(), Short.MAX_VALUE);
 //          remoteVertexCount++;
         }
@@ -201,7 +200,8 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
       //
 
       // if there are changes, then run dikstras
-
+      int changeCount = 0;
+      int messageCount = 0;
       if (rootVertices != null && rootVertices.size() > 0) {
         // List of remote vertices which could be affected by changes to distance
         // This does local agg that eliminates sending min dist to same vertex from
@@ -210,7 +210,7 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
 
         // Update distances within local subgraph
         // Get list of remote vertices that were reached and updated.
-        aStar(rootVertices, subgraphValue.shortestDistanceMap, remoteUpdateSet, subgraph);
+        String logMsg = aStar(rootVertices, subgraphValue.shortestDistanceMap, remoteUpdateSet, subgraph);
 
 //        log("END diskstras with subgraph local vertices="+
 //            (subgraph.getSubgraphVertices().getNumVertices() - remoteVertexCount) + "," +logMsg);
@@ -228,10 +228,10 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
 //    		}
 
         // Aggregate messages to remote subgraph
-        packAndSendMessages(remoteUpdateSet, subgraph);
+        changeCount = remoteUpdateSet.size();
+        messageCount = packAndSendMessages(remoteUpdateSet, subgraph);
       }
 
-//      log("END superstep. Sent remote vertices = " + changeCount + ", remote messages =" + messageCount);
 
       // if no distances were changed, we terminate.
       // if no one's distances change, everyone has votd to halt
@@ -279,12 +279,10 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
 //    }
 //  }
 
-  void packAndSendMessages(Set<Long> remoteVertexUpdates, Subgraph<LongWritable, LongWritable, LongWritable, NullWritable, ShortestPathSubgraphValue, NullWritable> subgraph) throws IOException {
+  int packAndSendMessages(Set<Long> remoteVertexUpdates, Subgraph<LongWritable, LongWritable, LongWritable, DoubleWritable, ShortestPathSubgraphValue, NullWritable> subgraph) throws IOException {
     ShortestPathSubgraphValue subgraphValue = subgraph.getSubgraphVertices().getSubgraphValue();
     HashMap<SubgraphId<LongWritable>, ExtendedByteArrayDataOutput> messagesMap = new HashMap<>();
-    int unpackedMessageCount = 0;
     for (long entry : remoteVertexUpdates) {
-      unpackedMessageCount++;
       RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> remoteSubgraphVertex = (RemoteSubgraphVertex) subgraph.getSubgraphVertices().getVertexById(new LongWritable(entry));
       ExtendedByteArrayDataOutput dataOutput;
       if (!messagesMap.containsKey(remoteSubgraphVertex.getSubgraphId())) {
@@ -297,22 +295,21 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
       dataOutput.writeShort(subgraphValue.shortestDistanceMap.get(entry));
       // LOG.info("SubgraphID" + remoteSubgraphVertex.getSubgraphId() + " Sending vertex id " + remoteSubgraphVertex.getId().get() + " distance "+ entry.getValue());
     }
+    int messageCount = 0;
     for (Map.Entry<SubgraphId<LongWritable>, ExtendedByteArrayDataOutput> entry : messagesMap.entrySet()) {
       ExtendedByteArrayDataOutput dataOutput = entry.getValue();
       dataOutput.writeLong(-1);
       sendMessage(entry.getKey(), new BytesWritable(dataOutput.getByteArray()));
+      messageCount++;
     }
-    LOG.info("Superstep,SubgraphId,unpackedSentMessageCount,packedSentMessageCount:" + getSuperstep() + "," + subgraph.getSubgraphId() + "," + unpackedMessageCount + "," + messagesMap.size());
+    return messageCount;
   }
 
 
   private void unpackSubgraphMessages(
-      Iterable<SubgraphMessage<LongWritable, BytesWritable>> packedSubGraphMessages, Subgraph<LongWritable, LongWritable, LongWritable, NullWritable, ShortestPathSubgraphValue, NullWritable> subgraph, Set<SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> rootVertices) throws IOException {
+      Iterable<SubgraphMessage<LongWritable, BytesWritable>> packedSubGraphMessages, Subgraph<LongWritable, LongWritable, LongWritable, DoubleWritable, ShortestPathSubgraphValue, NullWritable> subgraph, Set<SubgraphVertex<LongWritable, LongWritable, LongWritable, DoubleWritable, NullWritable>> rootVertices) throws IOException {
     ShortestPathSubgraphValue subgraphValue = subgraph.getSubgraphVertices().getSubgraphValue();
-    int unpackedMessageCount = 0;
-    int packedMessageCount = 0;
     for (SubgraphMessage<LongWritable, BytesWritable> subgraphMessage : packedSubGraphMessages) {
-      packedMessageCount++;
       BytesWritable subgraphMessageValue = subgraphMessage.getMessage();
       ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(subgraphMessageValue.getBytes());
       while (!dataInput.endOfInput()) {
@@ -320,7 +317,6 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
         if (sinkVertex == -1) {
           break;
         }
-        unpackedMessageCount++;
         short sinkDistance = dataInput.readShort();
         //LOG.info("Test, Sink vertex received: " + sinkVertex);
 //        SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> currentVertex = vertices.get(new LongWritable(sinkVertex));
@@ -334,7 +330,6 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
         }
       }
     }
-    LOG.info("Superstep,SubgraphId,unpackedReceivedMessageCount,packedReceivedMessageCount,rootVertices:" + getSuperstep() + "," + subgraph.getSubgraphId() + "," + unpackedMessageCount + "," + packedMessageCount + "," + rootVertices.size());
   }
 
 
@@ -351,10 +346,10 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
    * @param remoteUpdateSet a list of remote vertices whose parent distances have changed.
    * @param subgraph
    */
-  public void aStar(
-      Set<SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> rootVertices,
+  public static String aStar(
+      Set<SubgraphVertex<LongWritable, LongWritable, LongWritable, DoubleWritable, NullWritable>> rootVertices,
       Map<Long, Short> shortestDistanceMap,
-      Set<Long> remoteUpdateSet, Subgraph<LongWritable, LongWritable, LongWritable, NullWritable, ShortestPathSubgraphValue, NullWritable> subgraph) {
+      Set<Long> remoteUpdateSet, Subgraph<LongWritable, LongWritable, LongWritable, DoubleWritable, ShortestPathSubgraphValue, NullWritable> subgraph) {
 
     // add root vertex whose distance was updated to the sorted distance list
     // assert rootVertex.isRemote() == false
@@ -366,7 +361,7 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
     // NOTE: Maybe using TreeSet with Comparator passed in constructor may work better?
     PriorityQueue<DistanceVertex> localUpdateQueue = new PriorityQueue<>();
     Map<Long, DistanceVertex> localUpdateMap = new HashMap<>();
-    for (SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> rootVertex : rootVertices) {
+    for (SubgraphVertex<LongWritable, LongWritable, LongWritable, DoubleWritable, NullWritable> rootVertex : rootVertices) {
       short rootDistance = shortestDistanceMap.get(rootVertex.getId().get());
       DistanceVertex distanceVertex = new DistanceVertex(rootVertex, rootDistance);
       localUpdateQueue.add(distanceVertex);
@@ -374,7 +369,7 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
     }
 
 
-    SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> currentVertex;
+    SubgraphVertex<LongWritable, LongWritable, LongWritable, DoubleWritable, NullWritable> currentVertex;
     DistanceVertex currentDistanceVertex;
 
     // FIXME:TEMPDEL: temporary variable for logging
@@ -389,15 +384,15 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
       // get the shortest distance for the current vertex
       currentVertex = currentDistanceVertex.vertex;
       // calculate potential new distance for all children
-      short newChildDistance = (short) (currentDistanceVertex.distance + 1); // FIXME: this will not work for weighted edges
 
       // BFS traverse to children of current vertex
       // update their shortest distance if necessary
       // add them to update set if distance has changed
-      for (SubgraphEdge<LongWritable, NullWritable, NullWritable> e : currentVertex.getOutEdges()) {
-
+      for (SubgraphEdge<LongWritable, DoubleWritable, NullWritable> e : currentVertex.getOutEdges()) {
+//        LOG.info("Source,Destination,Decoded edge:" + currentVertex.getId() + "," + e.getSinkVertexId()+ "," + e.getValue());
+        short newChildDistance = (short) (currentDistanceVertex.distance + (short) e.getValue().get());
         // get child vertex
-        SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> childVertex = subgraph.getSubgraphVertices().getVertexById(e.getSinkVertexId());
+        SubgraphVertex<LongWritable, LongWritable, LongWritable, DoubleWritable, NullWritable> childVertex = subgraph.getSubgraphVertices().getVertexById(e.getSinkVertexId());
         long childVertexID = childVertex.getId().get();
         short childDistance = shortestDistanceMap.get(childVertexID);
 
@@ -440,9 +435,14 @@ public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComp
     } // end vertex traversal
 
     // FIXME:TEMPDEL
-    LOG.info("Superstep,SubgraphId,localUpdate,incrementalChangeCount:" + getSuperstep() + "," + subgraph.getSubgraphId() + "," + localUpdateCount + "," + incrementalChangeCount);
+    return "localUpdateCount=" + localUpdateCount + ", incrementalChangeCount=" + incrementalChangeCount; // TEMPDEL
   }
 
+  /**
+   * Log message to file
+   *
+   * @param message
+   */
 
 
   private void log(String message, Exception ex) {
