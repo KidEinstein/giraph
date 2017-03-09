@@ -9,6 +9,6 @@ public class SubgraphMasterComputeSingleSourceShortestPath extends SubgraphMaste
   @Override
   public void subgraphCompute() {
     long superstep = getSubgraphSuperstep();
-    setComputation(SubgraphSingleSourceShortestPath.class);
+    setComputation(SingleSourceShortestPathOnTemplateNoParent.class);
   }
 }
