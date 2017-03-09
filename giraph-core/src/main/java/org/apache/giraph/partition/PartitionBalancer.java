@@ -18,12 +18,18 @@
 
 package org.apache.giraph.partition;
 
+import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
+import org.apache.giraph.graph.migration.FirstFitDecreasing;
+import org.apache.giraph.graph.migration.MappingReader;
+import org.apache.giraph.graph.migration.MappingRow;
+import org.apache.giraph.graph.migration.PartitionMapping;
 import org.apache.giraph.worker.WorkerInfo;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Objects;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,55 +45,72 @@ import java.util.Set;
  * Helper class for balancing partitions across a set of workers.
  */
 public class PartitionBalancer {
-  /** Partition balancing algorithm */
+  /**
+   * Partition balancing algorithm
+   */
   public static final String PARTITION_BALANCE_ALGORITHM =
-    "hash.partitionBalanceAlgorithm";
-  /** No rebalancing during the supersteps */
+      "hash.partitionBalanceAlgorithm";
+  /**
+   * No rebalancing during the supersteps
+   */
   public static final String STATIC_BALANCE_ALGORITHM =
-    "static";
-  /** Rebalance across supersteps by edges */
+      "static";
+  /**
+   * Rebalance across supersteps by edges
+   */
   public static final String EGDE_BALANCE_ALGORITHM =
-    "edges";
-  /** Rebalance across supersteps by vertices */
+      "edges";
+  /**
+   * Rebalance across supersteps by vertices
+   */
   public static final String VERTICES_BALANCE_ALGORITHM =
-    "vertices";
-  /** Class logger */
+      "vertices";
+  /**
+   * Class logger
+   */
   private static Logger LOG = Logger.getLogger(PartitionBalancer.class);
 
   /**
    * What value to balance partitions with?  Edges, vertices?
    */
   private enum BalanceValue {
-    /** Not chosen */
+    /**
+     * Not chosen
+     */
     UNSET,
-    /** Balance with edges */
+    /**
+     * Balance with edges
+     */
     EDGES,
-    /** Balance with vertices */
+    /**
+     * Balance with vertices
+     */
     VERTICES
   }
 
   /**
    * Do not construct this class.
    */
-  private PartitionBalancer() { }
+  private PartitionBalancer() {
+  }
 
   /**
    * Get the value used to balance.
    *
    * @param partitionStat Stats of this partition.
-   * @param balanceValue Type of the value to balance.
+   * @param balanceValue  Type of the value to balance.
    * @return Balance value.
    */
   private static long getBalanceValue(PartitionStats partitionStat,
-      BalanceValue balanceValue) {
+                                      BalanceValue balanceValue) {
     switch (balanceValue) {
-    case EDGES:
-      return partitionStat.getEdgeCount();
-    case VERTICES:
-      return partitionStat.getVertexCount();
-    default:
-      throw new IllegalArgumentException(
-          "getBalanceValue: Illegal balance value " + balanceValue);
+      case EDGES:
+        return partitionStat.getEdgeCount();
+      case VERTICES:
+        return partitionStat.getVertexCount();
+      default:
+        throw new IllegalArgumentException(
+            "getBalanceValue: Illegal balance value " + balanceValue);
     }
   }
 
@@ -96,9 +119,13 @@ public class PartitionBalancer {
    */
   private static class PartitionOwnerComparator implements
       Comparator<PartitionOwner> {
-    /** Map of owner to stats */
+    /**
+     * Map of owner to stats
+     */
     private final Map<PartitionOwner, PartitionStats> ownerStatMap;
-    /** Value type to compare on */
+    /**
+     * Value type to compare on
+     */
     private final BalanceValue balanceValue;
 
 
@@ -129,20 +156,28 @@ public class PartitionBalancer {
    */
   private static class WorkerInfoAssignments implements
       Comparable<WorkerInfoAssignments> {
-    /** Worker info associated */
+    /**
+     * Worker info associated
+     */
     private final WorkerInfo workerInfo;
-    /** Balance value */
+    /**
+     * Balance value
+     */
     private final BalanceValue balanceValue;
-    /** Map of owner to stats */
+    /**
+     * Map of owner to stats
+     */
     private final Map<PartitionOwner, PartitionStats> ownerStatsMap;
-    /** Current value of this object */
+    /**
+     * Current value of this object
+     */
     private long value = 0;
 
     /**
      * Constructor with final values.
      *
-     * @param workerInfo Worker info for assignment.
-     * @param balanceValue Value used to balance.
+     * @param workerInfo    Worker info for assignment.
+     * @param balanceValue  Value used to balance.
      * @param ownerStatsMap Map of owner to stats.
      */
     public WorkerInfoAssignments(
@@ -202,18 +237,79 @@ public class PartitionBalancer {
   /**
    * Balance the partitions with an algorithm based on a value.
    *
-   * @param conf Configuration to find the algorithm
-   * @param partitionOwners All the owners of all partitions
-   * @param allPartitionStats All the partition stats
+   * @param conf                 Configuration to find the algorithm
+   * @param partitionOwners      All the owners of all partitions
+   * @param allPartitionStats    All the partition stats
    * @param availableWorkerInfos All the available workers
    * @return Balanced partition owners
    */
+
+  public static Collection<PartitionOwner> balancePartitionsAcrossWorkersImproved(
+      Configuration conf,
+      Collection<PartitionOwner> partitionOwners,
+      Collection<PartitionStats> allPartitionStats,
+      Collection<WorkerInfo> availableWorkerInfos) {
+    List<WorkerInfo> availableWorkerInfosList = (List<WorkerInfo>) availableWorkerInfos;
+    Collections.sort(availableWorkerInfosList, new Comparator<WorkerInfo>() {
+      @Override
+      public int compare(WorkerInfo o1, WorkerInfo o2) {
+        return o1.getTaskId() - o2.getTaskId();
+      }
+    });
+    ArrayList<MappingRow> mappingRows = null;
+    try {
+      mappingRows = MappingReader.readFile((ImmutableClassesGiraphConfiguration) conf);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    List<Set<Integer>> bins = FirstFitDecreasing.pack(mappingRows);
+    HashMap<Integer, Set<Integer>> workerPartitionMap = new HashMap<>();
+    for (PartitionOwner partitionOwner : partitionOwners) {
+      int taskId = partitionOwner.getWorkerInfo().getTaskId();
+      int partitionId = partitionOwner.getPartitionId();
+      LOG.info("Old Mapping:PartitionId,TaskId:" + partitionId + "," + taskId);
+      if (workerPartitionMap.containsKey(taskId)) {
+        workerPartitionMap.get(taskId).add(partitionId);
+      } else {
+        Set<Integer> partitions = new HashSet<>();
+        partitions.add(partitionId);
+        workerPartitionMap.put(taskId, partitions);
+      }
+    }
+    Map<Integer, Set<Integer>> newWorkerPartitionMap = PartitionMapping.computeVmMapping(workerPartitionMap, bins, availableWorkerInfos.size());
+    List<PartitionOwner> partitionOwnerList = (List<PartitionOwner>) partitionOwners;
+    Collections.sort(partitionOwnerList, new Comparator<PartitionOwner>() {
+      @Override
+      public int compare(PartitionOwner o1, PartitionOwner o2) {
+        return o1.getPartitionId() - o2.getPartitionId();
+      }
+    });
+
+    for (Map.Entry<Integer, Set<Integer>> entry : newWorkerPartitionMap.entrySet()) {
+      int taskId = entry.getKey();
+      WorkerInfo info = availableWorkerInfosList.get(taskId);
+      for (Integer partitionId : entry.getValue()) {
+        PartitionOwner partitionOwner = partitionOwnerList.get(partitionId);
+        partitionOwner.setWorkerInfo(info);
+      }
+    }
+    for (PartitionOwner partitionOwner : partitionOwners) {
+      int taskId = partitionOwner.getWorkerInfo().getTaskId();
+      int partitionId = partitionOwner.getPartitionId();
+      LOG.info("New Mapping:PartitionId,TaskId:" + partitionId + "," + taskId);
+    }
+
+    return partitionOwners;
+  }
+
   public static Collection<PartitionOwner> balancePartitionsAcrossWorkers(
       Configuration conf,
       Collection<PartitionOwner> partitionOwners,
       Collection<PartitionStats> allPartitionStats,
       Collection<WorkerInfo> availableWorkerInfos) {
-
+    if (((ImmutableClassesGiraphConfiguration)conf).getPartitionStatsFile() != null) {
+      return balancePartitionsAcrossWorkersImproved(conf, partitionOwners, allPartitionStats, availableWorkerInfos);
+    }
     String balanceAlgorithm =
         conf.get(PARTITION_BALANCE_ALGORITHM, STATIC_BALANCE_ALGORITHM);
     if (LOG.isInfoEnabled()) {
@@ -304,11 +400,11 @@ public class PartitionBalancer {
    * Helper function to update partition owners and determine which
    * partitions need to be sent from a specific worker.
    *
-   * @param partitionOwnerList Local {@link PartitionOwner} list for the
-   *                           given worker
-   * @param myWorkerInfo Worker info
+   * @param partitionOwnerList       Local {@link PartitionOwner} list for the
+   *                                 given worker
+   * @param myWorkerInfo             Worker info
    * @param masterSetPartitionOwners Master set partition owners, received
-   *        prior to beginning the superstep
+   *                                 prior to beginning the superstep
    * @return Information for the partition exchange.
    */
   public static PartitionExchange updatePartitionOwners(

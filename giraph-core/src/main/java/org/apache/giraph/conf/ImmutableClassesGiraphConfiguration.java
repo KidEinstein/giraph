@@ -717,6 +717,10 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
   public Long getSubgraphSourceVertex() {
     return SUBGRAPH_SOURCE_VERTEX.get(this);
   }
+
+  public String getPartitionStatsFile() {
+    return PARTITION_STATS_FILE.get(this);
+  }
   public SubgraphIdFactory<? extends WritableComparable> getSubgraphIdFactory() {
     return valueFactories.getSubgraphIdFactory();
   }

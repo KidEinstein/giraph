@@ -28,9 +28,11 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.collect.Maps;
 import com.sun.management.GarbageCollectionNotificationInfo;
 import com.yammer.metrics.core.Counter;
 
@@ -40,6 +42,7 @@ import org.apache.giraph.bsp.CentralizedServiceMaster;
 import org.apache.giraph.bsp.CentralizedServiceWorker;
 import org.apache.giraph.bsp.checkpoints.CheckpointStatus;
 import org.apache.giraph.comm.messages.MessageStore;
+import org.apache.giraph.comm.messages.SimpleMessageStore;
 import org.apache.giraph.conf.ClassConfOption;
 import org.apache.giraph.conf.GiraphConstants;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
@@ -56,6 +59,7 @@ import org.apache.giraph.ooc.OutOfCoreEngine;
 import org.apache.giraph.partition.PartitionOwner;
 import org.apache.giraph.partition.PartitionStats;
 import org.apache.giraph.partition.PartitionStore;
+import org.apache.giraph.partition.SimplePartition;
 import org.apache.giraph.scripting.ScriptLoader;
 import org.apache.giraph.utils.CallableFactory;
 import org.apache.giraph.utils.MemoryUtils;
@@ -785,9 +789,14 @@ end[PURE_YARN]*/
       int numThreads) {
     PartitionStore<I, V, E> partitionStore = serviceWorker.getPartitionStore();
     long verticesToCompute = 0;
+//    ConcurrentMap map = ((SimpleMessageStore)messageStore).getMap();
+//    ConcurrentMap incomingMessageStoreMap = ((SimpleMessageStore)serviceWorker.getServerData().getIncomingMessageStore()).getMap();
     for (Integer partitionId : partitionStore.getPartitionIds()) {
+//      map.putIfAbsent(partitionId, Maps.newConcurrentMap());
+//      incomingMessageStoreMap.putIfAbsent(partitionId, Maps.newConcurrentMap());
       verticesToCompute += partitionStore.getPartitionVertexCount(partitionId);
     }
+    LOG.info("Message store class: " + serviceWorker.getServerData().getIncomingMessageStore().getClass());
     WorkerProgress.get().startSuperstep(
         serviceWorker.getSuperstep(), verticesToCompute,
         serviceWorker.getPartitionStore().getNumPartitions());

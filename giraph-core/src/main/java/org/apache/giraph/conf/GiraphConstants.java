@@ -146,6 +146,11 @@ public interface GiraphConstants {
       new PerGraphTypeBooleanConfOption("giraph.jython.type.wrappers",
           false, "Whether user graph types (IVEMM) need Jython wrappers");
   // subgraph Value factory class -- OURS
+
+  StrConfOption PARTITION_STATS_FILE =
+      new StrConfOption("giraph.partitionStatsFile",
+          null,
+          "CSV file for partition stats file");
    ClassConfOption<SubgraphValueFactory> SUBGRAPH_VALUE_FACTORY_CLASS =
           ClassConfOption.create("giraph.subgraphValueFactoryClass",
                   DefaultSubgraphValueFactory.class, SubgraphValueFactory.class,

@@ -48,6 +48,11 @@ public abstract class SimpleMessageStore<I extends WritableComparable,
   protected final MessageValueFactory<M> messageValueFactory;
   /** Service worker */
   protected final CentralizedServiceWorker<I, ?, ?> service;
+
+  public ConcurrentMap<Integer, ConcurrentMap<I, T>> getMap() {
+    return map;
+  }
+
   /** Map from partition id to map from vertex id to messages for that vertex */
   protected final ConcurrentMap<Integer, ConcurrentMap<I, T>> map;
   /** Giraph configuration */
