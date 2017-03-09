@@ -137,15 +137,15 @@ public class GiraphConfigurationValidator<I extends WritableComparable,
    */
   public void validateConfiguration() {
     checkConfiguration();
-    verifyOutEdgesGenericTypes();
-    verifyVertexInputFormatGenericTypes();
-    verifyEdgeInputFormatGenericTypes();
+//    verifyOutEdgesGenericTypes();
+//    verifyVertexInputFormatGenericTypes();
+//    verifyEdgeInputFormatGenericTypes();
     // verifyVertexOutputFormatGenericTypes();
     // verifyEdgeOutputFormatGenericTypes();
-    verifyVertexResolverGenericTypes();
-    verifyVertexValueCombinerGenericTypes();
-    verifyMessageCombinerGenericTypes();
-    verifyVertexValueFactoryGenericTypes();
+//    verifyVertexResolverGenericTypes();
+//    verifyVertexValueCombinerGenericTypes();
+//    verifyMessageCombinerGenericTypes();
+//    verifyVertexValueFactoryGenericTypes();
   }
 
   /**

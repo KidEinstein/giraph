@@ -15,17 +15,16 @@ import java.util.*;
 /**
  * Created by anirudh on 25/01/17.
  */
-public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWritable,
+public class SubgraphSingleSourceShortestPathWithoutPacking extends UserSubgraphComputation<LongWritable,
     LongWritable, LongWritable, NullWritable, BytesWritable, LongWritable, NullWritable> {
-  public static final Logger LOG = Logger.getLogger(SubgraphSingleSourceShortestPath.class);
+  public static final Logger LOG = Logger.getLogger(SubgraphSingleSourceShortestPathWithoutPacking.class);
   private long state = 0;
 
   @Override
-  public void compute(Subgraph<LongWritable, LongWritable, LongWritable, NullWritable, LongWritable, NullWritable> subgraph, Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
-//    LOG.info("Super step: " + getSuperstep() + "SubgraphID: " + subgraph.getId().getSubgraphId() + " State: " + state);
-//    state = subgraph.getId().getSubgraphId().get();
+  public void compute(Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
+    DefaultSubgraph<LongWritable, LongWritable, LongWritable, NullWritable, LongWritable, NullWritable> subgraph = (DefaultSubgraph)getSubgraph();
     SubgraphVertices<LongWritable, LongWritable, LongWritable, NullWritable, LongWritable, NullWritable> subgraphVertices = subgraph.getSubgraphVertices();
-    HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> vertices = subgraphVertices.getVertices();
+    HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>> vertices = subgraphVertices.getLocalVertices();
 //    LOG.info("Number of vertices, " + vertices.size());
 //    long startTime = System.currentTimeMillis();
     HashMap<LongWritable, DistanceVertex> localUpdateMap = new HashMap<>();
@@ -39,7 +38,7 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
       long sourceId = getConf().getSubgraphSourceVertex();
       LongWritable sourceIdLongWritable = new LongWritable(sourceId);
       if (vertices.containsKey(sourceIdLongWritable)) {
-        LOG.info("Found source vertex, source id " + sourceId + " subgraph ID " + subgraph.getId().getSubgraphId() + " partition id " + subgraph.getId().getPartitionId());
+//        LOG.info("Found source vertex, source id " + sourceId + " subgraph ID " + subgraph.getId().getSubgraphId() + " partition id " + subgraph.getId().getPartitionId());
         SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> sourceVertex = vertices.get(sourceIdLongWritable);
         sourceVertex.setValue(new LongWritable(0));
         DistanceVertex distanceVertex = new DistanceVertex(sourceVertex, 0);
@@ -51,33 +50,28 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
       for (SubgraphMessage<LongWritable, BytesWritable> subgraphMessage : subgraphMessages) {
         BytesWritable subgraphMessageValue = subgraphMessage.getMessage();
         ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(subgraphMessageValue.getBytes());
-        while (!dataInput.endOfInput()) {
-          long sinkVertex = dataInput.readLong();
-          if (sinkVertex == -1) {
-            break;
-          }
-          long sinkDistance = dataInput.readLong();
-          //LOG.info("Test, Sink vertex received: " + sinkVertex);
-          SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> currentVertex = vertices.get(new LongWritable(sinkVertex));
-          //LOG.info("Test, Current vertex object: " + currentVertex);
+        long sinkVertex = dataInput.readLong();
+        long sinkDistance = dataInput.readLong();
+        //LOG.info("Test, Sink vertex received: " + sinkVertex);
+        SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> currentVertex = vertices.get(new LongWritable(sinkVertex));
+        //LOG.info("Test, Current vertex object: " + currentVertex);
 
-          //LOG.info("Test, Current vertex: " + currentVertex.getId());
-          long distance = currentVertex.getValue().get();
-          if (sinkDistance < distance) {
-            currentVertex.setValue(new LongWritable(sinkDistance));
-            localUpdateMap.put(currentVertex.getId(), new DistanceVertex(currentVertex, sinkDistance));
-          }
+        //LOG.info("Test, Current vertex: " + currentVertex.getId());
+        long distance = currentVertex.getValue().get();
+        if (sinkDistance < distance) {
+          currentVertex.setValue(new LongWritable(sinkDistance));
+          localUpdateMap.put(currentVertex.getId(), new DistanceVertex(currentVertex, sinkDistance));
         }
       }
     }
 //    LOG.info("Message processing time: " + (System.currentTimeMillis() - startTime));
 //    startTime = System.currentTimeMillis();
-    HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates = aStar(localUpdateMap, vertices, subgraph.getRemoteVertices());
+    HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates = aStar(localUpdateMap, vertices, subgraph.getSubgraphVertices().getRemoteVertices());
 //    LOG.info("Number of vertices processed in queue: " + count);
 //    LOG.info("Dijkstra time: " + (System.currentTimeMillis() - startTime));
 //    startTime = System.currentTimeMillis();
-    packAndSendMessages(remoteVertexUpdates);
-//    LOG.info("Pack and send time: " + (System.currentTimeMillis() - startTime));
+    int messageCount = sendMessages(remoteVertexUpdates);
+    LOG.info("MESSAGE STATS-PartitionID,SubgraphID,Superstep,messages," + subgraph.getPartitionId() + "," + subgraph.getSubgraphId() + "," + getSuperstep() + "," + messageCount);
     subgraph.voteToHalt();
 
   }
@@ -131,26 +125,18 @@ public class SubgraphSingleSourceShortestPath extends SubgraphComputation<LongWr
     return remoteVertexUpdates;
   }
 
-  void packAndSendMessages(HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates) throws IOException {
-    HashMap<SubgraphId<LongWritable>, ExtendedByteArrayDataOutput> messagesMap = new HashMap<>();
-    for (Map.Entry<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> entry : remoteVertexUpdates.entrySet()) {
-      RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> remoteSubgraphVertex = entry.getKey();
-      ExtendedByteArrayDataOutput dataOutput;
-      if (!messagesMap.containsKey(remoteSubgraphVertex.getSubgraphId())) {
-        dataOutput = new ExtendedByteArrayDataOutput();
-        messagesMap.put(remoteSubgraphVertex.getSubgraphId(), dataOutput);
-      } else {
-        dataOutput = messagesMap.get(remoteSubgraphVertex.getSubgraphId());
-      }
+  int sendMessages(HashMap<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> remoteVertexUpdates) throws IOException {
+    int messageCount = 0;
+    for (Map.Entry<RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable>, Long> entries : remoteVertexUpdates.entrySet()) {
+      ExtendedByteArrayDataOutput dataOutput = new ExtendedByteArrayDataOutput();
+      RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> remoteSubgraphVertex = entries.getKey();
       dataOutput.writeLong(remoteSubgraphVertex.getId().get());
-      dataOutput.writeLong(entry.getValue());
-      // LOG.info("SubgraphID" + remoteSubgraphVertex.getSubgraphId() + " Sending vertex id " + remoteSubgraphVertex.getId().get() + " distance "+ entry.getValue());
+      dataOutput.writeLong(entries.getValue());
+      BytesWritable message = new BytesWritable((dataOutput.getByteArray()));
+      sendMessage(remoteSubgraphVertex.getSubgraphId(), message);
+      messageCount++;
     }
-    for (Map.Entry<SubgraphId<LongWritable>, ExtendedByteArrayDataOutput> entry : messagesMap.entrySet()) {
-      ExtendedByteArrayDataOutput dataOutput = entry.getValue();
-      dataOutput.writeLong(-1);
-      sendMessage(entry.getKey(), new BytesWritable(dataOutput.getByteArray()));
-    }
+    return messageCount;
   }
 
   private static class DistanceVertex implements Comparable<DistanceVertex> {

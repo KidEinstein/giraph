@@ -17,11 +17,10 @@
  */
 package org.apache.giraph.graph;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Callable;
-
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.yammer.metrics.core.Counter;
+import com.yammer.metrics.core.Histogram;
 import org.apache.giraph.bsp.CentralizedServiceWorker;
 import org.apache.giraph.comm.WorkerClientRequestProcessor;
 import org.apache.giraph.comm.messages.MessageStore;
@@ -43,15 +42,16 @@ import org.apache.giraph.utils.TimedLogger;
 import org.apache.giraph.utils.Trimmable;
 import org.apache.giraph.worker.WorkerProgress;
 import org.apache.giraph.worker.WorkerThreadGlobalCommUsage;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.log4j.Logger;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.yammer.metrics.core.Counter;
-import com.yammer.metrics.core.Histogram;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * Compute as many vertex partitions as possible.  Every thread will has its
@@ -290,7 +290,9 @@ public class ComputeCallable<I extends WritableComparable, V extends Writable,
         }
         if (!vertex.isHalted()) {
           context.progress();
+          long tempTime = System.currentTimeMillis();
           computation.compute(vertex, messages);
+          LOG.info("Superstep,PartitionID,subgraphID,Time:" + serviceWorker.getSuperstep() + "," + partition.getId() + "," + ((Subgraph<SubgraphId<LongWritable>,?,?,?,?,?>)vertex).getSubgraphId() + "," + (System.currentTimeMillis() - tempTime));
           // Need to unwrap the mutated edges (possibly)
           vertex.unwrapMutableEdges();
           //Compact edges representation if possible

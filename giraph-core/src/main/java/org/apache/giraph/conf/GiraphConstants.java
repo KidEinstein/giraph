@@ -161,6 +161,7 @@ public interface GiraphConstants {
                   DefaultSubgraphVertexValueFactory.class, SubgraphVertexValueFactory.class,
                   "Subgraph Value Factory class- optional");
 
+
   ClassConfOption<EdgeIdFactory> EDGE_ID_FACTORY_CLASS =
           ClassConfOption.create("giraph.edgeIdFactoryClass",
                   DefaultEdgeIdFactory.class, EdgeIdFactory.class,
@@ -354,6 +355,11 @@ public interface GiraphConstants {
           ClassConfOption.create("giraph.subgraphVertexValueClass",
                   DoubleWritable.class, Writable.class,
                   "Subgraph vertex value class");
+
+  ClassConfOption<Writable> SUBGRAPH_EDGE_VALUE_CLASS =
+      ClassConfOption.create("giraph.subgraphEdgeValueClass",
+          NullWritable.class, Writable.class,
+          "Subgraph vertex value class");
 
   LongConfOption SUBGRAPH_SOURCE_VERTEX =
           new LongConfOption("giraph.subgraphSourceVertex", 0, "Source vertex for algorithms like SSP");

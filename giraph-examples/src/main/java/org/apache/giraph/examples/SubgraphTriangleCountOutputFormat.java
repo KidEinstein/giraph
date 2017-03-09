@@ -23,7 +23,9 @@ import org.apache.giraph.graph.SubgraphId;
 import org.apache.giraph.graph.SubgraphVertices;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
-import org.apache.hadoop.io.*;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.io.IOException;
@@ -31,7 +33,7 @@ import java.io.IOException;
 /**
  * Simple text based vertex output format example.
  */
-public class SubgraphSimpleTextVertexOutputFormat extends
+public class SubgraphTriangleCountOutputFormat extends
     TextVertexOutputFormat<SubgraphId<LongWritable>, SubgraphVertices, NullWritable> {
   /**
    * Simple text based vertex writer
@@ -41,10 +43,10 @@ public class SubgraphSimpleTextVertexOutputFormat extends
     public void writeVertex(
       Vertex<SubgraphId<LongWritable>, SubgraphVertices, NullWritable> vertex)
       throws IOException, InterruptedException {
-      Subgraph<LongWritable, LongWritable, NullWritable, NullWritable, LongWritable, NullWritable> subgraph = (Subgraph) vertex;
+      Subgraph<LongWritable, LongWritable, NullWritable, NullWritable, TriangleCountSubgraphValue, NullWritable> subgraph = (Subgraph) vertex;
       getRecordWriter().write(
           new Text(subgraph.getSubgraphId().toString()),
-          new Text(subgraph.getSubgraphVertices().getSubgraphValue().toString()));
+          new Text(String.valueOf(subgraph.getSubgraphVertices().getSubgraphValue().triangleCount)));
     }
   }
 

@@ -1,35 +1,36 @@
 package org.apache.giraph.examples;
 
 import org.apache.giraph.comm.messages.SubgraphMessage;
-import org.apache.giraph.edge.Edge;
-import org.apache.giraph.graph.*;
-import org.apache.hadoop.io.*;
+import org.apache.giraph.graph.Subgraph;
+import org.apache.giraph.graph.SubgraphEdge;
+import org.apache.giraph.graph.SubgraphVertex;
+import org.apache.giraph.graph.UserSubgraphComputation;
+import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
 
 import java.io.IOException;
+import java.util.LinkedList;
 
 /**
- * Created by anirudh on 27/09/16.
+ * Created by anirudh on 08/03/17.
  */
-
-public class GiraphSandbox extends SubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, Text, NullWritable, LongWritable> {
-
-    @Override
-    public void compute(Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph, Iterable<SubgraphMessage<LongWritable, Text>> messages) throws IOException {
-        System.out.print("Hello world from the: " +
-            subgraph.getId().getSubgraphId() + " who is following:");
-        // iterating over vertex's neighbors
-        for (Edge<SubgraphId<LongWritable>, DoubleWritable> e : subgraph.getEdges()) {
-            System.out.print(" " + e.getTargetVertexId().getSubgraphId());
-        }
-        System.out.println("");
-        System.out.println("Internal contents");
-        SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
-
-        for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> vertex : subgraphVertices.getVertices().values()) {
-            System.out.println("Vertex: " + vertex.getId());
-        }
-
-        // signaling the end of the current BSP computation for the current vertex
-        subgraph.voteToHalt();
+public class GiraphSandbox extends UserSubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, BytesWritable, NullWritable, LongWritable> {
+  @Override
+  public void compute(Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
+    Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph = getSubgraph();
+    for (SubgraphVertex subgraphVertex : subgraph.getLocalVertices()) {
+      System.out.println("Vertex: " + subgraphVertex.getId());
+      LinkedList<SubgraphEdge> outEdges = subgraphVertex.getOutEdges();
+      for (SubgraphEdge subgraphEdge : outEdges) {
+        System.out.println("Edges: " + subgraphEdge.getSinkVertexId());
+      }
     }
+    System.out.println("Printing remote");
+    for (SubgraphVertex subgraphVertex : subgraph.getRemoteVertices()) {
+      System.out.println("Remote Vertex: " + subgraphVertex.getId());
+    }
+    voteToHalt();
+  }
 }

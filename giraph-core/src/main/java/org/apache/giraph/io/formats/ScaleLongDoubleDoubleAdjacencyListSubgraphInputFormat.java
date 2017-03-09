@@ -16,7 +16,7 @@ import java.util.HashMap;
 /**
  * Created by anirudh on 30/09/16.
  */
-public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyListTextSubgraphInputFormat<SubgraphId<LongWritable>, SubgraphVertices,
+public class ScaleLongDoubleDoubleAdjacencyListSubgraphInputFormat extends ScaleAdjacencyListTextSubgraphInputFormat<SubgraphId<LongWritable>, SubgraphVertices,
         DoubleWritable> {
     @Override
     public AdjacencyListTextSubgraphReader createVertexReader(InputSplit split,
@@ -32,10 +32,12 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
             AdjacencyListTextSubgraphReader {
 
         @Override
-        public SubgraphEdge<LongWritable, NullWritable, NullWritable> decodeVertexEdge(String id) {
+        public SubgraphEdge<LongWritable, DoubleWritable, NullWritable> decodeVertexEdge(String source, String id) {
+            double vertexIdDouble = Double.parseDouble(source);
+            double destinationIdDouble = Double.parseDouble(id);
             LongWritable vertexId = new LongWritable(Long.parseLong(id));
-            DefaultSubgraphEdge<LongWritable, NullWritable, NullWritable> subgraphEdge = new DefaultSubgraphEdge<>();
-            subgraphEdge.initialize(NullWritable.get(), NullWritable.get(), vertexId);
+            DefaultSubgraphEdge<LongWritable, DoubleWritable, NullWritable> subgraphEdge = new DefaultSubgraphEdge<>();
+            subgraphEdge.initialize(null, new DoubleWritable((vertexIdDouble + destinationIdDouble) % 100), vertexId);
             return subgraphEdge;
         }
 
@@ -79,7 +81,7 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
          *
          * @param lineSanitizer the sanitizer to use for reading
          */
-        public LongDoubleDoubleAdjacencyListSubgraphReader(AdjacencyListTextSubgraphInputFormat.LineSanitizer
+        public LongDoubleDoubleAdjacencyListSubgraphReader(LineSanitizer
                                                                  lineSanitizer) {
             super(lineSanitizer);
         }

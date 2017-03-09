@@ -789,13 +789,20 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
     return getSubgraphVertexValueFactory().newInstance();
   }
 
+  public Writable createSubgraphEdgeValue() {
+    return WritableUtils.createWritable(SUBGRAPH_EDGE_VALUE_CLASS.get(this), this);
+  }
+
   public SubgraphVertexIdFactory<? extends WritableComparable> getSubgraphVertexIdFactory() {
     return valueFactories.getSubgraphVertexIdFactory();
   }
 
+
+
   public WritableComparable createSubgraphVertexId() {
     return getSubgraphVertexIdFactory().newInstance();
   }
+
 
   public Writable getSubgraphVertexValue() {
     return getSubgraphVertexValueFactory().newInstance();

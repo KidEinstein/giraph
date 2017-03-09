@@ -20,6 +20,11 @@ public class DefaultRemoteSubgraphVertex<S extends WritableComparable,
   }
 
   @Override
+  public boolean isRemote() {
+    return true;
+  }
+
+  @Override
   public SubgraphId<S> getSubgraphId() {
     return subgraphId;
   }
@@ -28,8 +33,8 @@ public class DefaultRemoteSubgraphVertex<S extends WritableComparable,
     this.subgraphId = subgraphId;
   }
 
-  @Override
-  public V getValue() {
-    throw new UnsupportedOperationException("getValue() not supported for remote vertices");
-  }
+//  @Override
+//  public V getValue() {
+//    throw new UnsupportedOperationException("getValue() not supported for remote vertices");
+//  }
 }
