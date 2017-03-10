@@ -17,6 +17,8 @@
  */
 package org.apache.giraph.conf;
 
+import in.dream_lab.goffish.giraph.DefaultEdgeIdFactory;
+import in.dream_lab.goffish.giraph.EdgeIdFactory;
 import org.apache.giraph.aggregators.AggregatorWriter;
 import org.apache.giraph.aggregators.TextAggregatorWriter;
 import org.apache.giraph.bsp.BspOutputFormat;
@@ -32,30 +34,20 @@ import org.apache.giraph.edge.InMemoryEdgeStoreFactory;
 import org.apache.giraph.edge.OutEdges;
 import org.apache.giraph.factories.*;
 import org.apache.giraph.graph.*;
-import org.apache.giraph.io.EdgeInputFormat;
-import org.apache.giraph.io.EdgeOutputFormat;
-import org.apache.giraph.io.MappingInputFormat;
-import org.apache.giraph.io.VertexInputFormat;
-import org.apache.giraph.io.VertexOutputFormat;
+import org.apache.giraph.io.*;
 import org.apache.giraph.io.filters.DefaultEdgeInputFilter;
 import org.apache.giraph.io.filters.DefaultVertexInputFilter;
 import org.apache.giraph.io.filters.EdgeInputFilter;
 import org.apache.giraph.io.filters.VertexInputFilter;
-import org.apache.giraph.job.DefaultGiraphJobRetryChecker;
-import org.apache.giraph.job.DefaultJobObserver;
-import org.apache.giraph.job.DefaultJobProgressTrackerService;
-import org.apache.giraph.job.GiraphJobObserver;
-import org.apache.giraph.job.GiraphJobRetryChecker;
-import org.apache.giraph.job.HaltApplicationUtils;
-import org.apache.giraph.job.JobProgressTrackerService;
+import org.apache.giraph.job.*;
 import org.apache.giraph.mapping.MappingStore;
 import org.apache.giraph.mapping.MappingStoreOps;
 import org.apache.giraph.mapping.translate.TranslateEdge;
 import org.apache.giraph.master.DefaultMasterCompute;
 import org.apache.giraph.master.MasterCompute;
 import org.apache.giraph.master.MasterObserver;
-import org.apache.giraph.ooc.persistence.OutOfCoreDataAccessor;
 import org.apache.giraph.ooc.persistence.LocalDiskDataAccessor;
+import org.apache.giraph.ooc.persistence.OutOfCoreDataAccessor;
 import org.apache.giraph.ooc.policy.OutOfCoreOracle;
 import org.apache.giraph.ooc.policy.ThresholdBasedOracle;
 import org.apache.giraph.partition.GraphPartitionerFactory;
@@ -65,7 +57,8 @@ import org.apache.giraph.partition.SimplePartition;
 import org.apache.giraph.worker.DefaultWorkerContext;
 import org.apache.giraph.worker.WorkerContext;
 import org.apache.giraph.worker.WorkerObserver;
-import org.apache.hadoop.io.*;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.OutputFormat;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -145,38 +138,12 @@ public interface GiraphConstants {
   PerGraphTypeBooleanConfOption GRAPH_TYPES_NEEDS_WRAPPERS =
       new PerGraphTypeBooleanConfOption("giraph.jython.type.wrappers",
           false, "Whether user graph types (IVEMM) need Jython wrappers");
-  // subgraph Value factory class -- OURS
-   ClassConfOption<SubgraphValueFactory> SUBGRAPH_VALUE_FACTORY_CLASS =
-          ClassConfOption.create("giraph.subgraphValueFactoryClass",
-                  DefaultSubgraphValueFactory.class, SubgraphValueFactory.class,
-                  "Subgraph Value Factory class- optional");
-
-  ClassConfOption<SubgraphVertexValueFactory> SUBGRAPH_VERTEX_VALUE_FACTORY_CLASS =
-          ClassConfOption.create("giraph.subgraphVertexValueFactoryClass",
-                  DefaultSubgraphVertexValueFactory.class, SubgraphVertexValueFactory.class,
-                  "Subgraph Value Factory class- optional");
 
 
   ClassConfOption<EdgeIdFactory> EDGE_ID_FACTORY_CLASS =
           ClassConfOption.create("giraph.edgeIdFactoryClass",
                   DefaultEdgeIdFactory.class, EdgeIdFactory.class,
                   "Edge ID Factory class - optional");
-
-  ClassConfOption<SubgraphIdFactory> SUBGRAPH_ID_FACTORY_CLASS =
-          ClassConfOption.create("giraph.subgraphIdFactoryClass",
-                  DefaultSubgraphIdFactory.class, SubgraphIdFactory.class,
-                  "Subgraph ID Factory class - optional");
-
-
-  ClassConfOption<SubgraphVertexIdFactory> SUBGRAPH_VERTEX_ID_FACTORY_CLASS =
-      ClassConfOption.create("giraph.subgraphIdFactoryClass",
-          DefaultSubgraphVertexIdFactory.class, SubgraphVertexIdFactory.class,
-          "Subgraph Vertex ID Factory class - optional");
-
-  ClassConfOption<SubgraphMessageValueFactory> SUBGRAPH_MESSAGE_VALUE_FACTORY_CLASS =
-      ClassConfOption.create("giraph.subgraphMessageValueFactoryClass",
-          DefaultSubgraphMessageValueFactory.class, SubgraphMessageValueFactory.class,
-          "Subgraph Vertex ID Factory class - optional");
 
 
   // END OURS
@@ -317,49 +284,8 @@ public interface GiraphConstants {
       ClassConfOption.create("giraph.vertexClass",
           DefaultVertex.class, Vertex.class,
           "Vertex class");
-// ours
-  BooleanConfOption IS_SUBGRAPH_COMPUTATION =
-        new BooleanConfOption("giraph.subgraphComputation", false,
-                "Use Giraph for Subgraph input");
-  ClassConfOption<WritableComparable> SUBGRAPH_ID_CLASS =
-          ClassConfOption.create("giraph.subgraphIdClass",
-                  LongWritable.class, WritableComparable.class,
-                  "Subgraph ID class");
 
-  ClassConfOption<WritableComparable> SUBGRAPH_VERTEX_ID_CLASS =
-          ClassConfOption.create("giraph.vertexIdClass",
-                  LongWritable.class, WritableComparable.class,
-                  "Vertex ID class");
-
-  ClassConfOption<Writable> SUBGRAPH_MESSAGE_VALUE_CLASS =
-      ClassConfOption.create("giraph.subgraphMessageValueClass",
-          LongWritable.class, Writable.class,
-          "Subgraph message value class");
-
-  ClassConfOption<WritableComparable> EDGE_ID_CLASS =
-          ClassConfOption.create("giraph.edgeIdClass",
-                  LongWritable.class, WritableComparable.class,
-                  "Edge ID class");
-
-  ClassConfOption<Writable> SUBGRAPH_VALUE_CLASS =
-          ClassConfOption.create("giraph.subgraphValueClass",
-                  DoubleWritable.class, Writable.class,
-                  "Subgraph value class");
-
-  ClassConfOption<Writable> SUBGRAPH_VERTEX_VALUE_CLASS =
-          ClassConfOption.create("giraph.subgraphVertexValueClass",
-                  DoubleWritable.class, Writable.class,
-                  "Subgraph vertex value class");
-
-  ClassConfOption<Writable> SUBGRAPH_EDGE_VALUE_CLASS =
-      ClassConfOption.create("giraph.subgraphEdgeValueClass",
-          NullWritable.class, Writable.class,
-          "Subgraph vertex value class");
-
-  LongConfOption SUBGRAPH_SOURCE_VERTEX =
-          new LongConfOption("giraph.subgraphSourceVertex", 0, "Source vertex for algorithms like SSP");
-
-// upto this point
+  // upto this point
   /** VertexOutputFormat class */
   ClassConfOption<VertexOutputFormat> VERTEX_OUTPUT_FORMAT_CLASS =
       ClassConfOption.create("giraph.vertexOutputFormatClass", null,

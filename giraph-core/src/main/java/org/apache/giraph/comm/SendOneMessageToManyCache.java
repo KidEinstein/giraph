@@ -83,7 +83,6 @@ public class SendOneMessageToManyCache<I extends WritableComparable,
     NettyWorkerClientRequestProcessor<I, ?, ?> processor,
     int maxMsgSize) {
     super(conf, serviceWorker, processor, maxMsgSize);
-    //LOG.info("Calling SendOneMessageToManyCache");
     int numWorkers = getNumWorkers();
     msgVidsCache = new ByteArrayOneMessageToManyIds[numWorkers];
     msgVidsSizes = new int[numWorkers];

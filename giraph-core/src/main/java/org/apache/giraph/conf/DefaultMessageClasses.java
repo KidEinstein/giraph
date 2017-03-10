@@ -24,7 +24,7 @@ import java.io.IOException;
 import org.apache.giraph.combiner.MessageCombiner;
 import org.apache.giraph.comm.messages.MessageEncodeAndStoreType;
 import org.apache.giraph.factories.DefaultMessageValueFactory;
-import org.apache.giraph.factories.DefaultSubgraphMessageFactory;
+import in.dream_lab.goffish.giraph.DefaultSubgraphMessageFactory;
 import org.apache.giraph.factories.MessageValueFactory;
 import org.apache.giraph.utils.ReflectionUtils;
 import org.apache.giraph.utils.WritableUtils;

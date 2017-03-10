@@ -22,25 +22,18 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.giraph.edge.Edge;
-import org.apache.giraph.graph.DefaultSubgraph;
-import org.apache.giraph.graph.Subgraph;
-import org.apache.giraph.graph.SubgraphId;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.utils.WritableUtils;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.util.Progressable;
 
 import com.google.common.collect.Maps;
-import org.python.antlr.op.Sub;
 
 /**
  * A simple map-based container that stores vertices.  Vertex ids will map to
@@ -87,9 +80,7 @@ public class SimplePartition<I extends WritableComparable,
   @Override
   public boolean putOrCombine(Vertex<I, V, E> vertex) {
     Vertex<I, V, E> originalVertex = vertexMap.get(vertex.getId());
-//    System.out.println("Received vertex: " + subgraphId.getSubgraphId());
     if (originalVertex == null) {
-//      System.out.println("Inserting above vertex");
       originalVertex =
           vertexMap.putIfAbsent(vertex.getId(), vertex);
       if (originalVertex == null) {
@@ -153,9 +144,6 @@ public class SimplePartition<I extends WritableComparable,
       progress();
       Vertex<I, V, E> vertex =
           WritableUtils.readVertexFromDataInput(input, getConf());
-//      DefaultSubgraph<LongWritable, ?, ?, ?, ?, ?> sv = (DefaultSubgraph<LongWritable, ?, ?, ?, ?, ?>) vertex;
-//      System.out.println("ABDUL: Partition: " + getId() + " Subgraph Id: " + sv.getId().getSubgraphId() + " Partition ID: " + sv.getId().getPartitionId());
-
       if (vertexMap.put(vertex.getId(), vertex) != null) {
         throw new IllegalStateException(
             "readFields: " + this +

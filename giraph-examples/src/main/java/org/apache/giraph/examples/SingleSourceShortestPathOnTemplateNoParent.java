@@ -15,8 +15,9 @@
  */
 package org.apache.giraph.examples;
 
+import in.dream_lab.goffish.AbstractSubgraphComputation;
+import in.dream_lab.goffish.giraph.*;
 import org.apache.giraph.comm.messages.SubgraphMessage;
-import org.apache.giraph.graph.*;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.BytesWritable;
@@ -41,7 +42,7 @@ import java.util.*;
  * @author simmhan
  *
  */
-public class SingleSourceShortestPathOnTemplateNoParent extends UserSubgraphComputation<LongWritable,
+public class SingleSourceShortestPathOnTemplateNoParent extends AbstractSubgraphComputation<LongWritable,
     LongWritable, LongWritable, NullWritable, BytesWritable, ShortestPathSubgraphValue, NullWritable> {
 
   public static final Logger LOG = Logger.getLogger(SingleSourceShortestPathOnTemplateNoParent.class);

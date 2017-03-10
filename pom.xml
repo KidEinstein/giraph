@@ -2248,6 +2248,7 @@ under the License.
   </dependencyManagement>
 
   <modules>
+    <module>goffish-giraph</module>
     <module>giraph-core</module>
     <module>giraph-block-app</module>
     <module>giraph-examples</module>

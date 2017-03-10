@@ -1,5 +1,3 @@
-hadoop jar giraph-examples.jar org.apache.giraph.GiraphRunner org.apache.giraph.examples.GiraphSandbox -vif org.apache.giraph.io.formats.LongDoubleDoubleAdjacencyListSubgraphInputFormat -vip subgraph-input -op giraph-subgraph-output -ca giraph.subgraphComputation=true,giraph.graphPartitionerFactoryClass=org.apache.giraph.partition.SubgraphPartitionerFactory -mc org.apache.giraph.examples.SubgraphMasterCompute -yj giraph-examples.jar -w 2
-
 Giraph : Large-scale graph processing on Hadoop
 
 Web and online social graphs have been rapidly growing in size and
