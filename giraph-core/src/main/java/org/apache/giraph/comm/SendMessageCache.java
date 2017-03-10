@@ -20,7 +20,6 @@ package org.apache.giraph.comm;
 
 import static org.apache.giraph.conf.GiraphConstants.ADDITIONAL_MSG_REQUEST_SIZE;
 import static org.apache.giraph.conf.GiraphConstants.MAX_MSG_REQUEST_SIZE;
-import static org.apache.giraph.utils.MemoryUtils.freeMemoryMB;
 
 import java.util.Iterator;
 
@@ -39,11 +38,6 @@ import org.apache.giraph.worker.WorkerInfo;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.log4j.Logger;
-
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryPoolMXBean;
-import java.lang.management.MemoryType;
-import java.lang.management.MemoryUsage;
 
 /**
  * Aggregates the messages to be sent to workers so they can be sent

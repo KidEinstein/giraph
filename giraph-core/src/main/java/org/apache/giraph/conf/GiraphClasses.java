@@ -250,32 +250,6 @@ public class GiraphClasses<I extends WritableComparable,
     return giraphTypes.getVertexClass();
   }
 
-  public Class<? extends WritableComparable> getSubgraphIdClass() {
-    return giraphTypes.getSubgraphIdClass();
-  }
-
-  public Class<? extends WritableComparable> getSubgraphVertexIdClass() {
-    return giraphTypes.getSubgraphVertexIdClass();
-  }
-
-  public Class<? extends WritableComparable> getEdgeIdClass() {
-    return giraphTypes.getEdgeIdClass();
-  }
-
-  public Class<? extends Writable> getSubgraphValueClass() {
-    return giraphTypes.getSubgraphValueClass();
-  }
-  public Class<? extends Writable> getSubgraphMessageValueClass() {
-    return giraphTypes.getSubgraphMessageValueClass();
-  }
-
-
-  public Class<? extends Writable> getSubgraphVertexValueClass() {
-    return giraphTypes.getSubgraphVertexValueClass();
-  }
-
-
-
   /**
    * Get Vertex Value class
    *

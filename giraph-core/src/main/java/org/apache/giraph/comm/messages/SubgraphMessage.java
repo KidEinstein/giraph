@@ -1,7 +1,5 @@
 package org.apache.giraph.comm.messages;
 
-import org.apache.giraph.graph.SubgraphId;
-import org.apache.hadoop.io.BinaryComparable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.log4j.Logger;

@@ -18,7 +18,6 @@
 package org.apache.giraph;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.giraph.graph.DefaultSubgraph;
 import org.apache.giraph.utils.ConfigurationUtils;
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.job.GiraphJob;

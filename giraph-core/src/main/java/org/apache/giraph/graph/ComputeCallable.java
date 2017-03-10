@@ -21,6 +21,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.yammer.metrics.core.Counter;
 import com.yammer.metrics.core.Histogram;
+import in.dream_lab.goffish.giraph.Subgraph;
+import in.dream_lab.goffish.giraph.SubgraphId;
 import org.apache.giraph.bsp.CentralizedServiceWorker;
 import org.apache.giraph.comm.WorkerClientRequestProcessor;
 import org.apache.giraph.comm.messages.MessageStore;
