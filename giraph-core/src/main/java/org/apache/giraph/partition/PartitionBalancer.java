@@ -18,6 +18,7 @@
 
 package org.apache.giraph.partition;
 
+import com.google.common.collect.Table;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.graph.migration.FirstFitDecreasing;
 import org.apache.giraph.graph.migration.MappingReader;
@@ -236,17 +237,15 @@ public class PartitionBalancer {
 
   /**
    * Balance the partitions with an algorithm based on a value.
-   *
    * @param conf                 Configuration to find the algorithm
+   * @param mappingRows
    * @param partitionOwners      All the owners of all partitions
    * @param allPartitionStats    All the partition stats
-   * @param availableWorkerInfos All the available workers
-   * @return Balanced partition owners
-   */
+   * @param availableWorkerInfos All the available workers    @return Balanced partition owners    */
 
   public static Collection<PartitionOwner> balancePartitionsAcrossWorkersImproved(
       Configuration conf,
-      Collection<PartitionOwner> partitionOwners,
+      ArrayList<MappingRow> mappingRows, Collection<PartitionOwner> partitionOwners,
       Collection<PartitionStats> allPartitionStats,
       Collection<WorkerInfo> availableWorkerInfos) {
     List<WorkerInfo> availableWorkerInfosList = (List<WorkerInfo>) availableWorkerInfos;
@@ -256,12 +255,6 @@ public class PartitionBalancer {
         return o1.getTaskId() - o2.getTaskId();
       }
     });
-    ArrayList<MappingRow> mappingRows = null;
-    try {
-      mappingRows = MappingReader.readFile((ImmutableClassesGiraphConfiguration) conf);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
     List<Set<Integer>> bins = FirstFitDecreasing.pack(mappingRows);
     HashMap<Integer, Set<Integer>> workerPartitionMap = new HashMap<>();
     for (PartitionOwner partitionOwner : partitionOwners) {
@@ -276,6 +269,7 @@ public class PartitionBalancer {
         workerPartitionMap.put(taskId, partitions);
       }
     }
+
     Map<Integer, Set<Integer>> newWorkerPartitionMap = PartitionMapping.computeVmMapping(workerPartitionMap, bins, availableWorkerInfos.size());
     List<PartitionOwner> partitionOwnerList = (List<PartitionOwner>) partitionOwners;
     Collections.sort(partitionOwnerList, new Comparator<PartitionOwner>() {
@@ -307,9 +301,6 @@ public class PartitionBalancer {
       Collection<PartitionOwner> partitionOwners,
       Collection<PartitionStats> allPartitionStats,
       Collection<WorkerInfo> availableWorkerInfos) {
-    if (((ImmutableClassesGiraphConfiguration)conf).getPartitionStatsFile() != null) {
-      return balancePartitionsAcrossWorkersImproved(conf, partitionOwners, allPartitionStats, availableWorkerInfos);
-    }
     String balanceAlgorithm =
         conf.get(PARTITION_BALANCE_ALGORITHM, STATIC_BALANCE_ALGORITHM);
     if (LOG.isInfoEnabled()) {

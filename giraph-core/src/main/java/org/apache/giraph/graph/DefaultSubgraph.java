@@ -14,6 +14,7 @@ import java.util.Iterator;
  * @param <V>  Vertex value
  * @param <E>  Edge data
  * @param <SV> Subgraph Value type
+ * @param <EI> Edge ID type
  */
 public class DefaultSubgraph<S extends WritableComparable,
     I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable, EI extends WritableComparable>

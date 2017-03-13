@@ -160,5 +160,5 @@ public class SubgraphVertices<S extends WritableComparable,
       remoteVertices.put(remoteSubgraphVertex.getId(), remoteSubgraphVertex);
     }
   }
-
 }
+

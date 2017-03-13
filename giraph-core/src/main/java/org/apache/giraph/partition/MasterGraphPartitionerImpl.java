@@ -18,11 +18,15 @@
 
 package org.apache.giraph.partition;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.google.common.collect.Table;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
+import org.apache.giraph.graph.migration.MappingReader;
+import org.apache.giraph.graph.migration.MappingRow;
 import org.apache.giraph.worker.WorkerInfo;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -44,6 +48,8 @@ public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
   private final ImmutableClassesGiraphConfiguration<I, V, E> conf;
   /** Save the last generated partition owner list */
   private List<PartitionOwner> partitionOwnerList;
+
+  ArrayList<MappingRow> partitionStats;
 
   /**
    * Constructor.
@@ -84,6 +90,16 @@ public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
       Collection<WorkerInfo> availableWorkers,
       int maxWorkers,
       long superstep) {
+    if (conf.getPartitionStatsFile() != null) {
+      if (partitionStats == null) {
+        try {
+          partitionStats = MappingReader.readFile(conf);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      return PartitionBalancer.balancePartitionsAcrossWorkersImproved(conf, partitionStats, partitionOwnerList, allPartitionStatsList, availableWorkers);
+    }
     return PartitionBalancer.balancePartitionsAcrossWorkers(conf,
         partitionOwnerList, allPartitionStatsList, availableWorkers);
   }

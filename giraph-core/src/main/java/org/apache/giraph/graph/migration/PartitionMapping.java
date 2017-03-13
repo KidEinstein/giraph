@@ -248,4 +248,17 @@ public class PartitionMapping {
 //        }
 //  }
 
+  public static Set[][] getDifferenceMatrix(Map<Integer, Set<Integer>> old_worker2partitionMap, List<Set<Integer>> newPartitionSetsList, int num_workers) {
+    Set[][] diffMatrix = new Set[newPartitionSetsList.size()][old_worker2partitionMap.size()];
+    for (Map.Entry<Integer, Set<Integer>> entry : old_worker2partitionMap.entrySet()) {
+      for (int i = 0; i < newPartitionSetsList.size(); i++) {
+        HashSet<Integer> newPartitionsCopy = new HashSet<>(newPartitionSetsList.get(i));
+        newPartitionsCopy.removeAll(entry.getValue());
+        int j = entry.getKey();
+        diffMatrix[i][j] = newPartitionsCopy;
+      }
+    }
+    return diffMatrix;
+  }
+
 }
