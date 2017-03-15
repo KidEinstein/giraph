@@ -2,8 +2,7 @@ package in.dream_lab.goffish.giraph;
 
 import in.dream_lab.goffish.AbstractSubgraphComputation;
 import org.apache.giraph.comm.messages.SubgraphMessage;
-import org.apache.giraph.utils.ExtendedByteArrayDataInput;
-import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
+import org.apache.giraph.utils.*;
 import org.apache.hadoop.io.*;
 
 import java.io.IOException;
@@ -23,7 +22,7 @@ public class RemoteVerticesFinder2 extends AbstractSubgraphComputation<LongWrita
     for (SubgraphMessage<LongWritable, BytesWritable> message : messages) {
       LinkedList<LongWritable> vertexIdsFound = new LinkedList();
       ExtendedByteArrayDataOutput dataOutput = new ExtendedByteArrayDataOutput();
-      SubgraphId<LongWritable> senderSubgraphId = new SubgraphId<>();
+      SubgraphId<LongWritable> senderSubgraphId = org.apache.giraph.utils.WritableUtils.createWritable(SubgraphId.class, getConf());
       ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(message.getMessage().getBytes());
       senderSubgraphId.readFields(dataInput);
       //System.out.println("Sender subgraphID for each message is : " + senderSubgraphId);

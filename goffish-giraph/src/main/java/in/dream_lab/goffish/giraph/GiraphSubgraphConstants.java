@@ -39,7 +39,7 @@ public interface GiraphSubgraphConstants {
                     LongWritable.class, WritableComparable.class,
                     "Subgraph ID class");
   ClassConfOption<WritableComparable> SUBGRAPH_VERTEX_ID_CLASS =
-          ClassConfOption.create("giraph.vertexIdClass",
+          ClassConfOption.create("giraph.subgraphVertexIdClass",
                   LongWritable.class, WritableComparable.class,
                   "Vertex ID class");
   ClassConfOption<Writable> SUBGRAPH_MESSAGE_VALUE_CLASS =
@@ -54,7 +54,7 @@ public interface GiraphSubgraphConstants {
           ClassConfOption.create("giraph.subgraphVertexValueClass",
                   DoubleWritable.class, Writable.class,
                   "Subgraph vertex value class");
-  ClassConfOption<Writable> SUBGRAPH_EDGE_VALUE_CLASS =
+  ClassConfOption<Writable> SUBGRAPH_VERTEX_EDGE_VALUE_CLASS =
       ClassConfOption.create("giraph.subgraphEdgeValueClass",
           NullWritable.class, Writable.class,
           "Subgraph vertex value class");LongConfOption SUBGRAPH_SOURCE_VERTEX =
@@ -63,4 +63,8 @@ public interface GiraphSubgraphConstants {
           ClassConfOption.create("giraph.edgeIdClass",
                   LongWritable.class, WritableComparable.class,
                   "Edge ID class");
+  ClassConfOption<EdgeIdFactory> EDGE_ID_FACTORY_CLASS =
+          ClassConfOption.create("giraph.edgeIdFactoryClass",
+                  DefaultEdgeIdFactory.class, EdgeIdFactory.class,
+                  "Edge ID Factory class - optional");
 }

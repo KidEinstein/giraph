@@ -18,6 +18,6 @@ public class DefaultSubgraphMessageValueFactory<M extends Writable>  implements 
   }
   public void setConf(ImmutableClassesGiraphConfiguration configuration) {
     this.conf = configuration;
-    subgraphMessageValueClass = conf.getSubgraphMessageValueClass();
+//    subgraphMessageValueClass = conf.getSubgraphMessageValueClass();
   }
 }

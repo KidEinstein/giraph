@@ -1,5 +1,6 @@
 package in.dream_lab.goffish.giraph;
 
+import org.apache.giraph.conf.GiraphConfigurationSettable;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.util.ReflectionUtils;
@@ -11,10 +12,10 @@ import java.io.IOException;
 /**
  * Created by anirudh on 29/09/16.
  */
-public class SubgraphId<S extends WritableComparable> implements WritableComparable {
+public class SubgraphId<S extends WritableComparable> implements WritableComparable, GiraphConfigurationSettable {
     private int partitionId;
     private S subgraphId;
-
+    private GiraphSubgraphConfiguration<S, ?, ?, ?, ?, ?> conf;
     public SubgraphId() {
     }
 
@@ -84,17 +85,16 @@ public class SubgraphId<S extends WritableComparable> implements WritableCompara
             make subgraph class abstract and extend it for custom types
 
         */
-    @Override
-    public void readFields(DataInput dataInput) throws IOException {
-        Class<S> subgraphIdClass = (Class<S>) GiraphSubgraphConstants.SUBGRAPH_ID_CLASS.getDefaultClass();
-        subgraphId = ReflectionUtils.newInstance(subgraphIdClass, null);
-        subgraphId.readFields(dataInput);
-        partitionId = dataInput.readInt();
-    }
 
-    public void readFields(ImmutableClassesGiraphConfiguration conf, DataInput dataInput) throws IOException {
-      subgraphId = (S) conf.createSubgraphId();
+    public void readFields(DataInput dataInput) throws IOException {
+      subgraphId = conf.createSubgraphId();
+      System.out.println("Haha SubgraphIdClass" + subgraphId.getClass().getSimpleName());
       subgraphId.readFields(dataInput);
       partitionId = dataInput.readInt();
+    }
+
+    @Override
+    public void setConf(ImmutableClassesGiraphConfiguration configuration) {
+        conf = new GiraphSubgraphConfiguration<>(configuration);
     }
 }

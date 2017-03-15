@@ -1,7 +1,5 @@
 package in.dream_lab.goffish.giraph;
 
-import in.dream_lab.goffish.giraph.SubgraphEdge;
-import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -31,5 +29,5 @@ public interface SubgraphVertex<S extends WritableComparable, I extends Writable
   @Override
   void write(DataOutput dataOutput) throws IOException;
 
-  void readFields(ImmutableClassesGiraphConfiguration conf, DataInput dataInput) throws IOException;
+  void readFields(GiraphSubgraphConfiguration<S, I, V, E ,?, EI> conf, DataInput dataInput) throws IOException;
 }

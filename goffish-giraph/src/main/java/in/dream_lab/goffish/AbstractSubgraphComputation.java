@@ -1,6 +1,5 @@
 package in.dream_lab.goffish;
 
-import in.dream_lab.goffish.ISubgraphPlatformCompute;
 import in.dream_lab.goffish.giraph.GiraphSubgraphComputation;
 import in.dream_lab.goffish.giraph.Subgraph;
 import in.dream_lab.goffish.giraph.SubgraphId;
@@ -29,7 +28,7 @@ public abstract class AbstractSubgraphComputation<S extends WritableComparable,
 
   public void setSubgraphPlatformCompute(GiraphSubgraphComputation<S, I, V, E, M, SV, EI> subgraphPlatformCompute) {
     this.subgraphPlatformCompute = subgraphPlatformCompute;
-  }g
+  }
 
   public Subgraph<S, I, V, E, SV, EI> getSubgraph() {
     return subgraphPlatformCompute.getSubgraph();

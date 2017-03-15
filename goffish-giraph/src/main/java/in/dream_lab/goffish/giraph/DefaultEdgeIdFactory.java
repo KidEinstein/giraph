@@ -21,6 +21,6 @@ public class DefaultEdgeIdFactory<EI extends WritableComparable> implements Edge
     @Override
     public void setConf(ImmutableClassesGiraphConfiguration configuration) {
         this.conf = configuration;
-        edgeIdClass = conf.getEdgeIdClass();
+//        edgeIdClass = conf.getEdgeIdClass();
     }
 }

@@ -17,7 +17,6 @@
  */
 package org.apache.giraph.factories;
 
-import in.dream_lab.goffish.giraph.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;

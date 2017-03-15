@@ -13,11 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.package edu.usc.goffish.gopher.sample;
  */
-package org.apache.giraph.examples;
+package in.dream_lab.goffish;
 
-import in.dream_lab.goffish.AbstractSubgraphComputation;
 import in.dream_lab.goffish.giraph.*;
 import org.apache.giraph.comm.messages.SubgraphMessage;
+import org.apache.giraph.conf.LongConfOption;
+import org.apache.giraph.examples.ShortestPathSubgraphValue;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.BytesWritable;
@@ -44,7 +45,7 @@ import java.util.*;
  */
 public class SingleSourceShortestPathOnTemplateNoParent extends AbstractSubgraphComputation<LongWritable,
     LongWritable, LongWritable, NullWritable, BytesWritable, ShortestPathSubgraphValue, NullWritable> {
-
+  private static final LongConfOption SUBGRAPH_SOURCE_VERTEX = new LongConfOption("giraph.subgraphSourceVertex", 1, "Subgraph Source Vertex");
   public static final Logger LOG = Logger.getLogger(SingleSourceShortestPathOnTemplateNoParent.class);
   // Input Variables
 
@@ -70,7 +71,6 @@ public class SingleSourceShortestPathOnTemplateNoParent extends AbstractSubgraph
   private static class DistanceVertex implements Comparable<DistanceVertex> {
     public short distance;
     public SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> vertex;
-
     public DistanceVertex(SubgraphVertex vertex_, short distance_) {
       vertex = vertex_;
       distance = distance_;
@@ -115,7 +115,7 @@ public class SingleSourceShortestPathOnTemplateNoParent extends AbstractSubgraph
 //          throw new RuntimeException("Initial subgraph message was missing! Require sourceVertexID to be passed");
 //        }
 
-        long sourceVertexID = getConf().getSubgraphSourceVertex();
+        long sourceVertexID = SUBGRAPH_SOURCE_VERTEX.get(getConf());
 
 //        log("Initializing source vertex = " + sourceVertexID);
 

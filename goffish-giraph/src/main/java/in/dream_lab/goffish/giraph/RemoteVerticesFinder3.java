@@ -22,7 +22,7 @@ public class RemoteVerticesFinder3 extends AbstractSubgraphComputation<LongWrita
     for (SubgraphMessage<LongWritable, BytesWritable> message : messages) {
       System.out.println("Received a message, TADA" + message.getMessage());
       ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(message.getMessage().getBytes());
-      SubgraphId<LongWritable> senderSubgraphId = new SubgraphId<>();
+      SubgraphId<LongWritable> senderSubgraphId = org.apache.giraph.utils.WritableUtils.createWritable(SubgraphId.class, getConf());
       senderSubgraphId.readFields(dataInput);
       //System.out.println("Message received from subgraph  ID :" + senderSubgraphId.getSubgraphId() + "to subgraph :"+subgraph.getId().getSubgraphId());
       int numVertices = dataInput.readInt();

@@ -4,7 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
-import static org.apache.giraph.conf.GiraphConstants.EDGE_ID_FACTORY_CLASS;
+import static in.dream_lab.goffish.giraph.GiraphSubgraphConstants.EDGE_ID_FACTORY_CLASS;
 
 /**
  * Created by anirudh on 09/03/17.

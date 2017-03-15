@@ -16,7 +16,7 @@ public class DefaultSubgraphValueFactory<SV extends Writable> implements Subgrap
     @Override
     public void setConf(ImmutableClassesGiraphConfiguration configuration) {
         this.conf = configuration;
-        subgraphValueClass = conf.getSubgraphValueClass();
+//        subgraphValueClass = conf.getSubgraphValueClass();
     }
 
     @Override
