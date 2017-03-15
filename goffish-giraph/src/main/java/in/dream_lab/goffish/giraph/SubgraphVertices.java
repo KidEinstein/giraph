@@ -4,15 +4,16 @@ import in.dream_lab.goffish.giraph.DefaultRemoteSubgraphVertex;
 import in.dream_lab.goffish.giraph.DefaultSubgraphVertex;
 import in.dream_lab.goffish.giraph.RemoteSubgraphVertex;
 import in.dream_lab.goffish.giraph.SubgraphVertex;
+import org.apache.giraph.conf.GiraphConfigurationSettable;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
+import org.apache.giraph.utils.ReflectionUtils;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Properties;
 
 /**
  * Created by anirudh on 27/09/16.
@@ -24,12 +25,13 @@ import java.util.Iterator;
  */
 
 public class SubgraphVertices<S extends WritableComparable,
-    I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable, EI extends WritableComparable> implements Writable {
-  private long numVertices;
+    I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable, EI extends WritableComparable> implements Writable, GiraphConfigurationSettable {
 
   private HashMap<I, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices;
   private SV subgraphValue;
   private HashMap<I, SubgraphVertex<S, I, V, E, EI>> vertices;
+
+  private ImmutableClassesGiraphConfiguration conf;
 
   public SubgraphVertices() {
 ////        System.out.println("Calling subgraph vertices constructor");
@@ -119,6 +121,7 @@ public class SubgraphVertices<S extends WritableComparable,
 
   @Override
   public void write(DataOutput dataOutput) throws IOException {
+    System.out.println("Write Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
     subgraphValue.write(dataOutput);
     dataOutput.writeInt(vertices.size());
     for (SubgraphVertex<S, I, V, E, EI> vertex : vertices.values()) {
@@ -128,39 +131,33 @@ public class SubgraphVertices<S extends WritableComparable,
     for (RemoteSubgraphVertex<S, I, V, E, EI> vertex : remoteVertices.values()) {
       vertex.write(dataOutput);
     }
+    System.out.println("Write Num Vertices:" + vertices.size());
   }
 
-  @Override
   public void readFields(DataInput dataInput) throws IOException {
-    throw new UnsupportedOperationException("read fields without conf is not supported");
-  }
-
-
-  public void readFields(ImmutableClassesGiraphConfiguration conf, DataInput dataInput) throws IOException {
-//        try {
-////            System.out.println("Read field for subgraph vertices with conf");
-//            throw new Exception();
-//        } catch(Exception e) {
-////            System.out.println("Calling readFields with conf");
-//            e.printStackTrace(System.out);
-//            e.printStackTrace();
-//        }
-    subgraphValue = (SV) conf.createSubgraphValue();
+    GiraphSubgraphConfiguration<S,I,V,E,SV,EI> giraphSubgraphConfiguration = new GiraphSubgraphConfiguration(conf);
+    subgraphValue = giraphSubgraphConfiguration.createSubgraphValue();
     subgraphValue.readFields(dataInput);
     int numVertices = dataInput.readInt();
+    System.out.println("Read Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
+    System.out.println("Read Num Vertices:" + numVertices);
     vertices = new HashMap<>();
     for (int i = 0; i < numVertices; i++) {
       SubgraphVertex<S, I, V, E, EI> subgraphVertex = new DefaultSubgraphVertex<S, I, V, E, EI>();
-      subgraphVertex.readFields(conf, dataInput);
+      subgraphVertex.readFields(giraphSubgraphConfiguration, dataInput);
       vertices.put(subgraphVertex.getId(), subgraphVertex);
     }
     remoteVertices = new HashMap<>();
     int numRemoteVertices = dataInput.readInt();
     for (int i = 0; i < numRemoteVertices; i++) {
       RemoteSubgraphVertex<S, I, V, E, EI> remoteSubgraphVertex = new DefaultRemoteSubgraphVertex<>();
-      remoteSubgraphVertex.readFields(conf, dataInput);
+      remoteSubgraphVertex.readFields(giraphSubgraphConfiguration, dataInput);
       remoteVertices.put(remoteSubgraphVertex.getId(), remoteSubgraphVertex);
     }
   }
 
+  @Override
+  public void setConf(ImmutableClassesGiraphConfiguration configuration) {
+    conf = configuration;
+  }
 }

@@ -17,8 +17,6 @@
  */
 package org.apache.giraph.conf;
 
-import in.dream_lab.goffish.giraph.DefaultEdgeIdFactory;
-import in.dream_lab.goffish.giraph.EdgeIdFactory;
 import org.apache.giraph.aggregators.AggregatorWriter;
 import org.apache.giraph.aggregators.TextAggregatorWriter;
 import org.apache.giraph.bsp.BspOutputFormat;
@@ -140,13 +138,6 @@ public interface GiraphConstants {
           false, "Whether user graph types (IVEMM) need Jython wrappers");
 
 
-  ClassConfOption<EdgeIdFactory> EDGE_ID_FACTORY_CLASS =
-          ClassConfOption.create("giraph.edgeIdFactoryClass",
-                  DefaultEdgeIdFactory.class, EdgeIdFactory.class,
-                  "Edge ID Factory class - optional");
-
-
-  // END OURS
   /** Vertex id factory class - optional */
   ClassConfOption<VertexIdFactory> VERTEX_ID_FACTORY_CLASS =
       ClassConfOption.create("giraph.vertexIdFactoryClass",

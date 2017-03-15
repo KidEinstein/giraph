@@ -2244,14 +2244,19 @@ under the License.
         <version>${dep.mockito.version}</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>in.dream_lab.goffish.giraph</groupId>
+        <artifactId>goffish-giraph</artifactId>
+        <version>0.1</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
   <modules>
-    <module>goffish-giraph</module>
     <module>giraph-core</module>
     <module>giraph-block-app</module>
     <module>giraph-examples</module>
+    <module>goffish-giraph</module>
   </modules>
 
 </project>

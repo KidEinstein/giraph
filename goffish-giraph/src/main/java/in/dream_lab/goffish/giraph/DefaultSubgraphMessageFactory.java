@@ -2,8 +2,10 @@ package in.dream_lab.goffish.giraph;
 
 import com.google.common.base.Objects;
 import org.apache.giraph.comm.messages.SubgraphMessage;
+import org.apache.giraph.conf.GiraphConfigurationSettable;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.factories.MessageValueFactory;
+import org.apache.giraph.utils.ReflectionUtils;
 import org.apache.giraph.utils.WritableUtils;
 import org.apache.hadoop.io.Writable;
 
@@ -13,42 +15,26 @@ import org.apache.hadoop.io.Writable;
  * @param <M> Message Value
  */
 public class DefaultSubgraphMessageFactory<M extends Writable>
-    implements MessageValueFactory<M> {
+    implements MessageValueFactory<M>, GiraphConfigurationSettable {
   /**
    * Message value class
    */
-  private final Class<M> messageValueClass;
   /**
    * Configuration
    */
-  private ImmutableClassesGiraphConfiguration conf;
-
-  /**
-   * Constructor
-   *
-   * @param messageValueClass message value class
-   * @param conf              configuration
-   */
-  public DefaultSubgraphMessageFactory(Class<M> messageValueClass,
-                                       ImmutableClassesGiraphConfiguration conf) {
-    this.messageValueClass = messageValueClass;
-    this.conf = conf;
-  }
+  private GiraphSubgraphConfiguration conf;
 
   @Override
   public M newInstance() {
-    SubgraphMessage messageValue =  (SubgraphMessage) WritableUtils.createWritable(messageValueClass, conf);
+    SubgraphMessage messageValue =  ReflectionUtils.newInstance(SubgraphMessage.class);
     messageValue.initializeSubgraphId(conf.createSubgraphId());
     Writable subgraphMessageValue = conf.createSubgraphMessageValue();
     messageValue.initializeMessageValue(subgraphMessageValue);
     return (M) messageValue;
   }
 
-
   @Override
-  public String toString() {
-    return Objects.toStringHelper(this)
-        .add("messageValueClass", messageValueClass)
-        .toString();
+  public void setConf(ImmutableClassesGiraphConfiguration configuration) {
+    this.conf = new GiraphSubgraphConfiguration(configuration);
   }
 }

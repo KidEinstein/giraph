@@ -17,6 +17,7 @@ package in.dream_lab.goffish.giraph;
 
 import in.dream_lab.goffish.AbstractSubgraphComputation;
 import org.apache.giraph.comm.messages.SubgraphMessage;
+import org.apache.giraph.conf.LongConfOption;
 import org.apache.giraph.examples.ShortestPathSubgraphValue;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
@@ -46,6 +47,7 @@ import java.util.*;
 public class SubgraphSingleSourceShortestPathWithWeights extends AbstractSubgraphComputation<LongWritable,
     LongWritable, LongWritable, DoubleWritable, BytesWritable, ShortestPathSubgraphValue, NullWritable> {
   public static final Logger LOG = Logger.getLogger(SubgraphSingleSourceShortestPathWithWeights.class);
+  private static final LongConfOption SUBGRAPH_SOURCE_VERTEX = new LongConfOption("giraph.subgraphSourceVertex", 1, "Subgraph Source Vertex");
 
   // Input Variables
 
@@ -114,7 +116,7 @@ public class SubgraphSingleSourceShortestPathWithWeights extends AbstractSubgrap
 //          throw new RuntimeException("Initial subgraph message was missing! Require sourceVertexID to be passed");
 //        }
 
-        long sourceVertexID = getConf().getSubgraphSourceVertex();
+        long sourceVertexID = SUBGRAPH_SOURCE_VERTEX.get(getConf());
 
 //        log("Initializing source vertex = " + sourceVertexID);
 

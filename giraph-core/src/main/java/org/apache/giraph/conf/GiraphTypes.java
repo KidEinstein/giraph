@@ -21,7 +21,6 @@ import static org.apache.giraph.conf.GiraphConstants.*;
 import static org.apache.giraph.utils.ConfigurationUtils.getTypesHolderClass;
 import static org.apache.giraph.utils.ReflectionUtils.getTypeArguments;
 
-import in.dream_lab.goffish.giraph.GiraphSubgraphConstants;
 import org.apache.giraph.graph.DefaultVertex;
 import org.apache.giraph.graph.Vertex;
 import org.apache.hadoop.conf.Configuration;

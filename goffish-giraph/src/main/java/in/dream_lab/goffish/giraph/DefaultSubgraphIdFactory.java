@@ -21,6 +21,6 @@ public class DefaultSubgraphIdFactory<S extends WritableComparable> implements S
   @Override
   public void setConf(ImmutableClassesGiraphConfiguration configuration) {
     this.conf = configuration;
-    subgraphIdClass = conf.getSubgraphIdClass();
+//    subgraphIdClass = conf.getSubgraphIdClass();
   }
 }

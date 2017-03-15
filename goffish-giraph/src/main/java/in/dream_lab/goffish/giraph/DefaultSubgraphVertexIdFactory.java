@@ -21,6 +21,6 @@ public class DefaultSubgraphVertexIdFactory<I extends WritableComparable> implem
   @Override
   public void setConf(ImmutableClassesGiraphConfiguration configuration) {
       this.conf = configuration;
-      subgraphVertexIdClass = conf.getSubgraphVertexIdClass();
+//      subgraphVertexIdClass = conf.getSubgraphVertexIdClass();
   }
 }

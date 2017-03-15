@@ -31,13 +31,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import in.dream_lab.goffish.giraph.GiraphSubgraphConstants;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.OutEdges;
 import org.apache.giraph.factories.ValueFactory;
-import in.dream_lab.goffish.giraph.SubgraphId;
-import in.dream_lab.goffish.giraph.SubgraphVertices;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.zk.ZooKeeperExt;
 import org.apache.giraph.zk.ZooKeeperExt.PathStat;
@@ -542,14 +539,8 @@ public class WritableUtils {
       Vertex<I, V, E> vertex,
       ImmutableClassesGiraphConfiguration<I, V, E> conf)
     throws IOException {
-    // TODO:
-    if (GiraphSubgraphConstants.IS_SUBGRAPH_COMPUTATION.get(conf)) {
-      ((SubgraphId)vertex.getId()).readFields(conf, input);
-      ((SubgraphVertices)vertex.getValue()).readFields(conf, input);
-    } else {
-      vertex.getId().readFields(input);
-      vertex.getValue().readFields(input);
-    }
+    vertex.getId().readFields(input);
+    vertex.getValue().readFields(input);
     ((OutEdges<I, E>) vertex.getEdges()).readFields(input);
     if (input.readBoolean()) {
       vertex.voteToHalt();
