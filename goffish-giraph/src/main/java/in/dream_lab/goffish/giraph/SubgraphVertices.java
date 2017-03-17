@@ -7,6 +7,7 @@ import in.dream_lab.goffish.giraph.SubgraphVertex;
 import org.apache.giraph.conf.GiraphConfigurationSettable;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.utils.ReflectionUtils;
+import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -32,6 +33,8 @@ public class SubgraphVertices<S extends WritableComparable,
   private HashMap<I, SubgraphVertex<S, I, V, E, EI>> vertices;
 
   private ImmutableClassesGiraphConfiguration conf;
+
+  MapWritable subgraphParitionMapping;
 
   public SubgraphVertices() {
 ////        System.out.println("Calling subgraph vertices constructor");
@@ -159,5 +162,9 @@ public class SubgraphVertices<S extends WritableComparable,
   @Override
   public void setConf(ImmutableClassesGiraphConfiguration configuration) {
     conf = configuration;
+  }
+
+  public void setSubgraphParitionMapping(MapWritable subgraphParitionMapping) {
+    this.subgraphParitionMapping = subgraphParitionMapping;
   }
 }

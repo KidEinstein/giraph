@@ -1,6 +1,7 @@
 package in.dream_lab.goffish.giraph;
 
 import in.dream_lab.goffish.AbstractSubgraphComputation;
+import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
 import org.apache.hadoop.io.*;
 
@@ -10,15 +11,14 @@ import java.util.HashMap;
 /**
  * Created by anirudh on 06/11/16.
  */
-public class RemoteVerticesFinder3 extends AbstractSubgraphComputation<LongWritable,
+public class RemoteVerticesFinder3 extends GiraphSubgraphComputation<LongWritable,
     LongWritable, DoubleWritable, DoubleWritable, BytesWritable, NullWritable, LongWritable> {
-
   @Override
-  public void compute(Iterable<SubgraphMessage<LongWritable, BytesWritable>> messages) throws IOException {
-    Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph = getSubgraph();
+  public void compute(Vertex<SubgraphId<LongWritable>, SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable>, DoubleWritable> vertex, Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
+    Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph = (DefaultSubgraph) vertex;
     HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> remoteVertices = subgraph.getSubgraphVertices().getRemoteVertices();
     //System.out.println("IN RVF 3\n");
-    for (SubgraphMessage<LongWritable, BytesWritable> message : messages) {
+    for (SubgraphMessage<LongWritable, BytesWritable> message : subgraphMessages) {
       ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(message.getMessage().getBytes());
       SubgraphId<LongWritable> senderSubgraphId = org.apache.giraph.utils.WritableUtils.createWritable(SubgraphId.class, getConf());
       senderSubgraphId.readFields(dataInput);
