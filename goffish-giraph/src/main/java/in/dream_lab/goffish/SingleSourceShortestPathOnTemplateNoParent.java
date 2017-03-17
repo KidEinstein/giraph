@@ -16,7 +16,7 @@
 package in.dream_lab.goffish;
 
 import in.dream_lab.goffish.giraph.*;
-import org.apache.giraph.comm.messages.SubgraphMessage;
+import in.dream_lab.goffish.giraph.SubgraphMessage;
 import org.apache.giraph.conf.LongConfOption;
 import org.apache.giraph.examples.ShortestPathSubgraphValue;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;

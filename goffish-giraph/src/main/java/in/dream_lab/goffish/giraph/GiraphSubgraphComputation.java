@@ -2,7 +2,6 @@ package in.dream_lab.goffish.giraph;
 
 import in.dream_lab.goffish.AbstractSubgraphComputation;
 import in.dream_lab.goffish.ISubgraphPlatformCompute;
-import org.apache.giraph.comm.messages.SubgraphMessage;
 import org.apache.giraph.conf.ClassConfOption;
 import org.apache.giraph.graph.*;
 import org.apache.giraph.utils.ReflectionUtils;
@@ -80,17 +79,19 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
   public void compute(Vertex<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E> vertex, Iterable<SubgraphMessage<S, M>> messages) throws IOException {
     Class userSubgraphComputationClass;
     long superstep = super.getSuperstep();
-    if (superstep == 0) {
-      userSubgraphComputationClass = RemoteVerticesFinder.class;
-    } else if (superstep == 1) {
-      userSubgraphComputationClass = RemoteVerticesFinder2.class;
-    } else if (superstep == 2) {
-      userSubgraphComputationClass = RemoteVerticesFinder3.class;
-    } else {
-      userSubgraphComputationClass = SUBGRAPH_COMPUTATION_CLASS.get(getConf());
-      LOG.info("User Class: " + userSubgraphComputationClass);
+    if (abstractSubgraphComputation == null) {
+      if (superstep == 0) {
+        userSubgraphComputationClass = RemoteVerticesFinder.class;
+      } else if (superstep == 1) {
+        userSubgraphComputationClass = RemoteVerticesFinder2.class;
+      } else if (superstep == 2) {
+        userSubgraphComputationClass = RemoteVerticesFinder3.class;
+      } else {
+        userSubgraphComputationClass = SUBGRAPH_COMPUTATION_CLASS.get(getConf());
+        LOG.info("User Class: " + userSubgraphComputationClass);
+      }
+      abstractSubgraphComputation = (AbstractSubgraphComputation<S, I, V, E, M, SV, EI>) ReflectionUtils.newInstance(userSubgraphComputationClass, getConf());
     }
-    abstractSubgraphComputation = (AbstractSubgraphComputation<S, I, V, E, M, SV, EI>) ReflectionUtils.newInstance(userSubgraphComputationClass, getConf());
     LOG.info("User Object: " + abstractSubgraphComputation);
     abstractSubgraphComputation.setSubgraphPlatformCompute(this);
     subgraph = (DefaultSubgraph) vertex;

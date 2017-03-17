@@ -1,4 +1,4 @@
-package org.apache.giraph.comm.messages;
+package in.dream_lab.goffish.giraph;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;

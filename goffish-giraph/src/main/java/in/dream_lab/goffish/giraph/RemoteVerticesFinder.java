@@ -1,7 +1,6 @@
 package in.dream_lab.goffish.giraph;
 
 import in.dream_lab.goffish.AbstractSubgraphComputation;
-import org.apache.giraph.comm.messages.SubgraphMessage;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.*;
 import org.apache.log4j.Logger;

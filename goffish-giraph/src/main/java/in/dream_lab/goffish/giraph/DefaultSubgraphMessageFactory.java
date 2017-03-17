@@ -1,12 +1,9 @@
 package in.dream_lab.goffish.giraph;
 
-import com.google.common.base.Objects;
-import org.apache.giraph.comm.messages.SubgraphMessage;
 import org.apache.giraph.conf.GiraphConfigurationSettable;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.factories.MessageValueFactory;
 import org.apache.giraph.utils.ReflectionUtils;
-import org.apache.giraph.utils.WritableUtils;
 import org.apache.hadoop.io.Writable;
 
 /**

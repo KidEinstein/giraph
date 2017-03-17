@@ -1,7 +1,6 @@
 package in.dream_lab.goffish.giraph;
 
 import in.dream_lab.goffish.AbstractSubgraphComputation;
-import org.apache.giraph.comm.messages.SubgraphMessage;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;

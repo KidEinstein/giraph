@@ -57,7 +57,7 @@ public abstract class WorkerGraphPartitionerImpl<I extends WritableComparable,
   @Override
   public PartitionOwner getPartitionOwner(I vertexId) {
     return partitionOwnerList.get(
-        getPartitionIndex(vertexId, partitionOwnerList.size(),
+           getPartitionIndex(vertexId, partitionOwnerList.size(),
             availableWorkers.size()));
   }
 

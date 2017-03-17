@@ -121,7 +121,7 @@ public class SubgraphVertices<S extends WritableComparable,
 
   @Override
   public void write(DataOutput dataOutput) throws IOException {
-    System.out.println("Write Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
+//    System.out.println("Write Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
     subgraphValue.write(dataOutput);
     dataOutput.writeInt(vertices.size());
     for (SubgraphVertex<S, I, V, E, EI> vertex : vertices.values()) {
@@ -131,7 +131,7 @@ public class SubgraphVertices<S extends WritableComparable,
     for (RemoteSubgraphVertex<S, I, V, E, EI> vertex : remoteVertices.values()) {
       vertex.write(dataOutput);
     }
-    System.out.println("Write Num Vertices:" + vertices.size());
+//    System.out.println("Write Num Vertices:" + vertices.size());
   }
 
   public void readFields(DataInput dataInput) throws IOException {
@@ -139,8 +139,8 @@ public class SubgraphVertices<S extends WritableComparable,
     subgraphValue = giraphSubgraphConfiguration.createSubgraphValue();
     subgraphValue.readFields(dataInput);
     int numVertices = dataInput.readInt();
-    System.out.println("Read Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
-    System.out.println("Read Num Vertices:" + numVertices);
+//    System.out.println("Read Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
+//    System.out.println("Read Num Vertices:" + numVertices);
     vertices = new HashMap<>();
     for (int i = 0; i < numVertices; i++) {
       SubgraphVertex<S, I, V, E, EI> subgraphVertex = new DefaultSubgraphVertex<S, I, V, E, EI>();

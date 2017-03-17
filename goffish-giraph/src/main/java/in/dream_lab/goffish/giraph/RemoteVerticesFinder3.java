@@ -1,7 +1,6 @@
 package in.dream_lab.goffish.giraph;
 
 import in.dream_lab.goffish.AbstractSubgraphComputation;
-import org.apache.giraph.comm.messages.SubgraphMessage;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
 import org.apache.hadoop.io.*;
 
@@ -20,7 +19,6 @@ public class RemoteVerticesFinder3 extends AbstractSubgraphComputation<LongWrita
     HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> remoteVertices = subgraph.getSubgraphVertices().getRemoteVertices();
     //System.out.println("IN RVF 3\n");
     for (SubgraphMessage<LongWritable, BytesWritable> message : messages) {
-      System.out.println("Received a message, TADA" + message.getMessage());
       ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(message.getMessage().getBytes());
       SubgraphId<LongWritable> senderSubgraphId = org.apache.giraph.utils.WritableUtils.createWritable(SubgraphId.class, getConf());
       senderSubgraphId.readFields(dataInput);
