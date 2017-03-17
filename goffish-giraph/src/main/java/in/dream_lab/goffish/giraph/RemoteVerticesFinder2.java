@@ -26,8 +26,8 @@ public class RemoteVerticesFinder2 extends GiraphSubgraphComputation<LongWritabl
     for (SubgraphMessage<LongWritable, BytesWritable> message : subgraphMessages) {
       LinkedList<LongWritable> vertexIdsFound = new LinkedList();
       ExtendedByteArrayDataOutput dataOutput = new ExtendedByteArrayDataOutput();
-      SubgraphId<LongWritable> senderSubgraphId = org.apache.giraph.utils.WritableUtils.createWritable(SubgraphId.class, getConf());
       ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(message.getMessage().getBytes());
+      LongWritable senderSubgraphId = new LongWritable();
       senderSubgraphId.readFields(dataInput);
       //System.out.println("Sender subgraphID for each message is : " + senderSubgraphId);
       int numVertices = dataInput.readInt();
@@ -41,13 +41,13 @@ public class RemoteVerticesFinder2 extends GiraphSubgraphComputation<LongWritabl
         }
       }
       if (!vertexIdsFound.isEmpty()) {
-        subgraph.getId().write(dataOutput);
+        subgraph.getSubgraphId().write(dataOutput);
         dataOutput.writeInt(vertexIdsFound.size());
         for (LongWritable found : vertexIdsFound) {
           found.write(dataOutput);
         }
         BytesWritable bw = new BytesWritable(dataOutput.getByteArray());
-        sendMessage(senderSubgraphId, bw);
+        sendMessageToSubgraph(senderSubgraphId, bw);
       }
     }
     //System.out.println("for subgraph id : "+subgraph.getId().getSubgraphId() + " incoming messages in RVF2 are :" +msgcount);

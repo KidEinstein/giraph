@@ -5,8 +5,7 @@ import in.dream_lab.goffish.ISubgraphPlatformCompute;
 import org.apache.giraph.conf.ClassConfOption;
 import org.apache.giraph.graph.*;
 import org.apache.giraph.utils.ReflectionUtils;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.*;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -40,7 +39,10 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
   private static final ClassConfOption<AbstractSubgraphComputation> SUBGRAPH_COMPUTATION_CLASS = ClassConfOption.create("subgraphComputationClass",
       null, AbstractSubgraphComputation.class, "Subgraph Computation Class");
 
+
   private AbstractSubgraphComputation<S, I, V, E, M, SV, EI> abstractSubgraphComputation;
+
+  private MapWritable subgraphPartitionMap;
 
   // TODO: Have class be specified in conf
 
@@ -55,7 +57,7 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
   }
 
   @Override
-  public void sendMessage(SubgraphId<S> subgraphId, Iterable<M> message) {
+  public void sendMessage(S subgraphId, Iterable<M> message) {
     throw new UnsupportedOperationException();
   }
 
@@ -111,11 +113,8 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
   }
 
 
-
-
-  public void sendMessage(SubgraphId<S> subgraphId, M message) {
-    SubgraphMessage sm = new SubgraphMessage(subgraphId.getSubgraphId(), message);
-    sendMessage(subgraphId, sm);
+  private int getPartition(S subgraphId) {
+    return ((IntWritable) subgraphPartitionMap.get(subgraphId)).get();
   }
 
   public void voteToHalt() {
@@ -129,5 +128,12 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
   @Override
   public long getSuperstep() {
     return super.getSuperstep() - 3;
+  }
+
+  @Override
+  public void sendMessageToSubgraph(S subgraphId, M message) {
+    SubgraphMessage sm = new SubgraphMessage(subgraphId, message);
+    SubgraphId<S> sId = new SubgraphId<>(subgraphId, getPartition(subgraphId));
+    sendMessage(sId, sm);
   }
 }

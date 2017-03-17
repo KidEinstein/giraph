@@ -40,8 +40,8 @@ public abstract class AbstractSubgraphComputation<S extends WritableComparable,
 
   public abstract void compute(Iterable<SubgraphMessage<S, M>> messages) throws IOException;
 
-  public void sendMessage(SubgraphId<S> subgraphId, M message) {
-    subgraphPlatformCompute.sendMessage(subgraphId, message);
+  public void sendMessage(S subgraphId, M message) {
+    subgraphPlatformCompute.sendMessageToSubgraph(subgraphId, message);
   }
 
   public void sendToNeighbors(M message) {
@@ -57,7 +57,7 @@ public abstract class AbstractSubgraphComputation<S extends WritableComparable,
     return conf;
   }
 
-  void sendMessage(SubgraphId<S> subgraphID, Iterable<M> message) {
+  void sendMessage(S subgraphID, Iterable<M> message) {
     throw new UnsupportedOperationException();
   }
 
@@ -68,5 +68,4 @@ public abstract class AbstractSubgraphComputation<S extends WritableComparable,
   void sendToNeighbors(Iterable<M> message) {
     throw new UnsupportedOperationException();
   }
-
 }

@@ -20,7 +20,7 @@ public class RemoteVerticesFinder3 extends GiraphSubgraphComputation<LongWritabl
     //System.out.println("IN RVF 3\n");
     for (SubgraphMessage<LongWritable, BytesWritable> message : subgraphMessages) {
       ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(message.getMessage().getBytes());
-      SubgraphId<LongWritable> senderSubgraphId = org.apache.giraph.utils.WritableUtils.createWritable(SubgraphId.class, getConf());
+      LongWritable senderSubgraphId = new LongWritable();
       senderSubgraphId.readFields(dataInput);
       //System.out.println("Message received from subgraph  ID :" + senderSubgraphId.getSubgraphId() + "to subgraph :"+subgraph.getId().getSubgraphId());
       int numVertices = dataInput.readInt();

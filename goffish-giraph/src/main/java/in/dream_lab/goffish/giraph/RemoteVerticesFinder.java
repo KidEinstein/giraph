@@ -59,7 +59,7 @@ public class RemoteVerticesFinder extends GiraphSubgraphComputation<LongWritable
 
     LOG.info("Partition,Subgraph,Vertices,RemoteVertices,Edges:" + subgraph.getPartitionId() + "," + subgraph.getSubgraphId() + "," + subgraph.getSubgraphVertices().getLocalVertices().size() + "," + remoteVertexIds.size() + "," + edgeCount);
 
-    subgraph.getId().write(dataOutput);
+    subgraph.getSubgraphId().write(dataOutput);
 //    LOG.info("Test, Sender subgraphID is : " + subgraph.getId());
     dataOutput.writeInt(remoteVertexIds.size());
 //    LOG.info("Test, Sender number of remote vertices are  : " + remoteVertexIds.size());

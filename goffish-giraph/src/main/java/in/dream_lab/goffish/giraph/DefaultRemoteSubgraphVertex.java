@@ -12,9 +12,9 @@ public class DefaultRemoteSubgraphVertex<S extends WritableComparable,
     I extends WritableComparable, V extends Writable, E extends Writable, EI extends WritableComparable>
     extends DefaultSubgraphVertex<S, I, V, E, EI> implements RemoteSubgraphVertex<S, I, V, E, EI> {
 
-  private SubgraphId<S> subgraphId;
+  private S subgraphId;
 
-  public void initialize(SubgraphId<S> subgraphId, I vertexId, V value, LinkedList<SubgraphEdge<I, E, EI>> subgraphEdges) {
+  public void initialize(S subgraphId, I vertexId, V value, LinkedList<SubgraphEdge<I, E, EI>> subgraphEdges) {
     this.subgraphId = subgraphId;
     super.initialize(vertexId, value, subgraphEdges);
   }
@@ -25,11 +25,11 @@ public class DefaultRemoteSubgraphVertex<S extends WritableComparable,
   }
 
   @Override
-  public SubgraphId<S> getSubgraphId() {
+  public S getSubgraphId() {
     return subgraphId;
   }
 
-  public void setSubgraphId(SubgraphId<S> subgraphId) {
+  public void setSubgraphId(S subgraphId) {
     this.subgraphId = subgraphId;
   }
 

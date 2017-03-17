@@ -283,7 +283,7 @@ public class SubgraphSingleSourceShortestPathWithWeights extends AbstractSubgrap
 
   int packAndSendMessages(Set<Long> remoteVertexUpdates, Subgraph<LongWritable, LongWritable, LongWritable, DoubleWritable, ShortestPathSubgraphValue, NullWritable> subgraph) throws IOException {
     ShortestPathSubgraphValue subgraphValue = subgraph.getSubgraphVertices().getSubgraphValue();
-    HashMap<SubgraphId<LongWritable>, ExtendedByteArrayDataOutput> messagesMap = new HashMap<>();
+    HashMap<LongWritable, ExtendedByteArrayDataOutput> messagesMap = new HashMap<>();
     for (long entry : remoteVertexUpdates) {
       RemoteSubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> remoteSubgraphVertex = (RemoteSubgraphVertex) subgraph.getSubgraphVertices().getVertexById(new LongWritable(entry));
       ExtendedByteArrayDataOutput dataOutput;
@@ -298,7 +298,7 @@ public class SubgraphSingleSourceShortestPathWithWeights extends AbstractSubgrap
       // LOG.info("SubgraphID" + remoteSubgraphVertex.getSubgraphId() + " Sending vertex id " + remoteSubgraphVertex.getId().get() + " distance "+ entry.getValue());
     }
     int messageCount = 0;
-    for (Map.Entry<SubgraphId<LongWritable>, ExtendedByteArrayDataOutput> entry : messagesMap.entrySet()) {
+    for (Map.Entry<LongWritable, ExtendedByteArrayDataOutput> entry : messagesMap.entrySet()) {
       ExtendedByteArrayDataOutput dataOutput = entry.getValue();
       dataOutput.writeLong(-1);
       sendMessage(entry.getKey(), new BytesWritable(dataOutput.getByteArray()));
