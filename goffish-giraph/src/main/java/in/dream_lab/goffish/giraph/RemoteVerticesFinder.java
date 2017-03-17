@@ -1,6 +1,8 @@
 package in.dream_lab.goffish.giraph;
 
 import in.dream_lab.goffish.AbstractSubgraphComputation;
+import org.apache.giraph.graph.BasicComputation;
+import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.*;
 import org.apache.log4j.Logger;
@@ -12,11 +14,15 @@ import java.util.HashSet;
 /**
  * Created by anirudh on 02/11/16.
  */
-public class RemoteVerticesFinder extends AbstractSubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, BytesWritable, NullWritable, LongWritable> {
+public class RemoteVerticesFinder extends GiraphSubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, BytesWritable, NullWritable, LongWritable> {
   public static final Logger LOG = Logger.getLogger(RemoteVerticesFinder.class);
+
   @Override
-  public void compute(Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
-    DefaultSubgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph = (DefaultSubgraph) getSubgraph();
+  public void compute(Vertex<SubgraphId<LongWritable>, SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable>, DoubleWritable> vertex, Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
+    DefaultSubgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph = (DefaultSubgraph) vertex;
+    MapWritable subgraphPartitionMap = new MapWritable();
+    subgraphPartitionMap.put(subgraph.getSubgraphId(), new IntWritable(subgraph.getPartitionId()));
+    aggregate(SubgraphMasterCompute.ID, subgraphPartitionMap);
     SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
     //System.out.println("SV in RVF 1 : " + subgraphVertices);
     HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> vertices = subgraphVertices.getLocalVertices();
@@ -78,6 +84,6 @@ public class RemoteVerticesFinder extends AbstractSubgraphComputation<LongWritab
     //LOG.info("Test 2, Free memory: " + freeMemoryMB());
 
     // LOG.info("Test, All messages sent");
-    sendToNeighbors(bw);
+    sendToNeighbors(subgraph, bw);
   }
 }

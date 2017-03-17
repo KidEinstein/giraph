@@ -69,7 +69,7 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
     throw new UnsupportedOperationException();
   }
 
-  DefaultSubgraph<S, I, V, E, SV, EI> subgraph;
+  private DefaultSubgraph<S, I, V, E, SV, EI> subgraph;
 
   public Subgraph<S, I, V, E, SV, EI> getSubgraph() {
     return subgraph;
@@ -103,6 +103,13 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
     SubgraphMessage sm = new SubgraphMessage(subgraphId, message);
     super.sendMessageToAllEdges(subgraph, sm);
   }
+
+  public void sendToNeighbors(DefaultSubgraph<S, I, V, E, SV, EI> subgraph, M message) {
+    WritableComparable subgraphId = subgraph.getSubgraphId();
+    SubgraphMessage sm = new SubgraphMessage(subgraphId, message);
+    super.sendMessageToAllEdges(subgraph, sm);
+  }
+
 
 
 
