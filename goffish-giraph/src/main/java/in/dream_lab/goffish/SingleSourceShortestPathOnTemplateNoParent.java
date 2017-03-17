@@ -282,7 +282,7 @@ public class SingleSourceShortestPathOnTemplateNoParent extends AbstractSubgraph
 
   void packAndSendMessages(Set<Long> remoteVertexUpdates, Subgraph<LongWritable, LongWritable, LongWritable, NullWritable, ShortestPathSubgraphValue, NullWritable> subgraph) throws IOException {
     ShortestPathSubgraphValue subgraphValue = subgraph.getSubgraphVertices().getSubgraphValue();
-    HashMap<SubgraphId<LongWritable>, ExtendedByteArrayDataOutput> messagesMap = new HashMap<>();
+    HashMap<LongWritable, ExtendedByteArrayDataOutput> messagesMap = new HashMap<>();
     int unpackedMessageCount = 0;
     for (long entry : remoteVertexUpdates) {
       unpackedMessageCount++;
@@ -298,7 +298,7 @@ public class SingleSourceShortestPathOnTemplateNoParent extends AbstractSubgraph
       dataOutput.writeShort(subgraphValue.shortestDistanceMap.get(entry));
       // LOG.info("SubgraphID" + remoteSubgraphVertex.getSubgraphId() + " Sending vertex id " + remoteSubgraphVertex.getId().get() + " distance "+ entry.getValue());
     }
-    for (Map.Entry<SubgraphId<LongWritable>, ExtendedByteArrayDataOutput> entry : messagesMap.entrySet()) {
+    for (Map.Entry<LongWritable, ExtendedByteArrayDataOutput> entry : messagesMap.entrySet()) {
       ExtendedByteArrayDataOutput dataOutput = entry.getValue();
       dataOutput.writeLong(-1);
       sendMessage(entry.getKey(), new BytesWritable(dataOutput.getByteArray()));

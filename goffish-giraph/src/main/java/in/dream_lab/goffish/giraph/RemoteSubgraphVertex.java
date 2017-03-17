@@ -9,6 +9,6 @@ import org.apache.hadoop.io.WritableComparable;
 public interface RemoteSubgraphVertex<S extends WritableComparable,
     I extends WritableComparable, V extends Writable, E extends Writable, EI extends WritableComparable>
     extends SubgraphVertex<S, I, V, E, EI> {
-  SubgraphId<S> getSubgraphId();
+  S getSubgraphId();
 
 }

@@ -16,7 +16,7 @@ public interface ISubgraphPlatformCompute<S extends WritableComparable,
 
   long getSuperstep();
 
-  void sendMessage(SubgraphId<S> subgraphId, M message);
+  void sendMessageToSubgraph(S subgraphId, M message);
 
   void sendToVertex(I vertexID, M message);
 
@@ -24,7 +24,7 @@ public interface ISubgraphPlatformCompute<S extends WritableComparable,
 
   void sendToNeighbors(M message);
 
-  void sendMessage(SubgraphId<S> subgraphId, Iterable<M> message);
+  void sendMessage(S subgraphId, Iterable<M> message);
 
   void sendToAll(Iterable<M> message);
 
