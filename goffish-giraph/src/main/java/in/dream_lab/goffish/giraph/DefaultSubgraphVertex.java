@@ -67,19 +67,19 @@ public class DefaultSubgraphVertex<S extends WritableComparable, I extends Writa
 
   @Override
   public void write(DataOutput dataOutput) throws IOException {
-        System.out.println("Write: " + "ID:" + id + id.getClass().getSimpleName());
-        System.out.println("Write: " + "Value:" + value + value.getClass().getSimpleName());
+//        System.out.println("Write: " + "ID:" + id + id.getClass().getSimpleName());
+//        System.out.println("Write: " + "Value:" + value + value.getClass().getSimpleName());
     id.write(dataOutput);
     value.write(dataOutput);
     int numOutEdges = outEdges.size();
     dataOutput.writeInt(numOutEdges);
-        System.out.println("Write: " + "Number edges: " + numOutEdges);
+//        System.out.println("Write: " + "Number edges: " + numOutEdges);
     for (SubgraphEdge<I, E, EI> edge : outEdges) {
-            System.out.println("Write: " + "Edge:" + edge.getSinkVertexId() + " Class: " + edge.getSinkVertexId().getClass().getSimpleName());
+//            System.out.println("Write: " + "Edge:" + edge.getSinkVertexId() + " Class: " + edge.getSinkVertexId().getClass().getSimpleName());
       edge.getSinkVertexId().write(dataOutput);
       edge.getValue().write(dataOutput);
     }
-    System.out.println("Vertex ID Class,VertexValueClass:" + id.getClass() + "," + value.getClass());
+//    System.out.println("Vertex ID Class,VertexValueClass:" + id.getClass() + "," + value.getClass());
   }
 
   @Override
@@ -95,22 +95,22 @@ public class DefaultSubgraphVertex<S extends WritableComparable, I extends Writa
 
     id.readFields(dataInput);
     value.readFields(dataInput);
-    System.out.println("Read ID:" + id + "\t"+ id.getClass().getSimpleName());
-    System.out.println("Read: " + "Value:" + value + value.getClass().getSimpleName());
+//    System.out.println("Read ID:" + id + "\t"+ id.getClass().getSimpleName());
+//    System.out.println("Read: " + "Value:" + value + value.getClass().getSimpleName());
 
     int numEdges;
     numEdges = dataInput.readInt();
-    System.out.println("Read: " + "Number edges: " + numEdges);
+//    System.out.println("Read: " + "Number edges: " + numEdges);
     outEdges = Lists.newLinkedList();
     for (int i = 0; i < numEdges; i++) {
-      System.out.println("\n THIS IS I :  "+ i);
+//      System.out.println("\n THIS IS I :  "+ i);
       DefaultSubgraphEdge<I, E, EI> se = new DefaultSubgraphEdge<>();
       I targetId = conf.createSubgraphVertexId();
       E edgeValue = conf.createEdgeValue();
       targetId.readFields(dataInput);
       edgeValue.readFields(dataInput);
       se.initialize(null, edgeValue, targetId);
-      System.out.println("Read: " + "Edge:" + se.getSinkVertexId() + " Class: " + se.getSinkVertexId().getClass().getSimpleName());
+//      System.out.println("Read: " + "Edge:" + se.getSinkVertexId() + " Class: " + se.getSinkVertexId().getClass().getSimpleName());
       outEdges.add(se);
     }
   }

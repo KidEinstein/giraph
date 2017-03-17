@@ -67,7 +67,6 @@ public class GiraphSubgraphConfiguration<S extends WritableComparable,
   }
 
   public S createSubgraphId() {
-    System.out.println("Class in GSC SI:" + getSubgraphIdClass());
     return (S) WritableUtils.createWritable(getSubgraphIdClass(), conf);
   }
 
@@ -76,7 +75,6 @@ public class GiraphSubgraphConfiguration<S extends WritableComparable,
   }
 
   public I createSubgraphVertexId() {
-    System.out.println("Class in GSC SVI:" + getSubgraphVertexIdClass());
     return (I) WritableUtils.createWritable(getSubgraphVertexIdClass(), conf);
   }
 

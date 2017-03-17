@@ -3,7 +3,7 @@ package in.dream_lab.goffish;
 import in.dream_lab.goffish.giraph.GiraphSubgraphComputation;
 import in.dream_lab.goffish.giraph.Subgraph;
 import in.dream_lab.goffish.giraph.SubgraphId;
-import org.apache.giraph.comm.messages.SubgraphMessage;
+import in.dream_lab.goffish.giraph.SubgraphMessage;
 import org.apache.giraph.conf.GiraphConfigurationSettable;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.hadoop.io.Writable;
@@ -26,7 +26,7 @@ public abstract class AbstractSubgraphComputation<S extends WritableComparable,
     return subgraphPlatformCompute.getSuperstep();
   }
 
-  public void setSubgraphPlatformCompute(GiraphSubgraphComputation<S, I, V, E, M, SV, EI> subgraphPlatformCompute) {
+  public void setSubgraphPlatformCompute(ISubgraphPlatformCompute<S, I, V, E, M, SV, EI> subgraphPlatformCompute) {
     this.subgraphPlatformCompute = subgraphPlatformCompute;
   }
 
@@ -60,7 +60,6 @@ public abstract class AbstractSubgraphComputation<S extends WritableComparable,
   void sendMessage(SubgraphId<S> subgraphID, Iterable<M> message) {
     throw new UnsupportedOperationException();
   }
-
 
   void sendToAll(Iterable<M> message) {
     throw new UnsupportedOperationException();

@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 import in.dream_lab.goffish.AbstractSubgraphComputation;
-import org.apache.giraph.comm.messages.SubgraphMessage;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.BytesWritable;

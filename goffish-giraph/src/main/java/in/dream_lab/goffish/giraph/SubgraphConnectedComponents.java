@@ -2,7 +2,6 @@ package in.dream_lab.goffish.giraph;
 
 import com.google.common.primitives.Longs;
 import in.dream_lab.goffish.AbstractSubgraphComputation;
-import org.apache.giraph.comm.messages.SubgraphMessage;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
