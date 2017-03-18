@@ -12,10 +12,10 @@ import java.util.LinkedList;
 /**
  * Created by anirudh on 08/03/17.
  */
-public class GiraphSandbox extends AbstractSubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, BytesWritable, NullWritable, LongWritable> {
+public class GiraphSandbox extends AbstractSubgraphComputation<NullWritable, DoubleWritable, DoubleWritable, BytesWritable, LongWritable, LongWritable, LongWritable> {
   @Override
-  public void compute(Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
-    Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph = getSubgraph();
+  public void compute(Iterable<IMessage<LongWritable,BytesWritable>> subgraphMessages) throws IOException {
+    Subgraph<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraph = getSubgraph();
     for (SubgraphVertex subgraphVertex : subgraph.getLocalVertices()) {
       System.out.println("Vertex: " + subgraphVertex.getId());
       LinkedList<SubgraphEdge> outEdges = subgraphVertex.getOutEdges();

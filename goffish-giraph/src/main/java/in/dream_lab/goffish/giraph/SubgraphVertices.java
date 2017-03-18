@@ -1,12 +1,7 @@
 package in.dream_lab.goffish.giraph;
 
-import in.dream_lab.goffish.giraph.DefaultRemoteSubgraphVertex;
-import in.dream_lab.goffish.giraph.DefaultSubgraphVertex;
-import in.dream_lab.goffish.giraph.RemoteSubgraphVertex;
-import in.dream_lab.goffish.giraph.SubgraphVertex;
 import org.apache.giraph.conf.GiraphConfigurationSettable;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
-import org.apache.giraph.utils.ReflectionUtils;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -14,23 +9,22 @@ import org.apache.hadoop.io.WritableComparable;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Properties;
 
 /**
  * Created by anirudh on 27/09/16.
  *
- * @param <S> Subgraph id
+ * @param <K> Subgraph id
  * @param <I> Vertex id
  * @param <V> Vertex data
  * @param <E> Edge data
  */
 
-public class SubgraphVertices<S extends WritableComparable,
-    I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable, EI extends WritableComparable> implements Writable, GiraphConfigurationSettable {
+public class SubgraphVertices<S extends Writable, V extends Writable, E extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable
+    > implements Writable, GiraphConfigurationSettable {
 
-  private HashMap<I, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices;
-  private SV subgraphValue;
-  private HashMap<I, SubgraphVertex<S, I, V, E, EI>> vertices;
+  private HashMap<I, RemoteSubgraphVertex<V, E, I, J, K>> remoteVertices;
+  private S subgraphValue;
+  private HashMap<I, SubgraphVertex<V, E, I, J>> vertices;
 
   private ImmutableClassesGiraphConfiguration conf;
 
@@ -48,7 +42,7 @@ public class SubgraphVertices<S extends WritableComparable,
 //        }
   }
 
-  public HashMap<I, RemoteSubgraphVertex<S, I, V, E, EI>> getRemoteVertices() {
+  public HashMap<I, RemoteSubgraphVertex<V, E, I, J, K>> getRemoteVertices() {
     return remoteVertices;
   }
 
@@ -56,19 +50,19 @@ public class SubgraphVertices<S extends WritableComparable,
     return (long) remoteVertices.size();
   }
 
-  public void setRemoteVertices(HashMap<I, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices) {
+  public void setRemoteVertices(HashMap<I, RemoteSubgraphVertex<V, E, I, J, K>> remoteVertices) {
     this.remoteVertices = remoteVertices;
   }
 
-  public Iterable<SubgraphVertex<S, I, V, E, EI>> getVertices() {
-    return new Iterable<SubgraphVertex<S, I, V, E, EI>>() {
+  public Iterable<SubgraphVertex<V, E, I, J>> getVertices() {
+    return new Iterable<SubgraphVertex<V, E, I, J>>() {
 
-      private Iterator<SubgraphVertex<S, I, V, E, EI>> localVertexIterator = vertices.values().iterator();
-      private Iterator<RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertexIterator = remoteVertices.values().iterator();
+      private Iterator<SubgraphVertex<V, E, I, J>> localVertexIterator = vertices.values().iterator();
+      private Iterator<RemoteSubgraphVertex<V, E, I, J, K>> remoteVertexIterator = remoteVertices.values().iterator();
 
       @Override
-      public Iterator<SubgraphVertex<S, I, V, E, EI>> iterator() {
-        return new Iterator<SubgraphVertex<S, I, V, E, EI>>() {
+      public Iterator<SubgraphVertex<V, E, I, J>> iterator() {
+        return new Iterator<SubgraphVertex<V, E, I, J>>() {
           @Override
           public boolean hasNext() {
             if (localVertexIterator.hasNext()) {
@@ -79,7 +73,7 @@ public class SubgraphVertices<S extends WritableComparable,
           }
 
           @Override
-          public SubgraphVertex<S, I, V, E, EI> next() {
+          public SubgraphVertex<V, E, I, J> next() {
             if (localVertexIterator.hasNext()) {
               return localVertexIterator.next();
             } else {
@@ -96,11 +90,11 @@ public class SubgraphVertices<S extends WritableComparable,
     };
   }
 
-  public SV getSubgraphValue() {
+  public S getSubgraphValue() {
     return subgraphValue;
   }
 
-  public void setSubgraphValue(SV subgraphValue) {
+  public void setSubgraphValue(S subgraphValue) {
     this.subgraphValue = subgraphValue;
   }
 
@@ -108,16 +102,16 @@ public class SubgraphVertices<S extends WritableComparable,
     return vertices.size();
   }
 
-  public HashMap<I, SubgraphVertex<S, I, V, E, EI>> getLocalVertices() {
+  public HashMap<I, SubgraphVertex<V, E, I, J>> getLocalVertices() {
     return vertices;
   }
 
-  public SubgraphVertex<S, I, V, E, EI> getVertexById(I vertexId) {
-    SubgraphVertex<S, I, V, E, EI> subgraphVertex = vertices.get(vertexId);
+  public SubgraphVertex<V, E, I, J> getVertexById(I vertexId) {
+    SubgraphVertex<V, E, I, J> subgraphVertex = vertices.get(vertexId);
     return subgraphVertex != null ? subgraphVertex : remoteVertices.get(vertexId);
   }
 
-  public void initialize(HashMap<I, SubgraphVertex<S, I, V, E, EI>> vertices) {
+  public void initialize(HashMap<I, SubgraphVertex<V, E, I, J>> vertices) {
     this.vertices = vertices;
     this.remoteVertices = new HashMap<>();
   }
@@ -127,18 +121,18 @@ public class SubgraphVertices<S extends WritableComparable,
 //    System.out.println("Write Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
     subgraphValue.write(dataOutput);
     dataOutput.writeInt(vertices.size());
-    for (SubgraphVertex<S, I, V, E, EI> vertex : vertices.values()) {
-      vertex.write(dataOutput);
+    for (SubgraphVertex<V, E, I, J> vertex : vertices.values()) {
+      ((DefaultSubgraphVertex)vertex).write(dataOutput);
     }
     dataOutput.writeInt(remoteVertices.size());
-    for (RemoteSubgraphVertex<S, I, V, E, EI> vertex : remoteVertices.values()) {
-      vertex.write(dataOutput);
+    for (RemoteSubgraphVertex<V, E, I, J, K> vertex : remoteVertices.values()) {
+      ((DefaultRemoteSubgraphVertex)vertex).write(dataOutput);
     }
 //    System.out.println("Write Num Vertices:" + vertices.size());
   }
 
   public void readFields(DataInput dataInput) throws IOException {
-    GiraphSubgraphConfiguration<S,I,V,E,SV,EI> giraphSubgraphConfiguration = new GiraphSubgraphConfiguration(conf);
+    GiraphSubgraphConfiguration<K,I,V,E, S, J> giraphSubgraphConfiguration = new GiraphSubgraphConfiguration(conf);
     subgraphValue = giraphSubgraphConfiguration.createSubgraphValue();
     subgraphValue.readFields(dataInput);
     int numVertices = dataInput.readInt();
@@ -146,14 +140,14 @@ public class SubgraphVertices<S extends WritableComparable,
 //    System.out.println("Read Num Vertices:" + numVertices);
     vertices = new HashMap<>();
     for (int i = 0; i < numVertices; i++) {
-      SubgraphVertex<S, I, V, E, EI> subgraphVertex = new DefaultSubgraphVertex<S, I, V, E, EI>();
+      DefaultSubgraphVertex<V, E, I, J> subgraphVertex = new DefaultSubgraphVertex<V, E, I, J>();
       subgraphVertex.readFields(giraphSubgraphConfiguration, dataInput);
       vertices.put(subgraphVertex.getId(), subgraphVertex);
     }
     remoteVertices = new HashMap<>();
     int numRemoteVertices = dataInput.readInt();
     for (int i = 0; i < numRemoteVertices; i++) {
-      RemoteSubgraphVertex<S, I, V, E, EI> remoteSubgraphVertex = new DefaultRemoteSubgraphVertex<>();
+      DefaultRemoteSubgraphVertex<V, E, I, J, K> remoteSubgraphVertex = new DefaultRemoteSubgraphVertex<>();
       remoteSubgraphVertex.readFields(giraphSubgraphConfiguration, dataInput);
       remoteVertices.put(remoteSubgraphVertex.getId(), remoteSubgraphVertex);
     }
@@ -166,5 +160,9 @@ public class SubgraphVertices<S extends WritableComparable,
 
   public void setSubgraphParitionMapping(MapWritable subgraphParitionMapping) {
     this.subgraphParitionMapping = subgraphParitionMapping;
+  }
+
+  public MapWritable getSubgraphParitionMapping() {
+    return subgraphParitionMapping;
   }
 }

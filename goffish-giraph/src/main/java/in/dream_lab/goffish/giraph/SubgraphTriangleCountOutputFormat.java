@@ -40,7 +40,7 @@ public class SubgraphTriangleCountOutputFormat extends
     public void writeVertex(
       Vertex<SubgraphId<LongWritable>, SubgraphVertices, NullWritable> vertex)
       throws IOException, InterruptedException {
-      Subgraph<LongWritable, LongWritable, NullWritable, NullWritable, TriangleCountSubgraphValue, NullWritable> subgraph = (Subgraph) vertex;
+      Subgraph<TriangleCountSubgraphValue, NullWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = (Subgraph) vertex;
       getRecordWriter().write(
           new Text(subgraph.getSubgraphId().toString()),
           new Text(String.valueOf(subgraph.getSubgraphVertices().getSubgraphValue().triangleCount)));

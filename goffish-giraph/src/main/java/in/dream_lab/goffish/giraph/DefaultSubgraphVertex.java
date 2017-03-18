@@ -9,21 +9,20 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.Properties;
 
 /**
  * Created by anirudh on 27/09/16.
  */
-public class DefaultSubgraphVertex<S extends WritableComparable, I extends WritableComparable,
-    V extends Writable, E extends Writable, EI extends WritableComparable> implements SubgraphVertex<S, I, V, E, EI> {
+public class DefaultSubgraphVertex<V extends Writable, E extends Writable, I extends WritableComparable,
+    J extends WritableComparable> implements SubgraphVertex<V, E, I, J>, WritableComparable {
 
 
   private I id;
   private V value;
-  private LinkedList<SubgraphEdge<I, E, EI>> outEdges;
+  private LinkedList<SubgraphEdge<E, I, J>> outEdges;
 
   @Override
-  public LinkedList<SubgraphEdge<I, E, EI>> getOutEdges() {
+  public LinkedList<SubgraphEdge<E, I, J>> getOutEdges() {
     return outEdges;
   }
 
@@ -59,7 +58,7 @@ public class DefaultSubgraphVertex<S extends WritableComparable, I extends Writa
   }
 
   @Override
-  public void initialize(I vertexId, V value, LinkedList<SubgraphEdge<I, E, EI>> edges) {
+  public void initialize(I vertexId, V value, LinkedList<SubgraphEdge<E, I, J>> edges) {
     this.id = vertexId;
     this.value = value;
     this.outEdges = edges;
@@ -74,7 +73,7 @@ public class DefaultSubgraphVertex<S extends WritableComparable, I extends Writa
     int numOutEdges = outEdges.size();
     dataOutput.writeInt(numOutEdges);
 //        System.out.println("Write: " + "Number edges: " + numOutEdges);
-    for (SubgraphEdge<I, E, EI> edge : outEdges) {
+    for (SubgraphEdge<E, I, J> edge : outEdges) {
 //            System.out.println("Write: " + "Edge:" + edge.getSinkVertexId() + " Class: " + edge.getSinkVertexId().getClass().getSimpleName());
       edge.getSinkVertexId().write(dataOutput);
       edge.getValue().write(dataOutput);
@@ -87,8 +86,7 @@ public class DefaultSubgraphVertex<S extends WritableComparable, I extends Writa
     throw new NotImplementedException("Use read fields with GiraphSubgraphConfiguration as parameter");
   }
 
-  @Override
-  public void readFields(GiraphSubgraphConfiguration<S, I, V, E, ?, EI> conf, DataInput dataInput) throws IOException {
+  public void readFields(GiraphSubgraphConfiguration<?, I, V, E, ?, J> conf, DataInput dataInput) throws IOException {
     // Getting the subgraph vertex internals
     id = conf.createSubgraphVertexId();
     value = conf.createSubgraphVertexValue();
@@ -104,7 +102,7 @@ public class DefaultSubgraphVertex<S extends WritableComparable, I extends Writa
     outEdges = Lists.newLinkedList();
     for (int i = 0; i < numEdges; i++) {
 //      System.out.println("\n THIS IS I :  "+ i);
-      DefaultSubgraphEdge<I, E, EI> se = new DefaultSubgraphEdge<>();
+      DefaultSubgraphEdge<I, E, J> se = new DefaultSubgraphEdge<>();
       I targetId = conf.createSubgraphVertexId();
       E edgeValue = conf.createEdgeValue();
       targetId.readFields(dataInput);

@@ -18,20 +18,20 @@ import java.util.Iterator;
  */
 public class DefaultSubgraph<S extends WritableComparable,
     I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable, EI extends WritableComparable>
-    extends DefaultVertex<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E> implements Subgraph<S, I, V, E, SV, EI> {
+    extends DefaultVertex<SubgraphId<S>, SubgraphVertices<SV, V, E, I, EI, S>, E> implements Subgraph<SV, V, E, I, EI, S> {
 
-  public void setRemoteVertices(HashMap<I, RemoteSubgraphVertex<S, I, V, E, EI>> remoteVertices) {
-    SubgraphVertices<S, I, V, E, SV, EI> subgraphVertices = getValue();
+  public void setRemoteVertices(HashMap<I, RemoteSubgraphVertex<V, E, I, EI, S>> remoteVertices) {
+    SubgraphVertices<SV, V, E, I, EI, S> subgraphVertices = getValue();
     subgraphVertices.setRemoteVertices(remoteVertices);
   }
 
-  public Iterable<RemoteSubgraphVertex<S, I, V, E, EI>> getRemoteVertices() {
-    SubgraphVertices<S, I, V, E, SV, EI> subgraphVertices = getValue();
+  public Iterable<RemoteSubgraphVertex<V, E, I, EI, S>> getRemoteVertices() {
+    SubgraphVertices<SV, V, E, I, EI, S> subgraphVertices = getValue();
     return subgraphVertices.getRemoteVertices().values();
   }
 
   @Override
-  public SubgraphEdge<I, E, EI> getEdgeById(EI edgeId) {
+  public SubgraphEdge<E, I, EI> getEdgeById(EI edgeId) {
     return null;
   }
 
@@ -46,12 +46,12 @@ public class DefaultSubgraph<S extends WritableComparable,
   }
 
   @Override
-  public SubgraphVertices<S, I, V, E, SV, EI> getSubgraphVertices() {
+  public SubgraphVertices<SV, V, E, I, EI, S> getSubgraphVertices() {
     return getValue();
   }
 
   @Override
-  public SubgraphVertex<S, I, V, E, EI> getVertexById(I vertexId) {
+  public SubgraphVertex<V, E, I, EI> getVertexById(I vertexId) {
     return null;
   }
 
@@ -71,12 +71,12 @@ public class DefaultSubgraph<S extends WritableComparable,
   }
 
   @Override
-  public Iterable<SubgraphVertex<S, I, V, E, EI>> getVertices() {
+  public Iterable<SubgraphVertex<V, E, I, EI>> getVertices() {
     return getSubgraphVertices().getVertices();
   }
 
   @Override
-  public Iterable<SubgraphVertex<S, I, V, E, EI>> getLocalVertices() {
+  public Iterable<SubgraphVertex<V, E, I, EI>> getLocalVertices() {
     return getSubgraphVertices().getLocalVertices().values();
   }
 
@@ -84,22 +84,22 @@ public class DefaultSubgraph<S extends WritableComparable,
     return getId().getPartitionId();
   }
 
-  public Iterable<SubgraphEdge<I, E, EI>> getOutEdges() {
-    return new Iterable<SubgraphEdge<I, E, EI>>() {
+  public Iterable<SubgraphEdge<E, I, EI>> getOutEdges() {
+    return new Iterable<SubgraphEdge<E, I, EI>>() {
       @Override
-      public Iterator<SubgraphEdge<I, E, EI>> iterator() {
+      public Iterator<SubgraphEdge<E, I, EI>> iterator() {
         return new EdgeIterator();
       }
     };
   }
 
-  private final class EdgeIterator implements Iterator<SubgraphEdge<I, E, EI>> {
-    Iterator<SubgraphVertex<S, I, V, E, EI>> vertexMapIterator;
-    Iterator<SubgraphEdge<I, E, EI>> edgeIterator;
+  private final class EdgeIterator implements Iterator<SubgraphEdge<E, I, EI>> {
+    Iterator<SubgraphVertex<V, E, I, EI>> vertexMapIterator;
+    Iterator<SubgraphEdge<E, I, EI>> edgeIterator;
 
     public EdgeIterator() {
       vertexMapIterator = getVertices().iterator();
-      SubgraphVertex<S, I, V, E, EI> nextVertex = vertexMapIterator.next();
+      SubgraphVertex<V, E, I, EI> nextVertex = vertexMapIterator.next();
       edgeIterator = nextVertex.getOutEdges().iterator();
     }
 
@@ -109,7 +109,7 @@ public class DefaultSubgraph<S extends WritableComparable,
         return true;
       } else {
         while (vertexMapIterator.hasNext()) {
-          SubgraphVertex<S, I, V, E, EI> nextVertex = vertexMapIterator.next();
+          SubgraphVertex<V, E, I, EI> nextVertex = vertexMapIterator.next();
           edgeIterator = nextVertex.getOutEdges().iterator();
           if (edgeIterator.hasNext()) {
             return true;
@@ -119,12 +119,12 @@ public class DefaultSubgraph<S extends WritableComparable,
       return false;
     }
 
-    public SubgraphEdge<I, E, EI> next() {
+    public SubgraphEdge<E, I, EI> next() {
       if (edgeIterator.hasNext()) {
         return edgeIterator.next();
       } else {
         while (vertexMapIterator.hasNext()) {
-          SubgraphVertex<S, I, V, E, EI> nextVertex = vertexMapIterator.next();
+          SubgraphVertex<V, E, I, EI> nextVertex = vertexMapIterator.next();
           edgeIterator = nextVertex.getOutEdges().iterator();
           if (edgeIterator.hasNext()) {
             return edgeIterator.next();

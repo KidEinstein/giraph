@@ -1,7 +1,5 @@
 package in.dream_lab.goffish.giraph;
 
-import in.dream_lab.goffish.AbstractSubgraphComputation;
-import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.*;
@@ -18,14 +16,14 @@ public class RemoteVerticesFinder extends GiraphSubgraphComputation<LongWritable
   public static final Logger LOG = Logger.getLogger(RemoteVerticesFinder.class);
 
   @Override
-  public void compute(Vertex<SubgraphId<LongWritable>, SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable>, DoubleWritable> vertex, Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
+  public void compute(Vertex<SubgraphId<LongWritable>, SubgraphVertices<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable>, DoubleWritable> vertex, Iterable<SubgraphMessage<LongWritable,BytesWritable>> subgraphMessages) throws IOException {
     DefaultSubgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph = (DefaultSubgraph) vertex;
     MapWritable subgraphPartitionMap = new MapWritable();
     subgraphPartitionMap.put(subgraph.getSubgraphId(), new IntWritable(subgraph.getPartitionId()));
     aggregate(SubgraphMasterCompute.ID, subgraphPartitionMap);
-    SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
+    SubgraphVertices<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
     //System.out.println("SV in RVF 1 : " + subgraphVertices);
-    HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> vertices = subgraphVertices.getLocalVertices();
+    HashMap<LongWritable, SubgraphVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable>> vertices = subgraphVertices.getLocalVertices();
     //System.out.println("SV Linked List in 1 : " + vertices);
 
 //    for (MemoryPoolMXBean mpBean: ManagementFactory.getMemoryPoolMXBeans()) {
@@ -44,10 +42,10 @@ public class RemoteVerticesFinder extends GiraphSubgraphComputation<LongWritable
 
     int edgeCount = 0;
 
-    for (SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> sv : vertices.values()) {
+    for (SubgraphVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable> sv : vertices.values()) {
       edgeCount += sv.getOutEdges().size();
       // LOG.info("Test, Number of vertex edges: " + sv.getOutEdges().size());
-      for (SubgraphEdge<LongWritable, DoubleWritable, LongWritable> se : sv.getOutEdges()) {
+      for (SubgraphEdge<DoubleWritable, LongWritable, LongWritable> se : sv.getOutEdges()) {
         //System.out.println("Subgraph ID  : " + subgraph.getId().getSubgraphId() +"\t its vertex : " + sv.getId() + " has edge pointing to " + se.getSinkVertexId()+"\n");
 
         if (!vertices.containsKey(se.getSinkVertexId())) {
@@ -59,7 +57,7 @@ public class RemoteVerticesFinder extends GiraphSubgraphComputation<LongWritable
 
     LOG.info("Partition,Subgraph,Vertices,RemoteVertices,Edges:" + subgraph.getPartitionId() + "," + subgraph.getSubgraphId() + "," + subgraph.getSubgraphVertices().getLocalVertices().size() + "," + remoteVertexIds.size() + "," + edgeCount);
 
-    subgraph.getSubgraphId().write(dataOutput);
+    subgraph.getId().write(dataOutput);
 //    LOG.info("Test, Sender subgraphID is : " + subgraph.getId());
     dataOutput.writeInt(remoteVertexIds.size());
 //    LOG.info("Test, Sender number of remote vertices are  : " + remoteVertexIds.size());

@@ -1,9 +1,7 @@
 package in.dream_lab.goffish;
 
-import in.dream_lab.goffish.giraph.GiraphSubgraphComputation;
+import in.dream_lab.goffish.giraph.IMessage;
 import in.dream_lab.goffish.giraph.Subgraph;
-import in.dream_lab.goffish.giraph.SubgraphId;
-import in.dream_lab.goffish.giraph.SubgraphMessage;
 import org.apache.giraph.conf.GiraphConfigurationSettable;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.hadoop.io.Writable;
@@ -14,23 +12,22 @@ import java.io.IOException;
 /**
  * Created by anirudh on 26/02/17.
  */
-public abstract class AbstractSubgraphComputation<S extends WritableComparable,
-    I extends WritableComparable, V extends WritableComparable, E extends Writable, M extends Writable, SV extends Writable, EI extends WritableComparable>
+public abstract class AbstractSubgraphComputation<S extends Writable, V extends WritableComparable, E extends Writable, M extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable>
     implements GiraphConfigurationSettable {
 
   private ImmutableClassesGiraphConfiguration conf;
 
-  private ISubgraphPlatformCompute<S, I, V, E, M, SV, EI> subgraphPlatformCompute;
+  private ISubgraphPlatformCompute<S, V, E, M, I, J, K> subgraphPlatformCompute;
 
   public long getSuperstep() {
     return subgraphPlatformCompute.getSuperstep();
   }
 
-  public void setSubgraphPlatformCompute(ISubgraphPlatformCompute<S, I, V, E, M, SV, EI> subgraphPlatformCompute) {
+  public void setSubgraphPlatformCompute(ISubgraphPlatformCompute<S, V, E, M, I, J, K> subgraphPlatformCompute) {
     this.subgraphPlatformCompute = subgraphPlatformCompute;
   }
 
-  public Subgraph<S, I, V, E, SV, EI> getSubgraph() {
+  public Subgraph<S, V, E, I, J, K> getSubgraph() {
     return subgraphPlatformCompute.getSubgraph();
   }
 
@@ -38,9 +35,9 @@ public abstract class AbstractSubgraphComputation<S extends WritableComparable,
     subgraphPlatformCompute.voteToHalt();
   }
 
-  public abstract void compute(Iterable<SubgraphMessage<S, M>> messages) throws IOException;
+  public abstract void compute(Iterable<IMessage<K,M>> messages) throws IOException;
 
-  public void sendMessage(S subgraphId, M message) {
+  public void sendMessage(K subgraphId, M message) {
     subgraphPlatformCompute.sendMessageToSubgraph(subgraphId, message);
   }
 
@@ -57,7 +54,7 @@ public abstract class AbstractSubgraphComputation<S extends WritableComparable,
     return conf;
   }
 
-  void sendMessage(S subgraphID, Iterable<M> message) {
+  void sendMessage(K subgraphID, Iterable<M> message) {
     throw new UnsupportedOperationException();
   }
 

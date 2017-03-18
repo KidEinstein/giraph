@@ -1,6 +1,5 @@
 package in.dream_lab.goffish.giraph;
 
-import in.dream_lab.goffish.AbstractSubgraphComputation;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
 import org.apache.hadoop.io.*;
@@ -14,13 +13,13 @@ import java.util.HashMap;
 public class RemoteVerticesFinder3 extends GiraphSubgraphComputation<LongWritable,
     LongWritable, DoubleWritable, DoubleWritable, BytesWritable, NullWritable, LongWritable> {
   @Override
-  public void compute(Vertex<SubgraphId<LongWritable>, SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable>, DoubleWritable> vertex, Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
-    Subgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph = (DefaultSubgraph) vertex;
-    HashMap<LongWritable, RemoteSubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> remoteVertices = subgraph.getSubgraphVertices().getRemoteVertices();
+  public void compute(Vertex<SubgraphId<LongWritable>, SubgraphVertices<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable>, DoubleWritable> vertex, Iterable<SubgraphMessage<LongWritable,BytesWritable>> subgraphMessages) throws IOException {
+    Subgraph<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraph = (DefaultSubgraph) vertex;
+    HashMap<LongWritable, RemoteSubgraphVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable>> remoteVertices = subgraph.getSubgraphVertices().getRemoteVertices();
     //System.out.println("IN RVF 3\n");
-    for (SubgraphMessage<LongWritable, BytesWritable> message : subgraphMessages) {
+    for (IMessage<LongWritable,BytesWritable> message : subgraphMessages) {
       ExtendedByteArrayDataInput dataInput = new ExtendedByteArrayDataInput(message.getMessage().getBytes());
-      LongWritable senderSubgraphId = new LongWritable();
+      SubgraphId<LongWritable> senderSubgraphId = org.apache.giraph.utils.WritableUtils.createWritable(SubgraphId.class, getConf());
       senderSubgraphId.readFields(dataInput);
       //System.out.println("Message received from subgraph  ID :" + senderSubgraphId.getSubgraphId() + "to subgraph :"+subgraph.getId().getSubgraphId());
       int numVertices = dataInput.readInt();
@@ -30,7 +29,7 @@ public class RemoteVerticesFinder3 extends GiraphSubgraphComputation<LongWritabl
         LongWritable rsvId = new LongWritable();
         rsvId.readFields(dataInput);
         //System.out.println("Remote Edge: From subgraph " + subgraph.getId().getSubgraphId() + " is To vertex : " + rsvId +" in neighbor subgraph with ID: " + senderSubgraphId);
-        rsv.setSubgraphId(senderSubgraphId);
+        rsv.setSubgraphId(senderSubgraphId.getSubgraphId());
         rsv.setId(rsvId);
         remoteVertices.put(rsvId, rsv);
       }

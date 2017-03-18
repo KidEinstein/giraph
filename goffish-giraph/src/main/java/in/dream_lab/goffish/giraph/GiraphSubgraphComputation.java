@@ -9,6 +9,7 @@ import org.apache.hadoop.io.*;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * Created by anirudh on 27/09/16.
@@ -31,8 +32,8 @@ import java.io.IOException;
 // K subgraph id  ---- S
 
 public class GiraphSubgraphComputation<S extends WritableComparable,
-    I extends WritableComparable, V extends WritableComparable, E extends Writable, M extends Writable, SV extends Writable, EI extends WritableComparable> extends BasicComputation<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E, SubgraphMessage<S, M>>
-    implements ISubgraphPlatformCompute<S, I, V, E, M, SV, EI> {
+    I extends WritableComparable, V extends WritableComparable, E extends Writable, M extends Writable, SV extends Writable, EI extends WritableComparable> extends BasicComputation<SubgraphId<S>, SubgraphVertices<SV, V, E, I, EI, S>, E, SubgraphMessage<S,M>>
+    implements ISubgraphPlatformCompute<SV, V, E, M, I, EI, S> {
 
   private static final Logger LOG = Logger.getLogger(GiraphSubgraphComputation.class);
 
@@ -40,9 +41,7 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
       null, AbstractSubgraphComputation.class, "Subgraph Computation Class");
 
 
-  private AbstractSubgraphComputation<S, I, V, E, M, SV, EI> abstractSubgraphComputation;
-
-  private MapWritable subgraphPartitionMap;
+  private AbstractSubgraphComputation<SV, V, E, M, I, EI, S> abstractSubgraphComputation;
 
   // TODO: Have class be specified in conf
 
@@ -73,12 +72,12 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
 
   private DefaultSubgraph<S, I, V, E, SV, EI> subgraph;
 
-  public Subgraph<S, I, V, E, SV, EI> getSubgraph() {
+  public Subgraph<SV, V, E, I, EI, S> getSubgraph() {
     return subgraph;
   }
   // TODO: Take care of state changes for the subgraph passed
 
-  public void compute(Vertex<SubgraphId<S>, SubgraphVertices<S, I, V, E, SV, EI>, E> vertex, Iterable<SubgraphMessage<S, M>> messages) throws IOException {
+  public void compute(Vertex<SubgraphId<S>, SubgraphVertices<SV, V, E, I, EI, S>, E> vertex, Iterable<SubgraphMessage<S,M>> messages) throws IOException {
     Class userSubgraphComputationClass;
     long superstep = super.getSuperstep();
     if (abstractSubgraphComputation == null) {
@@ -92,12 +91,15 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
         userSubgraphComputationClass = SUBGRAPH_COMPUTATION_CLASS.get(getConf());
         LOG.info("User Class: " + userSubgraphComputationClass);
       }
-      abstractSubgraphComputation = (AbstractSubgraphComputation<S, I, V, E, M, SV, EI>) ReflectionUtils.newInstance(userSubgraphComputationClass, getConf());
+      abstractSubgraphComputation = (AbstractSubgraphComputation<SV, V, E, M, I, EI, S>) ReflectionUtils.newInstance(userSubgraphComputationClass, getConf());
     }
     LOG.info("User Object: " + abstractSubgraphComputation);
     abstractSubgraphComputation.setSubgraphPlatformCompute(this);
     subgraph = (DefaultSubgraph) vertex;
-    abstractSubgraphComputation.compute(messages);
+    for (SubgraphMessage<S, M> subgraphMessage : messages) {
+      LOG.info("MessageReceived" + subgraphMessage.getSubgraphId() + "," + subgraphMessage.getMessage());
+    }
+    abstractSubgraphComputation.compute(new IMessageIterable(messages));
   }
 
   public void sendToNeighbors(M message) {
@@ -114,14 +116,14 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
 
 
   private int getPartition(S subgraphId) {
-    return ((IntWritable) subgraphPartitionMap.get(subgraphId)).get();
+    return ((IntWritable) subgraph.getSubgraphVertices().getSubgraphParitionMapping().get(subgraphId)).get();
   }
 
   public void voteToHalt() {
     subgraph.voteToHalt();
   }
 
-  SubgraphEdge<I, E, EI> getEdgeById(EI id) {
+  SubgraphEdge<E, I, EI> getEdgeById(EI id) {
     throw new UnsupportedOperationException();
   }
 
@@ -134,6 +136,37 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
   public void sendMessageToSubgraph(S subgraphId, M message) {
     SubgraphMessage sm = new SubgraphMessage(subgraphId, message);
     SubgraphId<S> sId = new SubgraphId<>(subgraphId, getPartition(subgraphId));
+    LOG.info("SubgraphID,PartitionID,message:" + subgraphId + "," + getPartition(subgraphId) + message);
     sendMessage(sId, sm);
+  }
+
+  private class IMessageIterable implements Iterable<IMessage<S,M>> {
+    private Iterable<SubgraphMessage<S, M>> subgraphMessagesIterable;
+
+    public IMessageIterable(Iterable<SubgraphMessage<S, M>> subgraphMessagesIterable) {
+      this.subgraphMessagesIterable = subgraphMessagesIterable;
+    }
+
+
+    @Override
+    public Iterator<IMessage<S, M>> iterator() {
+      final Iterator<SubgraphMessage<S, M>> subgraphMessagesIterator = subgraphMessagesIterable.iterator();
+      return new Iterator<IMessage<S, M>>() {
+        @Override
+        public void remove() {
+          throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean hasNext() {
+          return subgraphMessagesIterator.hasNext();
+        }
+
+        @Override
+        public IMessage<S, M> next() {
+          return subgraphMessagesIterator.next();
+        }
+      };
+    }
   }
 }
