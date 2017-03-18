@@ -1,6 +1,5 @@
 package in.dream_lab.goffish.giraph;
 
-import in.dream_lab.goffish.giraph.*;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.io.formats.AdjacencyListTextVertexInputFormat;
@@ -34,7 +33,7 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
             AdjacencyListTextSubgraphReader {
 
         @Override
-        public SubgraphEdge<LongWritable, NullWritable, NullWritable> decodeVertexEdge(String id) {
+        public SubgraphEdge<NullWritable, LongWritable, NullWritable> decodeVertexEdge(String id) {
             LongWritable vertexId = new LongWritable(Long.parseLong(id));
             DefaultSubgraphEdge<LongWritable, NullWritable, NullWritable> subgraphEdge = new DefaultSubgraphEdge<>();
             subgraphEdge.initialize(NullWritable.get(), NullWritable.get(), vertexId);
@@ -43,8 +42,8 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
 
         @Override
         public SubgraphVertices getSubgraphVertices() throws IOException, InterruptedException {
-            SubgraphVertices<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable> subgraphVertices = new SubgraphVertices();
-            HashMap<LongWritable, SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable>> subgraphVerticesMap = new HashMap<>();
+            SubgraphVertices<LongWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraphVertices = new SubgraphVertices();
+            HashMap<LongWritable, SubgraphVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable>> subgraphVerticesMap = new HashMap<>();
             while (getRecordReader().nextKeyValue()) {
                 // take all info from each line
 
@@ -52,7 +51,7 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
                 Text vertexLine = getRecordReader().getCurrentValue();
                 String[] processedLine = preprocessLine(vertexLine);
 
-                SubgraphVertex<LongWritable, LongWritable, DoubleWritable, DoubleWritable, LongWritable> subgraphVertex = readVertex(processedLine);
+                SubgraphVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable> subgraphVertex = readVertex(processedLine);
                 subgraphVerticesMap.put(subgraphVertex.getId(), subgraphVertex);
             }
             subgraphVertices.initialize(subgraphVerticesMap);

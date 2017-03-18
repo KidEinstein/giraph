@@ -11,12 +11,12 @@ import java.io.IOException;
 /**
  * Created by anirudh on 21/11/16.
  */
-public class SubgraphConnectedComponents extends AbstractSubgraphComputation<LongWritable,
-    LongWritable, NullWritable, NullWritable, BytesWritable, LongWritable, NullWritable> {
+public class SubgraphConnectedComponents extends AbstractSubgraphComputation<LongWritable, NullWritable, NullWritable, BytesWritable, LongWritable, NullWritable, LongWritable
+    > {
 
   @Override
-  public void compute(Iterable<SubgraphMessage<LongWritable, BytesWritable>> messages) throws IOException {
-    Subgraph<LongWritable, LongWritable, NullWritable, NullWritable, LongWritable, NullWritable> subgraph = getSubgraph();
+  public void compute(Iterable<IMessage<LongWritable,BytesWritable>> messages) throws IOException {
+    Subgraph<LongWritable, NullWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = getSubgraph();
     if (getSuperstep() == 0) {
       LongWritable sid = subgraph.getSubgraphId();
       subgraph.getSubgraphVertices().setSubgraphValue(sid);
@@ -26,7 +26,7 @@ public class SubgraphConnectedComponents extends AbstractSubgraphComputation<Lon
       long myMin = subgraph.getSubgraphVertices().getSubgraphValue().get();
       long currentMin = myMin;
       //System.out.println("My Min: " + myMin);
-      for (SubgraphMessage<LongWritable, BytesWritable> message : messages) {
+      for (IMessage<LongWritable,BytesWritable> message : messages) {
         long neighborMin = Longs.fromByteArray(message.getMessage().getBytes());
         //System.out.println("Message from neighbor: " + neighborMin);
         if (neighborMin < currentMin) {

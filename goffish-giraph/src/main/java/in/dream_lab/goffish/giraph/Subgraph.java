@@ -6,34 +6,33 @@ import org.apache.hadoop.io.WritableComparable;
 /**
  * Created by anirudh on 23/10/16.
  */
-public interface Subgraph<S extends WritableComparable,
-    I extends WritableComparable, V extends Writable,
-    E extends Writable, SV extends Writable, EI extends WritableComparable> {
+public interface Subgraph<S extends Writable, V extends Writable, E extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable
+    > {
 //TODO remove this
-  SubgraphVertices<S, I, V, E, SV, EI> getSubgraphVertices();
+  SubgraphVertices<S, V, E, I, J, K> getSubgraphVertices();
 
-  SubgraphVertex<S, I, V, E, EI> getVertexById(I vertexId);
+  SubgraphVertex<V, E, I, J> getVertexById(I vertexId);
 
-  S getSubgraphId();
+  K getSubgraphId();
 
   long getVertexCount();
 
   long getLocalVertexCount();
 
-  Iterable<SubgraphVertex<S, I, V, E, EI>> getVertices();
+  Iterable<SubgraphVertex<V, E, I, J>> getVertices();
 
-  Iterable<SubgraphVertex<S, I, V, E, EI>> getLocalVertices();
+  Iterable<SubgraphVertex<V, E, I, J>> getLocalVertices();
 
-  Iterable<RemoteSubgraphVertex<S, I, V, E, EI>> getRemoteVertices();
-
-  // TODO: Change function in API
-  Iterable<SubgraphEdge<I, E, EI>> getOutEdges();
-
-  SubgraphEdge<I, E, EI> getEdgeById(EI edgeId);
+  Iterable<RemoteSubgraphVertex<V, E, I, J, K>> getRemoteVertices();
 
   // TODO: Change function in API
-  void setSubgraphValue(SV value);
+  Iterable<SubgraphEdge<E, I, J>> getOutEdges();
 
-  SV getSubgraphValue();
+  SubgraphEdge<E, I, J> getEdgeById(J edgeId);
+
+  // TODO: Change function in API
+  void setSubgraphValue(S value);
+
+  S getSubgraphValue();
 
 }

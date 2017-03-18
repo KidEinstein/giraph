@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * Created by anirudh on 18/10/16.
  */
-public class DefaultSubgraphEdge<I extends WritableComparable, E extends Writable, EI extends WritableComparable> implements SubgraphEdge<I, E, EI>, Writable {
+public class DefaultSubgraphEdge<I extends WritableComparable, E extends Writable, EI extends WritableComparable> implements SubgraphEdge<E, I, EI>, Writable {
 
     private EI edgeId;
     private I sinkVertexId;

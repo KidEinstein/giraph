@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Created by anirudh on 28/11/16.
  */
-public class SubgraphMessage<S extends WritableComparable, M extends Writable> implements Writable {
+public class SubgraphMessage<S extends WritableComparable, M extends Writable> implements Writable, IMessage<S, M> {
 
   public static final Logger LOG = Logger.getLogger(SubgraphMessage.class);
 
@@ -22,10 +22,12 @@ public class SubgraphMessage<S extends WritableComparable, M extends Writable> i
 
   }
 
+  @Override
   public S getSubgraphId() {
     return subgraphId;
   }
 
+  @Override
   public M getMessage() {
     return message;
   }

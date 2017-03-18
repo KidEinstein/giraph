@@ -8,13 +8,14 @@ import java.util.LinkedList;
 /**
  * Created by anirudh on 02/11/16.
  */
-public class DefaultRemoteSubgraphVertex<S extends WritableComparable,
-    I extends WritableComparable, V extends Writable, E extends Writable, EI extends WritableComparable>
-    extends DefaultSubgraphVertex<S, I, V, E, EI> implements RemoteSubgraphVertex<S, I, V, E, EI> {
+public class DefaultRemoteSubgraphVertex<V extends Writable, E extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable>
+    extends DefaultSubgraphVertex<V, E, I, J> implements RemoteSubgraphVertex<V, E, I, J, K> {
 
-  private S subgraphId;
+  private K subgraphId;
 
-  public void initialize(S subgraphId, I vertexId, V value, LinkedList<SubgraphEdge<I, E, EI>> subgraphEdges) {
+  private V localState;
+
+  public void initialize(K subgraphId, I vertexId, V value, LinkedList<SubgraphEdge<E, I, J>> subgraphEdges) {
     this.subgraphId = subgraphId;
     super.initialize(vertexId, value, subgraphEdges);
   }
@@ -25,11 +26,21 @@ public class DefaultRemoteSubgraphVertex<S extends WritableComparable,
   }
 
   @Override
-  public S getSubgraphId() {
+  public K getSubgraphId() {
     return subgraphId;
   }
 
-  public void setSubgraphId(S subgraphId) {
+  @Override
+  public V getLocalState() {
+    return localState;
+  }
+
+  @Override
+  public void setLocalState(V value) {
+    localState = value;
+  }
+
+  public void setSubgraphId(K subgraphId) {
     this.subgraphId = subgraphId;
   }
 
