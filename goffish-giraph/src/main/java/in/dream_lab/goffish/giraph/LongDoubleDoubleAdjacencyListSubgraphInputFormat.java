@@ -1,5 +1,7 @@
 package in.dream_lab.goffish.giraph;
 
+import in.dream_lab.goffish.api.SubgraphEdge;
+import in.dream_lab.goffish.api.SubgraphVertex;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.io.formats.AdjacencyListTextVertexInputFormat;

@@ -1,7 +1,6 @@
 package in.dream_lab.goffish.giraph;
 
-import in.dream_lab.goffish.AbstractSubgraphComputation;
-import in.dream_lab.goffish.ISubgraphPlatformCompute;
+import in.dream_lab.goffish.api.*;
 import org.apache.giraph.conf.ClassConfOption;
 import org.apache.giraph.graph.*;
 import org.apache.giraph.utils.ReflectionUtils;
@@ -70,7 +69,7 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
     throw new UnsupportedOperationException();
   }
 
-  private DefaultSubgraph<S, I, V, E, SV, EI> subgraph;
+  private DefaultSubgraph<SV, V, E, I, EI, S> subgraph;
 
   public Subgraph<SV, V, E, I, EI, S> getSubgraph() {
     return subgraph;
@@ -108,7 +107,7 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
     super.sendMessageToAllEdges(subgraph, sm);
   }
 
-  public void sendToNeighbors(DefaultSubgraph<S, I, V, E, SV, EI> subgraph, M message) {
+  public void sendToNeighbors(DefaultSubgraph<SV, V, E, I, EI, S> subgraph, M message) {
     WritableComparable subgraphId = subgraph.getSubgraphId();
     SubgraphMessage sm = new SubgraphMessage(subgraphId, message);
     super.sendMessageToAllEdges(subgraph, sm);
@@ -138,6 +137,11 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
     SubgraphId<S> sId = new SubgraphId<>(subgraphId, getPartition(subgraphId));
     LOG.info("SubgraphID,PartitionID,message:" + subgraphId + "," + getPartition(subgraphId) + message);
     sendMessage(sId, sm);
+  }
+
+  @Override
+  public String getConf(String key) {
+    return getConf().get(key);
   }
 
   private class IMessageIterable implements Iterable<IMessage<S,M>> {

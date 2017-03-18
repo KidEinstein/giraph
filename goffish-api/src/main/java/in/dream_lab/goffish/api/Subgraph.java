@@ -1,4 +1,4 @@
-package in.dream_lab.goffish.giraph;
+package in.dream_lab.goffish.api;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -6,10 +6,7 @@ import org.apache.hadoop.io.WritableComparable;
 /**
  * Created by anirudh on 23/10/16.
  */
-public interface Subgraph<S extends Writable, V extends Writable, E extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable
-    > {
-//TODO remove this
-  SubgraphVertices<S, V, E, I, J, K> getSubgraphVertices();
+public interface Subgraph<S extends Writable, V extends Writable, E extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable> {
 
   SubgraphVertex<V, E, I, J> getVertexById(I vertexId);
 

@@ -22,9 +22,8 @@ package in.dream_lab.goffish.giraph;
  */
 
 
-import in.dream_lab.goffish.giraph.GiraphSubgraphTextInputFormat;
-import in.dream_lab.goffish.giraph.SubgraphEdge;
-import in.dream_lab.goffish.giraph.SubgraphVertex;
+import in.dream_lab.goffish.api.SubgraphEdge;
+import in.dream_lab.goffish.api.SubgraphVertex;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexReader;

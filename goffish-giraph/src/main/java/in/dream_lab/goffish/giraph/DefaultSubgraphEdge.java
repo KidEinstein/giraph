@@ -1,5 +1,6 @@
 package in.dream_lab.goffish.giraph;
 
+import in.dream_lab.goffish.api.SubgraphEdge;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 

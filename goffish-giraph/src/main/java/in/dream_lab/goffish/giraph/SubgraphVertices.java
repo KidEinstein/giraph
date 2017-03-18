@@ -1,5 +1,7 @@
 package in.dream_lab.goffish.giraph;
 
+import in.dream_lab.goffish.api.RemoteSubgraphVertex;
+import in.dream_lab.goffish.api.SubgraphVertex;
 import org.apache.giraph.conf.GiraphConfigurationSettable;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.hadoop.io.MapWritable;
