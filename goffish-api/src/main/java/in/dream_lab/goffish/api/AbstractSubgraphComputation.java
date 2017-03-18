@@ -1,9 +1,5 @@
-package in.dream_lab.goffish;
+package in.dream_lab.goffish.api;
 
-import in.dream_lab.goffish.giraph.IMessage;
-import in.dream_lab.goffish.giraph.Subgraph;
-import org.apache.giraph.conf.GiraphConfigurationSettable;
-import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -12,10 +8,7 @@ import java.io.IOException;
 /**
  * Created by anirudh on 26/02/17.
  */
-public abstract class AbstractSubgraphComputation<S extends Writable, V extends WritableComparable, E extends Writable, M extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable>
-    implements GiraphConfigurationSettable {
-
-  private ImmutableClassesGiraphConfiguration conf;
+public abstract class AbstractSubgraphComputation<S extends Writable, V extends WritableComparable, E extends Writable, M extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable> {
 
   private ISubgraphPlatformCompute<S, V, E, M, I, J, K> subgraphPlatformCompute;
 
@@ -45,13 +38,8 @@ public abstract class AbstractSubgraphComputation<S extends Writable, V extends 
     subgraphPlatformCompute.sendToNeighbors(message);
   }
 
-  @Override
-  public void setConf(ImmutableClassesGiraphConfiguration configuration) {
-    conf = configuration;
-  }
-
-  public ImmutableClassesGiraphConfiguration getConf() {
-    return conf;
+  public String getConf(String key) {
+    return subgraphPlatformCompute.getConf(key);
   }
 
   void sendMessage(K subgraphID, Iterable<M> message) {

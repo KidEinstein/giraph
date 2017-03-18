@@ -18,6 +18,7 @@
 
 package in.dream_lab.goffish.giraph;
 
+import in.dream_lab.goffish.api.Subgraph;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
 import org.apache.hadoop.io.*;
@@ -41,7 +42,7 @@ public class SubgraphSimpleTextVertexOutputFormat extends
       Subgraph<LongWritable, NullWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = (Subgraph) vertex;
       getRecordWriter().write(
           new Text(subgraph.getSubgraphId().toString()),
-          new Text(subgraph.getSubgraphVertices().getSubgraphValue().toString()));
+          new Text(subgraph.getSubgraphValue().toString()));
     }
   }
 

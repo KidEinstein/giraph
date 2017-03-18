@@ -85,6 +85,11 @@
             <artifactId>giraph-examples</artifactId>
             <version>1.2.0-RC0</version>
         </dependency>
+        <dependency>
+            <groupId>in.dream_lab.goffish</groupId>
+            <artifactId>goffish-api</artifactId>
+            <version>3</version>
+        </dependency>
     </dependencies>
 
 

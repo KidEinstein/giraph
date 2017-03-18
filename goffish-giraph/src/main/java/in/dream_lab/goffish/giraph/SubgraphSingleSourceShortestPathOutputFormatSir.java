@@ -1,5 +1,7 @@
 package in.dream_lab.goffish.giraph;
 
+import in.dream_lab.goffish.api.Subgraph;
+import in.dream_lab.goffish.api.SubgraphVertex;
 import org.apache.giraph.examples.ShortestPathSubgraphValue;
 import org.apache.giraph.graph.*;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
@@ -23,9 +25,9 @@ public class SubgraphSingleSourceShortestPathOutputFormatSir extends
     @Override
     public void writeVertex(Vertex<SubgraphId<LongWritable>, SubgraphVertices, NullWritable> vertex) throws IOException, InterruptedException {
       Subgraph<ShortestPathSubgraphValue, LongWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = (Subgraph) vertex;
-      Map<Long, Short> shortestDistanceMap = subgraph.getSubgraphVertices().getSubgraphValue().shortestDistanceMap;
+      Map<Long, Short> shortestDistanceMap = subgraph.getSubgraphValue().shortestDistanceMap;
       for (Map.Entry<Long, Short> entry : shortestDistanceMap.entrySet()) {
-        SubgraphVertex<LongWritable, NullWritable, LongWritable, NullWritable> subgraphVertex = subgraph.getSubgraphVertices().getVertexById(new LongWritable(entry.getKey()));
+        SubgraphVertex<LongWritable, NullWritable, LongWritable, NullWritable> subgraphVertex = subgraph.getVertexById(new LongWritable(entry.getKey()));
         if (!subgraphVertex.isRemote()) {
           getRecordWriter().write(
               new Text(entry.getKey().toString()),

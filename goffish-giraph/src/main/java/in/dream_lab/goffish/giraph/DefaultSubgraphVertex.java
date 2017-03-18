@@ -1,6 +1,8 @@
 package in.dream_lab.goffish.giraph;
 
 import com.google.common.collect.Lists;
+import in.dream_lab.goffish.api.SubgraphEdge;
+import in.dream_lab.goffish.api.SubgraphVertex;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;

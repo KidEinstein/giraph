@@ -1,4 +1,4 @@
-package in.dream_lab.goffish.giraph;
+package in.dream_lab.goffish.api;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;

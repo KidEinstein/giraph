@@ -2257,6 +2257,7 @@ under the License.
     <module>giraph-block-app</module>
     <module>giraph-examples</module>
     <module>goffish-giraph</module>
+      <module>goffish-api</module>
   </modules>
 
 </project>

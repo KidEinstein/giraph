@@ -1,7 +1,9 @@
 package in.dream_lab.goffish.giraph;
 
 import com.google.common.primitives.Longs;
-import in.dream_lab.goffish.AbstractSubgraphComputation;
+import in.dream_lab.goffish.api.AbstractSubgraphComputation;
+import in.dream_lab.goffish.api.IMessage;
+import in.dream_lab.goffish.api.Subgraph;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -19,11 +21,11 @@ public class SubgraphConnectedComponents extends AbstractSubgraphComputation<Lon
     Subgraph<LongWritable, NullWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = getSubgraph();
     if (getSuperstep() == 0) {
       LongWritable sid = subgraph.getSubgraphId();
-      subgraph.getSubgraphVertices().setSubgraphValue(sid);
+      subgraph.setSubgraphValue(sid);
 
       sendToNeighbors(new BytesWritable(Longs.toByteArray(sid.get())));
     } else {
-      long myMin = subgraph.getSubgraphVertices().getSubgraphValue().get();
+      long myMin = subgraph.getSubgraphValue().get();
       long currentMin = myMin;
       //System.out.println("My Min: " + myMin);
       for (IMessage<LongWritable,BytesWritable> message : messages) {
@@ -34,7 +36,7 @@ public class SubgraphConnectedComponents extends AbstractSubgraphComputation<Lon
         }
       }
       if (currentMin < myMin) {
-        subgraph.getSubgraphVertices().setSubgraphValue(new LongWritable(currentMin));
+        subgraph.setSubgraphValue(new LongWritable(currentMin));
         sendToNeighbors( new BytesWritable(Longs.toByteArray(currentMin)));
       }
     }

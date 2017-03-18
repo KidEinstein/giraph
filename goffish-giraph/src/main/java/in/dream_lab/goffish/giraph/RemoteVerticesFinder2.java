@@ -1,5 +1,6 @@
 package in.dream_lab.goffish.giraph;
 
+import in.dream_lab.goffish.api.SubgraphVertex;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.utils.*;
 import org.apache.hadoop.io.*;
@@ -14,7 +15,7 @@ import java.util.LinkedList;
 public class RemoteVerticesFinder2 extends GiraphSubgraphComputation<LongWritable, LongWritable, DoubleWritable, DoubleWritable, BytesWritable, NullWritable, LongWritable> {
   @Override
   public void compute(Vertex<SubgraphId<LongWritable>, SubgraphVertices<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable>, DoubleWritable> vertex, Iterable<SubgraphMessage<LongWritable, BytesWritable>> subgraphMessages) throws IOException {
-    DefaultSubgraph<LongWritable, LongWritable, DoubleWritable, DoubleWritable, NullWritable, LongWritable> subgraph = (DefaultSubgraph) vertex;
+    DefaultSubgraph<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraph = (DefaultSubgraph) vertex;
     MapWritable subgraphPartitionMapping = getAggregatedValue(SubgraphMasterCompute.ID);
     SubgraphVertices<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
     subgraph.getSubgraphVertices().setSubgraphParitionMapping(subgraphPartitionMapping);

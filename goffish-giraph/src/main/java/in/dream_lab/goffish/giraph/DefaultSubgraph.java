@@ -1,5 +1,9 @@
 package in.dream_lab.goffish.giraph;
 
+import in.dream_lab.goffish.api.RemoteSubgraphVertex;
+import in.dream_lab.goffish.api.Subgraph;
+import in.dream_lab.goffish.api.SubgraphEdge;
+import in.dream_lab.goffish.api.SubgraphVertex;
 import org.apache.giraph.graph.*;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -16,8 +20,8 @@ import java.util.Iterator;
  * @param <E>  Edge data
  * @param <SV> Subgraph Value type
  */
-public class DefaultSubgraph<S extends WritableComparable,
-    I extends WritableComparable, V extends Writable, E extends Writable, SV extends Writable, EI extends WritableComparable>
+public class DefaultSubgraph<SV extends Writable, V extends Writable, E extends Writable, I extends WritableComparable, EI extends WritableComparable, S extends WritableComparable
+    >
     extends DefaultVertex<SubgraphId<S>, SubgraphVertices<SV, V, E, I, EI, S>, E> implements Subgraph<SV, V, E, I, EI, S> {
 
   public void setRemoteVertices(HashMap<I, RemoteSubgraphVertex<V, E, I, EI, S>> remoteVertices) {
@@ -45,14 +49,14 @@ public class DefaultSubgraph<S extends WritableComparable,
     return getSubgraphVertices().getSubgraphValue();
   }
 
-  @Override
+
   public SubgraphVertices<SV, V, E, I, EI, S> getSubgraphVertices() {
     return getValue();
   }
 
   @Override
   public SubgraphVertex<V, E, I, EI> getVertexById(I vertexId) {
-    return null;
+    return getSubgraphVertices().getVertexById(vertexId);
   }
 
   @Override

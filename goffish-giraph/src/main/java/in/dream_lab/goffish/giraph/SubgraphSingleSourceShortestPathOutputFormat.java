@@ -1,5 +1,7 @@
 package in.dream_lab.goffish.giraph;
 
+import in.dream_lab.goffish.api.Subgraph;
+import in.dream_lab.goffish.api.SubgraphVertex;
 import org.apache.giraph.graph.*;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
 import org.apache.hadoop.io.LongWritable;
@@ -23,11 +25,11 @@ public class SubgraphSingleSourceShortestPathOutputFormat extends
     @Override
     public void writeVertex(Vertex<SubgraphId<LongWritable>, SubgraphVertices, NullWritable> vertex) throws IOException, InterruptedException {
       Subgraph<NullWritable, LongWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = (Subgraph) vertex;
-      HashMap<LongWritable, SubgraphVertex<LongWritable, NullWritable, LongWritable, NullWritable>> vertices = subgraph.getSubgraphVertices().getLocalVertices();
-      for (Map.Entry<LongWritable, SubgraphVertex<LongWritable, NullWritable, LongWritable, NullWritable>> entry : vertices.entrySet()) {
+      Iterable<SubgraphVertex<LongWritable, NullWritable, LongWritable, NullWritable>> vertices = subgraph.getLocalVertices();
+      for (SubgraphVertex<LongWritable, NullWritable, LongWritable, NullWritable> entry : vertices) {
         getRecordWriter().write(
-            new Text(String.valueOf(entry.getKey().get())),
-            new Text(entry.getValue().getValue().toString()));
+            new Text(String.valueOf(entry.getId().get())),
+            new Text(entry.getValue().toString()));
       }
     }
   }

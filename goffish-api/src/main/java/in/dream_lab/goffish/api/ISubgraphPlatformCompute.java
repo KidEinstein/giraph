@@ -1,6 +1,5 @@
-package in.dream_lab.goffish;
+package in.dream_lab.goffish.api;
 
-import in.dream_lab.goffish.giraph.Subgraph;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -27,4 +26,6 @@ public interface ISubgraphPlatformCompute<S extends Writable, V extends Writable
   void sendToAll(Iterable<M> message);
 
   void sendToNeighbors(Iterable<M> message);
+
+  String getConf(String key);
 }
