@@ -1,4 +1,4 @@
-package org.apache.giraph.examples;
+package in.dream_lab.goffish;
 
 import org.apache.hadoop.io.Writable;
 

@@ -105,7 +105,6 @@ public class GiraphTypes<I extends WritableComparable, V extends Writable,
    * @param klass Computation class
    */
   public void inferFrom(Class<? extends TypesHolder> klass) {
-    System.out.println("In infer from");
     Class<?>[] classList = getTypeArguments(TypesHolder.class, klass);
     Preconditions.checkArgument(classList.length == 5);
     vertexIdClass = (Class<I>) classList[0];
