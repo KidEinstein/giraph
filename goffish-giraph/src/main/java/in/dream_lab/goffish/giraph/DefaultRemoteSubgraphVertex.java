@@ -1,7 +1,7 @@
 package in.dream_lab.goffish.giraph;
 
-import in.dream_lab.goffish.api.RemoteSubgraphVertex;
-import in.dream_lab.goffish.api.SubgraphEdge;
+import in.dream_lab.goffish.api.IRemoteVertex;
+import in.dream_lab.goffish.api.IEdge;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -11,13 +11,13 @@ import java.util.LinkedList;
  * Created by anirudh on 02/11/16.
  */
 public class DefaultRemoteSubgraphVertex<V extends Writable, E extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable>
-    extends DefaultSubgraphVertex<V, E, I, J> implements RemoteSubgraphVertex<V, E, I, J, K> {
+    extends DefaultSubgraphVertex<V, E, I, J> implements IRemoteVertex<V, E, I, J, K> {
 
   private K subgraphId;
 
   private V localState;
 
-  public void initialize(K subgraphId, I vertexId, V value, LinkedList<SubgraphEdge<E, I, J>> subgraphEdges) {
+  public void initialize(K subgraphId, I vertexId, V value, LinkedList<IEdge<E, I, J>> subgraphEdges) {
     this.subgraphId = subgraphId;
     super.initialize(vertexId, value, subgraphEdges);
   }

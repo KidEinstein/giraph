@@ -7,7 +7,7 @@ import org.apache.hadoop.io.WritableComparable;
  * Created by anirudh on 09/03/17.
  */
 public interface ISubgraphPlatformCompute<S extends Writable, V extends WritableComparable, E extends Writable, M extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable> {
-  Subgraph<S, V, E, I, J, K> getSubgraph();//templatize return type, G extends ISubgraph<S, V, E, I, J, K>
+  ISubgraph<S, V, E, I, J, K> getSubgraph();//templatize return type, G extends ISubgraph<S, V, E, I, J, K>
 
   void voteToHalt();
 
@@ -21,11 +21,11 @@ public interface ISubgraphPlatformCompute<S extends Writable, V extends Writable
 
   void sendToNeighbors(M message);
 
-  void sendMessage(K subgraphId, Iterable<M> message);
+  void sendMessage(K subgraphId, Iterable<M> messages);
 
-  void sendToAll(Iterable<M> message);
+  void sendToAll(Iterable<M> messages);
 
-  void sendToNeighbors(Iterable<M> message);
+  void sendToNeighbors(Iterable<M> messages);
 
   String getConf(String key);
 }

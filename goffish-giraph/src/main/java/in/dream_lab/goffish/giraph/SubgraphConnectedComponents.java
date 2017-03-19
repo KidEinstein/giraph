@@ -3,7 +3,7 @@ package in.dream_lab.goffish.giraph;
 import com.google.common.primitives.Longs;
 import in.dream_lab.goffish.api.AbstractSubgraphComputation;
 import in.dream_lab.goffish.api.IMessage;
-import in.dream_lab.goffish.api.Subgraph;
+import in.dream_lab.goffish.api.ISubgraph;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -18,7 +18,7 @@ public class SubgraphConnectedComponents extends AbstractSubgraphComputation<Lon
 
   @Override
   public void compute(Iterable<IMessage<LongWritable,BytesWritable>> messages) throws IOException {
-    Subgraph<LongWritable, NullWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = getSubgraph();
+    ISubgraph<LongWritable, NullWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = getSubgraph();
     if (getSuperstep() == 0) {
       LongWritable sid = subgraph.getSubgraphId();
       subgraph.setSubgraphValue(sid);

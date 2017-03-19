@@ -18,7 +18,7 @@
 
 package in.dream_lab.goffish.giraph;
 
-import in.dream_lab.goffish.api.Subgraph;
+import in.dream_lab.goffish.api.ISubgraph;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.formats.TextVertexOutputFormat;
 import org.apache.hadoop.io.*;
@@ -39,7 +39,7 @@ public class SubgraphSimpleTextVertexOutputFormat extends
     public void writeVertex(
       Vertex<SubgraphId<LongWritable>, SubgraphVertices, NullWritable> vertex)
       throws IOException, InterruptedException {
-      Subgraph<LongWritable, NullWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = (Subgraph) vertex;
+      ISubgraph<LongWritable, NullWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = (ISubgraph) vertex;
       getRecordWriter().write(
           new Text(subgraph.getSubgraphId().toString()),
           new Text(subgraph.getSubgraphValue().toString()));

@@ -2,7 +2,6 @@ package in.dream_lab.goffish.api;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
-
 import java.io.IOException;
 
 /**
@@ -20,7 +19,7 @@ public abstract class AbstractSubgraphComputation<S extends Writable, V extends 
     this.subgraphPlatformCompute = subgraphPlatformCompute;
   }
 
-  public Subgraph<S, V, E, I, J, K> getSubgraph() {
+  public ISubgraph<S, V, E, I, J, K> getSubgraph() {
     return subgraphPlatformCompute.getSubgraph();
   }
 
@@ -42,15 +41,19 @@ public abstract class AbstractSubgraphComputation<S extends Writable, V extends 
     return subgraphPlatformCompute.getConf(key);
   }
 
-  void sendMessage(K subgraphID, Iterable<M> message) {
-    throw new UnsupportedOperationException();
+  void sendMessage(K subgraphID, Iterable<M> messages) {
+    subgraphPlatformCompute.sendMessage(subgraphID, messages);
   }
 
   void sendToAll(Iterable<M> message) {
-    throw new UnsupportedOperationException();
+    subgraphPlatformCompute.sendToAll(message);
   }
 
-  void sendToNeighbors(Iterable<M> message) {
-    throw new UnsupportedOperationException();
+  void sendToAll(M message) {
+    subgraphPlatformCompute.sendToAll(message);
+  }
+
+  void sendToNeighbors(Iterable<M> messages) {
+    subgraphPlatformCompute.sendToNeighbors(messages);
   }
 }

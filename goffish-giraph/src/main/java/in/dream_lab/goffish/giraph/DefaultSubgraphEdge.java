@@ -1,6 +1,6 @@
 package in.dream_lab.goffish.giraph;
 
-import in.dream_lab.goffish.api.SubgraphEdge;
+import in.dream_lab.goffish.api.IEdge;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Created by anirudh on 18/10/16.
  */
-public class DefaultSubgraphEdge<I extends WritableComparable, E extends Writable, EI extends WritableComparable> implements SubgraphEdge<E, I, EI>, Writable {
+public class DefaultSubgraphEdge<I extends WritableComparable, E extends Writable, EI extends WritableComparable> implements IEdge<E, I, EI>, Writable {
 
     private EI edgeId;
     private I sinkVertexId;
@@ -55,6 +55,6 @@ public class DefaultSubgraphEdge<I extends WritableComparable, E extends Writabl
 
     @Override
     public boolean equals(Object obj) {
-        return this.getSinkVertexId().equals(((SubgraphEdge)obj).getSinkVertexId());
+        return this.getSinkVertexId().equals(((IEdge)obj).getSinkVertexId());
     }
 }

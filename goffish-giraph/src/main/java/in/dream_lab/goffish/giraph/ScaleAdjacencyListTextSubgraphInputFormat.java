@@ -18,7 +18,7 @@
 package in.dream_lab.goffish.giraph;
 
 import com.google.common.collect.Lists;
-import in.dream_lab.goffish.api.SubgraphEdge;
+import in.dream_lab.goffish.api.IEdge;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.io.formats.AdjacencyListTextVertexInputFormat;
 import org.apache.hadoop.io.*;
@@ -152,11 +152,11 @@ public abstract class ScaleAdjacencyListTextSubgraphInputFormat<I extends
         public abstract DoubleWritable decodeValue(String s);
 
         @Override
-        protected LinkedList<SubgraphEdge> getVertexEdges(String[] values) throws
+        protected LinkedList<IEdge> getVertexEdges(String[] values) throws
                 IOException {
             String source = values[0];
             int i = 2;
-            LinkedList<SubgraphEdge> edges = Lists.newLinkedList();
+            LinkedList<IEdge> edges = Lists.newLinkedList();
             while (i < values.length) {
                 edges.add(decodeVertexEdge(source, values[i]));
                 i += 1;
@@ -170,7 +170,7 @@ public abstract class ScaleAdjacencyListTextSubgraphInputFormat<I extends
          * @param id The edge's id from the line
          * @return Edge with given target id and value
          */
-        public abstract SubgraphEdge decodeVertexEdge(String source, String id);
+        public abstract IEdge decodeVertexEdge(String source, String id);
 
         public abstract Edge<I, E> decodeSubgraphEdge(String sid, String pid);
 
