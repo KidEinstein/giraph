@@ -55,23 +55,27 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
   }
 
   @Override
-  public void sendMessage(S subgraphId, Iterable<M> message) {
+  public void sendMessage(S subgraphId, Iterable<M> messages) {
+    for (M message: messages) {
+      sendMessageToSubgraph(subgraphId, message);
+    }
+  }
+
+  @Override
+  public void sendToAll(Iterable<M> messages) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void sendToAll(Iterable<M> message) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void sendToNeighbors(Iterable<M> message) {
-    throw new UnsupportedOperationException();
+  public void sendToNeighbors(Iterable<M> messages) {
+    for (M message : messages) {
+      sendToNeighbors(message);
+    }
   }
 
   private DefaultSubgraph<SV, V, E, I, EI, S> subgraph;
 
-  public Subgraph<SV, V, E, I, EI, S> getSubgraph() {
+  public ISubgraph<SV, V, E, I, EI, S> getSubgraph() {
     return subgraph;
   }
   // TODO: Take care of state changes for the subgraph passed
@@ -92,12 +96,8 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
       }
       abstractSubgraphComputation = (AbstractSubgraphComputation<SV, V, E, M, I, EI, S>) ReflectionUtils.newInstance(userSubgraphComputationClass, getConf());
     }
-    LOG.info("User Object: " + abstractSubgraphComputation);
     abstractSubgraphComputation.setSubgraphPlatformCompute(this);
     subgraph = (DefaultSubgraph) vertex;
-    for (SubgraphMessage<S, M> subgraphMessage : messages) {
-      LOG.info("MessageReceived" + subgraphMessage.getSubgraphId() + "," + subgraphMessage.getMessage());
-    }
     abstractSubgraphComputation.compute(new IMessageIterable(messages));
   }
 
@@ -122,7 +122,7 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
     subgraph.voteToHalt();
   }
 
-  SubgraphEdge<E, I, EI> getEdgeById(EI id) {
+  IEdge<E, I, EI> getEdgeById(EI id) {
     throw new UnsupportedOperationException();
   }
 
@@ -135,7 +135,6 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
   public void sendMessageToSubgraph(S subgraphId, M message) {
     SubgraphMessage sm = new SubgraphMessage(subgraphId, message);
     SubgraphId<S> sId = new SubgraphId<>(subgraphId, getPartition(subgraphId));
-    LOG.info("SubgraphID,PartitionID,message:" + subgraphId + "," + getPartition(subgraphId) + message);
     sendMessage(sId, sm);
   }
 

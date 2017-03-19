@@ -22,8 +22,8 @@ package in.dream_lab.goffish.giraph;
  */
 
 
-import in.dream_lab.goffish.api.SubgraphEdge;
-import in.dream_lab.goffish.api.SubgraphVertex;
+import in.dream_lab.goffish.api.IEdge;
+import in.dream_lab.goffish.api.IVertex;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexReader;
@@ -256,7 +256,7 @@ public abstract class TextSubgraphInputFormat<I extends WritableComparable,
 
         public abstract I getSId(T line);
 
-        public abstract SubgraphVertex readVertex(T line) throws IOException;
+        public abstract IVertex readVertex(T line) throws IOException;
 
 
         public abstract V getSubgraphVertices() throws IOException, InterruptedException;
@@ -308,7 +308,7 @@ public abstract class TextSubgraphInputFormat<I extends WritableComparable,
          * @throws IOException
          *           exception that can be thrown while reading
          */
-        protected abstract Iterable<SubgraphEdge> getVertexEdges(T line) throws IOException;
+        protected abstract Iterable<IEdge> getVertexEdges(T line) throws IOException;
 
         protected abstract Iterable<Edge<I, E>> getSubgraphNeighbors(T line) throws IOException;
 

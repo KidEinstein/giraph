@@ -1,8 +1,8 @@
 package in.dream_lab.goffish.giraph;
 
 import com.google.common.collect.Lists;
-import in.dream_lab.goffish.api.SubgraphEdge;
-import in.dream_lab.goffish.api.SubgraphVertex;
+import in.dream_lab.goffish.api.IEdge;
+import in.dream_lab.goffish.api.IVertex;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -16,15 +16,15 @@ import java.util.LinkedList;
  * Created by anirudh on 27/09/16.
  */
 public class DefaultSubgraphVertex<V extends Writable, E extends Writable, I extends WritableComparable,
-    J extends WritableComparable> implements SubgraphVertex<V, E, I, J>, WritableComparable {
+    J extends WritableComparable> implements IVertex<V, E, I, J>, WritableComparable {
 
 
   private I id;
   private V value;
-  private LinkedList<SubgraphEdge<E, I, J>> outEdges;
+  private LinkedList<IEdge<E, I, J>> outEdges;
 
   @Override
-  public LinkedList<SubgraphEdge<E, I, J>> getOutEdges() {
+  public LinkedList<IEdge<E, I, J>> getOutEdges() {
     return outEdges;
   }
 
@@ -35,11 +35,10 @@ public class DefaultSubgraphVertex<V extends Writable, E extends Writable, I ext
   }
 
   @Override
-  public I getId() {
+  public I getVertexId() {
     return id;
   }
 
-  @Override
   public void setId(I id) {
     this.id = id;
   }
@@ -59,8 +58,7 @@ public class DefaultSubgraphVertex<V extends Writable, E extends Writable, I ext
     return false;
   }
 
-  @Override
-  public void initialize(I vertexId, V value, LinkedList<SubgraphEdge<E, I, J>> edges) {
+  public void initialize(I vertexId, V value, LinkedList<IEdge<E, I, J>> edges) {
     this.id = vertexId;
     this.value = value;
     this.outEdges = edges;
@@ -75,7 +73,7 @@ public class DefaultSubgraphVertex<V extends Writable, E extends Writable, I ext
     int numOutEdges = outEdges.size();
     dataOutput.writeInt(numOutEdges);
 //        System.out.println("Write: " + "Number edges: " + numOutEdges);
-    for (SubgraphEdge<E, I, J> edge : outEdges) {
+    for (IEdge<E, I, J> edge : outEdges) {
 //            System.out.println("Write: " + "Edge:" + edge.getSinkVertexId() + " Class: " + edge.getSinkVertexId().getClass().getSimpleName());
       edge.getSinkVertexId().write(dataOutput);
       edge.getValue().write(dataOutput);

@@ -1,9 +1,9 @@
 package in.dream_lab.goffish.giraph;
 
-import in.dream_lab.goffish.api.RemoteSubgraphVertex;
-import in.dream_lab.goffish.api.Subgraph;
-import in.dream_lab.goffish.api.SubgraphEdge;
-import in.dream_lab.goffish.api.SubgraphVertex;
+import in.dream_lab.goffish.api.IRemoteVertex;
+import in.dream_lab.goffish.api.ISubgraph;
+import in.dream_lab.goffish.api.IEdge;
+import in.dream_lab.goffish.api.IVertex;
 import org.apache.giraph.graph.*;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -22,21 +22,21 @@ import java.util.Iterator;
  */
 public class DefaultSubgraph<SV extends Writable, V extends Writable, E extends Writable, I extends WritableComparable, EI extends WritableComparable, S extends WritableComparable
     >
-    extends DefaultVertex<SubgraphId<S>, SubgraphVertices<SV, V, E, I, EI, S>, E> implements Subgraph<SV, V, E, I, EI, S> {
+    extends DefaultVertex<SubgraphId<S>, SubgraphVertices<SV, V, E, I, EI, S>, E> implements ISubgraph<SV, V, E, I, EI, S> {
 
-  public void setRemoteVertices(HashMap<I, RemoteSubgraphVertex<V, E, I, EI, S>> remoteVertices) {
+  public void setRemoteVertices(HashMap<I, IRemoteVertex<V, E, I, EI, S>> remoteVertices) {
     SubgraphVertices<SV, V, E, I, EI, S> subgraphVertices = getValue();
     subgraphVertices.setRemoteVertices(remoteVertices);
   }
 
-  public Iterable<RemoteSubgraphVertex<V, E, I, EI, S>> getRemoteVertices() {
+  public Iterable<IRemoteVertex<V, E, I, EI, S>> getRemoteVertices() {
     SubgraphVertices<SV, V, E, I, EI, S> subgraphVertices = getValue();
     return subgraphVertices.getRemoteVertices().values();
   }
 
   @Override
-  public SubgraphEdge<E, I, EI> getEdgeById(EI edgeId) {
-    return null;
+  public IEdge<E, I, EI> getEdgeById(EI edgeId) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -55,7 +55,7 @@ public class DefaultSubgraph<SV extends Writable, V extends Writable, E extends 
   }
 
   @Override
-  public SubgraphVertex<V, E, I, EI> getVertexById(I vertexId) {
+  public IVertex<V, E, I, EI> getVertexById(I vertexId) {
     return getSubgraphVertices().getVertexById(vertexId);
   }
 
@@ -75,12 +75,12 @@ public class DefaultSubgraph<SV extends Writable, V extends Writable, E extends 
   }
 
   @Override
-  public Iterable<SubgraphVertex<V, E, I, EI>> getVertices() {
+  public Iterable<IVertex<V, E, I, EI>> getVertices() {
     return getSubgraphVertices().getVertices();
   }
 
   @Override
-  public Iterable<SubgraphVertex<V, E, I, EI>> getLocalVertices() {
+  public Iterable<IVertex<V, E, I, EI>> getLocalVertices() {
     return getSubgraphVertices().getLocalVertices().values();
   }
 
@@ -88,22 +88,22 @@ public class DefaultSubgraph<SV extends Writable, V extends Writable, E extends 
     return getId().getPartitionId();
   }
 
-  public Iterable<SubgraphEdge<E, I, EI>> getOutEdges() {
-    return new Iterable<SubgraphEdge<E, I, EI>>() {
+  public Iterable<IEdge<E, I, EI>> getOutEdges() {
+    return new Iterable<IEdge<E, I, EI>>() {
       @Override
-      public Iterator<SubgraphEdge<E, I, EI>> iterator() {
+      public Iterator<IEdge<E, I, EI>> iterator() {
         return new EdgeIterator();
       }
     };
   }
 
-  private final class EdgeIterator implements Iterator<SubgraphEdge<E, I, EI>> {
-    Iterator<SubgraphVertex<V, E, I, EI>> vertexMapIterator;
-    Iterator<SubgraphEdge<E, I, EI>> edgeIterator;
+  private final class EdgeIterator implements Iterator<IEdge<E, I, EI>> {
+    Iterator<IVertex<V, E, I, EI>> vertexMapIterator;
+    Iterator<IEdge<E, I, EI>> edgeIterator;
 
     public EdgeIterator() {
       vertexMapIterator = getVertices().iterator();
-      SubgraphVertex<V, E, I, EI> nextVertex = vertexMapIterator.next();
+      IVertex<V, E, I, EI> nextVertex = vertexMapIterator.next();
       edgeIterator = nextVertex.getOutEdges().iterator();
     }
 
@@ -113,7 +113,7 @@ public class DefaultSubgraph<SV extends Writable, V extends Writable, E extends 
         return true;
       } else {
         while (vertexMapIterator.hasNext()) {
-          SubgraphVertex<V, E, I, EI> nextVertex = vertexMapIterator.next();
+          IVertex<V, E, I, EI> nextVertex = vertexMapIterator.next();
           edgeIterator = nextVertex.getOutEdges().iterator();
           if (edgeIterator.hasNext()) {
             return true;
@@ -123,12 +123,12 @@ public class DefaultSubgraph<SV extends Writable, V extends Writable, E extends 
       return false;
     }
 
-    public SubgraphEdge<E, I, EI> next() {
+    public IEdge<E, I, EI> next() {
       if (edgeIterator.hasNext()) {
         return edgeIterator.next();
       } else {
         while (vertexMapIterator.hasNext()) {
-          SubgraphVertex<V, E, I, EI> nextVertex = vertexMapIterator.next();
+          IVertex<V, E, I, EI> nextVertex = vertexMapIterator.next();
           edgeIterator = nextVertex.getOutEdges().iterator();
           if (edgeIterator.hasNext()) {
             return edgeIterator.next();

@@ -15,17 +15,17 @@ import java.util.LinkedList;
 public class GiraphSandbox extends AbstractSubgraphComputation<NullWritable, DoubleWritable, DoubleWritable, BytesWritable, LongWritable, LongWritable, LongWritable> {
   @Override
   public void compute(Iterable<IMessage<LongWritable,BytesWritable>> subgraphMessages) throws IOException {
-    Subgraph<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraph = getSubgraph();
-    for (SubgraphVertex subgraphVertex : subgraph.getLocalVertices()) {
-      System.out.println("Vertex: " + subgraphVertex.getId());
-      LinkedList<SubgraphEdge> outEdges = subgraphVertex.getOutEdges();
-      for (SubgraphEdge subgraphEdge : outEdges) {
+    ISubgraph<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraph = getSubgraph();
+    for (IVertex subgraphVertex : subgraph.getLocalVertices()) {
+      System.out.println("Vertex: " + subgraphVertex.getVertexId());
+      Iterable<IEdge> outEdges = subgraphVertex.getOutEdges();
+      for (IEdge subgraphEdge : outEdges) {
         System.out.println("Edges: " + subgraphEdge.getSinkVertexId());
       }
     }
     System.out.println("Printing remote");
-    for (SubgraphVertex subgraphVertex : subgraph.getRemoteVertices()) {
-      System.out.println("Remote Vertex: " + subgraphVertex.getId());
+    for (IVertex subgraphVertex : subgraph.getRemoteVertices()) {
+      System.out.println("Remote Vertex: " + subgraphVertex.getVertexId());
     }
     voteToHalt();
   }

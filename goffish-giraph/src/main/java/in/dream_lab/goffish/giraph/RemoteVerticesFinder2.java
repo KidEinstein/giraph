@@ -1,6 +1,6 @@
 package in.dream_lab.goffish.giraph;
 
-import in.dream_lab.goffish.api.SubgraphVertex;
+import in.dream_lab.goffish.api.IVertex;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.utils.*;
 import org.apache.hadoop.io.*;
@@ -19,8 +19,8 @@ public class RemoteVerticesFinder2 extends GiraphSubgraphComputation<LongWritabl
     MapWritable subgraphPartitionMapping = getAggregatedValue(SubgraphMasterCompute.ID);
     SubgraphVertices<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
     subgraph.getSubgraphVertices().setSubgraphParitionMapping(subgraphPartitionMapping);
-    //System.out.println("RVF2 Subgraph ID: " + subgraph.getId().getSubgraphId());
-    HashMap<LongWritable, SubgraphVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable>> vertices = subgraphVertices.getLocalVertices();
+    //System.out.println("RVF2 Subgraph ID: " + subgraph.getVertexId().getSubgraphId());
+    HashMap<LongWritable, IVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable>> vertices = subgraphVertices.getLocalVertices();
     for (SubgraphMessage<LongWritable, BytesWritable> message : subgraphMessages) {
       LinkedList<LongWritable> vertexIdsFound = new LinkedList();
       ExtendedByteArrayDataOutput dataOutput = new ExtendedByteArrayDataOutput();
@@ -48,7 +48,7 @@ public class RemoteVerticesFinder2 extends GiraphSubgraphComputation<LongWritabl
         sendMessage(senderSubgraphId, new SubgraphMessage<LongWritable, BytesWritable>(senderSubgraphId.getSubgraphId(), bw));
       }
     }
-    //System.out.println("for subgraph id : "+subgraph.getId().getSubgraphId() + " incoming messages in RVF2 are :" +msgcount);
+    //System.out.println("for subgraph id : "+subgraph.getVertexId().getSubgraphId() + " incoming messages in RVF2 are :" +msgcount);
 
   }
 }

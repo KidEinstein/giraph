@@ -1,7 +1,7 @@
 package in.dream_lab.goffish.giraph;
 
-import in.dream_lab.goffish.api.SubgraphEdge;
-import in.dream_lab.goffish.api.SubgraphVertex;
+import in.dream_lab.goffish.api.IEdge;
+import in.dream_lab.goffish.api.IVertex;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.*;
@@ -25,7 +25,7 @@ public class RemoteVerticesFinder extends GiraphSubgraphComputation<LongWritable
     aggregate(SubgraphMasterCompute.ID, subgraphPartitionMap);
     SubgraphVertices<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
     //System.out.println("SV in RVF 1 : " + subgraphVertices);
-    HashMap<LongWritable, SubgraphVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable>> vertices = subgraphVertices.getLocalVertices();
+    HashMap<LongWritable, IVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable>> vertices = subgraphVertices.getLocalVertices();
     //System.out.println("SV Linked List in 1 : " + vertices);
 
 //    for (MemoryPoolMXBean mpBean: ManagementFactory.getMemoryPoolMXBeans()) {
@@ -44,14 +44,13 @@ public class RemoteVerticesFinder extends GiraphSubgraphComputation<LongWritable
 
     int edgeCount = 0;
 
-    for (SubgraphVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable> sv : vertices.values()) {
-      edgeCount += sv.getOutEdges().size();
+    for (IVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable> sv : vertices.values()) {
       // LOG.info("Test, Number of vertex edges: " + sv.getOutEdges().size());
-      for (SubgraphEdge<DoubleWritable, LongWritable, LongWritable> se : sv.getOutEdges()) {
-        //System.out.println("Subgraph ID  : " + subgraph.getId().getSubgraphId() +"\t its vertex : " + sv.getId() + " has edge pointing to " + se.getSinkVertexId()+"\n");
-
+      for (IEdge<DoubleWritable, LongWritable, LongWritable> se : sv.getOutEdges()) {
+        //System.out.println("Subgraph ID  : " + subgraph.getVertexId().getSubgraphId() +"\t its vertex : " + sv.getVertexId() + " has edge pointing to " + se.getSinkVertexId()+"\n");
+        edgeCount++;
         if (!vertices.containsKey(se.getSinkVertexId())) {
-          //System.out.println("Parent subgraph " + subgraph.getId().getSubgraphId() +"does not contain the vertex id  : " + se.getSinkVertexId());
+          //System.out.println("Parent subgraph " + subgraph.getVertexId().getSubgraphId() +"does not contain the vertex id  : " + se.getSinkVertexId());
           remoteVertexIds.add(se.getSinkVertexId());
         }
       }
@@ -60,7 +59,7 @@ public class RemoteVerticesFinder extends GiraphSubgraphComputation<LongWritable
     LOG.info("Partition,Subgraph,Vertices,RemoteVertices,Edges:" + subgraph.getPartitionId() + "," + subgraph.getSubgraphId() + "," + subgraph.getSubgraphVertices().getLocalVertices().size() + "," + remoteVertexIds.size() + "," + edgeCount);
 
     subgraph.getId().write(dataOutput);
-//    LOG.info("Test, Sender subgraphID is : " + subgraph.getId());
+//    LOG.info("Test, Sender subgraphID is : " + subgraph.getVertexId());
     dataOutput.writeInt(remoteVertexIds.size());
 //    LOG.info("Test, Sender number of remote vertices are  : " + remoteVertexIds.size());
 //    LOG.info("Test, Number of edges: " + subgraph.getNumEdges());
