@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installation &#8212; GoFFish-Giraph 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="GoFFish-Giraph 1 documentation" href="index.html" />
+    <link rel="prev" title="Welcome to GoFFish-Giraph’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="setting-up-giraph">
+<h2>Setting up Giraph<a class="headerlink" href="#setting-up-giraph" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="fetching-giraph-distribution">
+<h3>Fetching Giraph distribution<a class="headerlink" href="#fetching-giraph-distribution" title="Permalink to this headline">¶</a></h3>
+<p>We would be fetching the Giraph source from GitHub and building it from the source code. Execute the following command to clone the giraph repository into your current directory.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>git clone https://github.com/apache/giraph.git
+</pre></div>
+</div>
+</div>
+<div class="section" id="switching-to-release-1-2-branch">
+<h3>Switching to release-1.2 branch<a class="headerlink" href="#switching-to-release-1-2-branch" title="Permalink to this headline">¶</a></h3>
+<p>Now that we have cloned the Giraph repository, let&#8217;s switch to the commit having code for the version of Giraph we are interested in. Run the following commands to do that.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">cd</span> giraph
+git checkout release-1.2
+</pre></div>
+</div>
+</div>
+<div class="section" id="modifying-pom-xml">
+<h3>Modifying pom.xml<a class="headerlink" href="#modifying-pom-xml" title="Permalink to this headline">¶</a></h3>
+<p>We would be building Giraph for Hadoop v2.7.2 with YARN support. Trying to compile the source code right away would result  in a compilation error stating that <cite>SASL_PROPS</cite> symbol could not be found. To get around this we would need to remove the <cite>STATIC_SASL_SYMBOL</cite> munge symbol under hadoop_yarn profile in <cite>pom.xml</cite>. Open your favourite text editor and edit the line <cite>&lt;munge.symbols&gt;PURE_YARN,STATIC_SASL_SYMBOL&lt;/munge.symbols&gt;</cite> to the following
+.. code-block:: xml</p>
+<blockquote>
+<div>&lt;munge.symbols&gt;PURE_YARN&lt;/munge.symbols&gt;</div></blockquote>
+<p>Under the <cite>hadoop_yarn</cite> profile, add the version tags to the <cite>hadoop-common, hadoop-mapreduce-client-common, hadoop-mapreduce-client-core</cite> dependencies.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.apache.hadoop<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>hadoop-common<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>${hadoop.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.apache.hadoop<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>hadoop-mapreduce-client-common<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>${hadoop.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.apache.hadoop<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>hadoop-mapreduce-client-core<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>${hadoop.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="building-giraph-from-source">
+<h3>Building Giraph from source<a class="headerlink" href="#building-giraph-from-source" title="Permalink to this headline">¶</a></h3>
+<p>We use Maven to build Giraph with the following command, specifying the profile <cite>hadoop_yarn</cite> and hadoop version <cite>2.7.2</cite> as command line parameters.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>mvn –Phadoop_yarn –Dhadoop.version<span class="o">=</span>2.7.2 -DskipTests clean package
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="wrapping-it-up">
+<h2>Wrapping it up<a class="headerlink" href="#wrapping-it-up" title="Permalink to this headline">¶</a></h2>
+<p>The Maven package phase generates jars for each Giraph module. These jars can be added as dependencies in your projects, and you can run your code using Hadoop after exporting it as a jar. For an example of running a Giraph task as a Hadoop job, have a look at the [official quick start guide](<a class="reference external" href="http://giraph.apache.org/quick_start.html#qs_section_6">http://giraph.apache.org/quick_start.html#qs_section_6</a>).</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#setting-up-giraph">Setting up Giraph</a><ul>
+<li><a class="reference internal" href="#fetching-giraph-distribution">Fetching Giraph distribution</a></li>
+<li><a class="reference internal" href="#switching-to-release-1-2-branch">Switching to release-1.2 branch</a></li>
+<li><a class="reference internal" href="#modifying-pom-xml">Modifying pom.xml</a></li>
+<li><a class="reference internal" href="#building-giraph-from-source">Building Giraph from source</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#wrapping-it-up">Wrapping it up</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to GoFFish-Giraph&#8217;s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/installation.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Anirudh Singh Shekhawat, Abdul Rabbani Shah.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/installation.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
