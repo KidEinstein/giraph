@@ -13,7 +13,7 @@ public interface ISubgraphPlatformCompute<S extends Writable, V extends Writable
 
   long getSuperstep();
 
-  void sendMessageToSubgraph(K subgraphId, M message);
+  void sendToSubgraph(K subgraphId, M message);
 
   void sendToVertex(I vertexID, M message);
 
@@ -21,7 +21,7 @@ public interface ISubgraphPlatformCompute<S extends Writable, V extends Writable
 
   void sendToNeighbors(M message);
 
-  void sendMessage(K subgraphId, Iterable<M> messages);
+  void sendToSubgraph(K subgraphId, Iterable<M> messages);
 
   void sendToAll(Iterable<M> messages);
 

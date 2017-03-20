@@ -55,9 +55,9 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
   }
 
   @Override
-  public void sendMessage(S subgraphId, Iterable<M> messages) {
+  public void sendToSubgraph(S subgraphId, Iterable<M> messages) {
     for (M message: messages) {
-      sendMessageToSubgraph(subgraphId, message);
+      sendToSubgraph(subgraphId, message);
     }
   }
 
@@ -132,7 +132,7 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
   }
 
   @Override
-  public void sendMessageToSubgraph(S subgraphId, M message) {
+  public void sendToSubgraph(S subgraphId, M message) {
     SubgraphMessage sm = new SubgraphMessage(subgraphId, message);
     SubgraphId<S> sId = new SubgraphId<>(subgraphId, getPartition(subgraphId));
     sendMessage(sId, sm);
