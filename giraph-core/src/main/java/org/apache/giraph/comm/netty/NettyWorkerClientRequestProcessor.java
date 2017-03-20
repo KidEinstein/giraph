@@ -460,6 +460,12 @@ public class NettyWorkerClientRequestProcessor<I extends WritableComparable,
    */
   public void doRequest(WorkerInfo workerInfo,
                          WritableRequest writableRequest) {
+    if(writableRequest.getType().equals(RequestType.SEND_WORKER_MESSAGES_REQUEST))
+    {
+      LOG.info(serverData.getServiceWorker().getSuperstep());
+      LOG.info(workerInfo.getTaskId());
+      //get no of messages from workercontext
+    }
     // If this is local, execute locally
 //    RequestType type = writableRequest.getType();
 //    if (type == RequestType.SEND_WORKER_MESSAGES_REQUEST) {
