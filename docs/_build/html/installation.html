@@ -61,11 +61,11 @@ git checkout release-1.2
 </div>
 <div class="section" id="modifying-pom-xml">
 <h3>Modifying pom.xml<a class="headerlink" href="#modifying-pom-xml" title="Permalink to this headline">¶</a></h3>
-<p>We would be building Giraph for Hadoop v2.7.2 with YARN support. Trying to compile the source code right away would result  in a compilation error stating that <cite>SASL_PROPS</cite> symbol could not be found. To get around this we would need to remove the <cite>STATIC_SASL_SYMBOL</cite> munge symbol under hadoop_yarn profile in <cite>pom.xml</cite>. Open your favourite text editor and edit the line <cite>&lt;munge.symbols&gt;PURE_YARN,STATIC_SASL_SYMBOL&lt;/munge.symbols&gt;</cite> to the following
-.. code-block:: xml</p>
-<blockquote>
-<div>&lt;munge.symbols&gt;PURE_YARN&lt;/munge.symbols&gt;</div></blockquote>
-<p>Under the <cite>hadoop_yarn</cite> profile, add the version tags to the <cite>hadoop-common, hadoop-mapreduce-client-common, hadoop-mapreduce-client-core</cite> dependencies.</p>
+<p>We would be building Giraph for Hadoop v2.7.2 with YARN support. Trying to compile the source code right away would result  in a compilation error stating that <cite>SASL_PROPS</cite> symbol could not be found. To get around this we would need to remove the <cite>STATIC_SASL_SYMBOL</cite> munge symbol under hadoop_yarn profile in <cite>pom.xml</cite>. Open your favourite text editor and edit the line <cite>&lt;munge.symbols&gt;PURE_YARN,STATIC_SASL_SYMBOL&lt;/munge.symbols&gt;</cite> to the following</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;munge.symbols&gt;</span>PURE_YARN<span class="nt">&lt;/munge.symbols&gt;</span>
+</pre></div>
+</div>
+<p>Under the <cite>hadoop_yarn</cite> profile, add the version tags to the <code class="docutils literal"><span class="pre">hadoop-common,</span> <span class="pre">hadoop-mapreduce-client-common,</span> <span class="pre">hadoop-mapreduce-client-core</span></code> dependencies.</p>
 <div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>org.apache.hadoop<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>hadoop-common<span class="nt">&lt;/artifactId&gt;</span>
@@ -86,15 +86,39 @@ git checkout release-1.2
 </div>
 <div class="section" id="building-giraph-from-source">
 <h3>Building Giraph from source<a class="headerlink" href="#building-giraph-from-source" title="Permalink to this headline">¶</a></h3>
-<p>We use Maven to build Giraph with the following command, specifying the profile <cite>hadoop_yarn</cite> and hadoop version <cite>2.7.2</cite> as command line parameters.</p>
+<p>We use Maven to build Giraph with the following command, specifying the profile <code class="docutils literal"><span class="pre">hadoop_yarn</span></code> and hadoop version <code class="docutils literal"><span class="pre">2.7.2</span></code> as command line parameters.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>mvn –Phadoop_yarn –Dhadoop.version<span class="o">=</span>2.7.2 -DskipTests clean package
 </pre></div>
 </div>
 </div>
 </div>
-<div class="section" id="wrapping-it-up">
-<h2>Wrapping it up<a class="headerlink" href="#wrapping-it-up" title="Permalink to this headline">¶</a></h2>
-<p>The Maven package phase generates jars for each Giraph module. These jars can be added as dependencies in your projects, and you can run your code using Hadoop after exporting it as a jar. For an example of running a Giraph task as a Hadoop job, have a look at the [official quick start guide](<a class="reference external" href="http://giraph.apache.org/quick_start.html#qs_section_6">http://giraph.apache.org/quick_start.html#qs_section_6</a>).</p>
+<div class="section" id="setting-up-goffish-giraph">
+<h2>Setting up GoFFish-Giraph<a class="headerlink" href="#setting-up-goffish-giraph" title="Permalink to this headline">¶</a></h2>
+<p>Fetch the GoFFish-Giraph&#8217;s source from the git repository</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>git clone https://github.com/dream-lab/goffish_v3.git
+</pre></div>
+</div>
+<p>Move <code class="docutils literal"><span class="pre">goffish-api</span></code> and <code class="docutils literal"><span class="pre">goffish-giraph</span></code> directories into the <code class="docutils literal"><span class="pre">giraph</span></code> directory.</p>
+<div class="section" id="apply-patch-file">
+<h3>Apply patch file<a class="headerlink" href="#apply-patch-file" title="Permalink to this headline">¶</a></h3>
+<p>Apply the patch to the GiraphConfigurationValidator class.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>patch giraph/giraph-core/src/main/java/org/apache/giraph/job/GiraphConfigurationValidator.java GiraphConfigurationValidator.patch
+</pre></div>
+</div>
+</div>
+<div class="section" id="adding-goffish-modules">
+<h3>Adding GoFFish modules<a class="headerlink" href="#adding-goffish-modules" title="Permalink to this headline">¶</a></h3>
+<p>Add the new modules to the root <code class="docutils literal"><span class="pre">pom.xml</span></code>.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;modules&gt;</span>
+  <span class="nt">&lt;module&gt;</span>giraph-core<span class="nt">&lt;/module&gt;</span>
+  <span class="nt">&lt;module&gt;</span>giraph-block-app<span class="nt">&lt;/module&gt;</span>
+  <span class="nt">&lt;module&gt;</span>giraph-examples<span class="nt">&lt;/module&gt;</span>
+  <span class="nt">&lt;module&gt;</span>goffish-giraph<span class="nt">&lt;/module&gt;</span>
+  <span class="nt">&lt;module&gt;</span>goffish-api<span class="nt">&lt;/module&gt;</span>
+<span class="nt">&lt;/modules&gt;</span>
+</pre></div>
+</div>
+</div>
 </div>
 </div>
 
@@ -114,7 +138,11 @@ git checkout release-1.2
 <li><a class="reference internal" href="#building-giraph-from-source">Building Giraph from source</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#wrapping-it-up">Wrapping it up</a></li>
+<li><a class="reference internal" href="#setting-up-goffish-giraph">Setting up GoFFish-Giraph</a><ul>
+<li><a class="reference internal" href="#apply-patch-file">Apply patch file</a></li>
+<li><a class="reference internal" href="#adding-goffish-modules">Adding GoFFish modules</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

@@ -22,11 +22,12 @@ Now that we have cloned the Giraph repository, let's switch to the commit having
 Modifying pom.xml
 ~~~~~~~~~~~~~~~~~
 We would be building Giraph for Hadoop v2.7.2 with YARN support. Trying to compile the source code right away would result  in a compilation error stating that `SASL_PROPS` symbol could not be found. To get around this we would need to remove the `STATIC_SASL_SYMBOL` munge symbol under hadoop_yarn profile in `pom.xml`. Open your favourite text editor and edit the line `<munge.symbols>PURE_YARN,STATIC_SASL_SYMBOL</munge.symbols>` to the following
+
 .. code-block:: xml
 
     <munge.symbols>PURE_YARN</munge.symbols>
 
-Under the `hadoop_yarn` profile, add the version tags to the `hadoop-common, hadoop-mapreduce-client-common, hadoop-mapreduce-client-core` dependencies.
+Under the `hadoop_yarn` profile, add the version tags to the ``hadoop-common, hadoop-mapreduce-client-common, hadoop-mapreduce-client-core`` dependencies.
 
 .. code-block:: xml
 
@@ -49,12 +50,40 @@ Under the `hadoop_yarn` profile, add the version tags to the `hadoop-common, had
 
 Building Giraph from source
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-We use Maven to build Giraph with the following command, specifying the profile `hadoop_yarn` and hadoop version `2.7.2` as command line parameters.
+We use Maven to build Giraph with the following command, specifying the profile ``hadoop_yarn`` and hadoop version ``2.7.2`` as command line parameters.
 
 .. code-block:: bash
 
     mvn –Phadoop_yarn –Dhadoop.version=2.7.2 -DskipTests clean package
 
-Wrapping it up
------------------
-The Maven package phase generates jars for each Giraph module. These jars can be added as dependencies in your projects, and you can run your code using Hadoop after exporting it as a jar. For an example of running a Giraph task as a Hadoop job, have a look at the [official quick start guide](http://giraph.apache.org/quick_start.html#qs_section_6).
+Setting up GoFFish-Giraph
+-------------------------
+Fetch the GoFFish-Giraph's source from the git repository
+
+.. code-block:: bash
+
+    git clone https://github.com/dream-lab/goffish_v3.git
+
+Move ``goffish-api`` and ``goffish-giraph`` directories into the ``giraph`` directory.
+
+Apply patch file
+~~~~~~~~~~~~~~~~
+Apply the patch to the GiraphConfigurationValidator class.
+
+.. code-block:: bash
+
+    patch giraph/giraph-core/src/main/java/org/apache/giraph/job/GiraphConfigurationValidator.java GiraphConfigurationValidator.patch
+
+Adding GoFFish modules
+~~~~~~~~~~~~~~~~~~~~~~
+Add the new modules to the root ``pom.xml``.
+
+.. code-block:: xml
+
+    <modules>
+      <module>giraph-core</module>
+      <module>giraph-block-app</module>
+      <module>giraph-examples</module>
+      <module>goffish-giraph</module>
+      <module>goffish-api</module>
+    </modules>
