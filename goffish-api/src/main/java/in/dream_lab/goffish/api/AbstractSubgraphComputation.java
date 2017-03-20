@@ -30,7 +30,7 @@ public abstract class AbstractSubgraphComputation<S extends Writable, V extends 
   public abstract void compute(Iterable<IMessage<K,M>> messages) throws IOException;
 
   public void sendMessage(K subgraphId, M message) {
-    subgraphPlatformCompute.sendMessageToSubgraph(subgraphId, message);
+    subgraphPlatformCompute.sendToSubgraph(subgraphId, message);
   }
 
   public void sendToNeighbors(M message) {
@@ -42,7 +42,7 @@ public abstract class AbstractSubgraphComputation<S extends Writable, V extends 
   }
 
   void sendMessage(K subgraphID, Iterable<M> messages) {
-    subgraphPlatformCompute.sendMessage(subgraphID, messages);
+    subgraphPlatformCompute.sendToSubgraph(subgraphID, messages);
   }
 
   void sendToAll(Iterable<M> message) {
