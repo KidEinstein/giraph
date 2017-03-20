@@ -45,12 +45,12 @@ public class DefaultSubgraphEdge<I extends WritableComparable, E extends Writabl
 
     @Override
     public void write(DataOutput dataOutput) throws IOException {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void readFields(DataInput dataInput) throws IOException {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -58,4 +58,3 @@ public class DefaultSubgraphEdge<I extends WritableComparable, E extends Writabl
         return this.getSinkVertexId().equals(((IEdge)obj).getSinkVertexId());
     }
 }
-g
