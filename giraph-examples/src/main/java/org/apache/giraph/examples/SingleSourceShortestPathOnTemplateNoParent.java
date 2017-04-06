@@ -148,6 +148,7 @@ public class SingleSourceShortestPathOnTemplateNoParent extends SubgraphComputat
           SubgraphVertex sourceVertex = subgraph.getSubgraphVertices().getVertexById(new LongWritable(sourceVertexID));
           rootVertices = new HashSet<>(1);
           rootVertices.add(sourceVertex);
+          LOG.info("SourceVertex,SubgraphId,PartitionId:"+ sourceVertexID + "," + subgraph.getId().getSubgraphId() + "," + subgraph.getId().getPartitionId());
         }
 
       } else {
