@@ -9,13 +9,13 @@ import java.io.IOException;
  */
 public abstract class AbstractSubgraphComputation<S extends Writable, V extends WritableComparable, E extends Writable, M extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable> {
 
-  private ISubgraphPlatformCompute<S, V, E, M, I, J, K> subgraphPlatformCompute;
+  private ISubgraphCompute<S, V, E, M, I, J, K> subgraphPlatformCompute;
 
   public long getSuperstep() {
     return subgraphPlatformCompute.getSuperstep();
   }
 
-  public void setSubgraphPlatformCompute(ISubgraphPlatformCompute<S, V, E, M, I, J, K> subgraphPlatformCompute) {
+  public void setSubgraphPlatformCompute(ISubgraphCompute<S, V, E, M, I, J, K> subgraphPlatformCompute) {
     this.subgraphPlatformCompute = subgraphPlatformCompute;
   }
 
@@ -30,7 +30,7 @@ public abstract class AbstractSubgraphComputation<S extends Writable, V extends 
   public abstract void compute(Iterable<IMessage<K,M>> messages) throws IOException;
 
   public void sendMessage(K subgraphId, M message) {
-    subgraphPlatformCompute.sendToSubgraph(subgraphId, message);
+    subgraphPlatformCompute.sendMessageToSubgraph(subgraphId, message);
   }
 
   public void sendToNeighbors(M message) {
@@ -42,7 +42,7 @@ public abstract class AbstractSubgraphComputation<S extends Writable, V extends 
   }
 
   void sendMessage(K subgraphID, Iterable<M> messages) {
-    subgraphPlatformCompute.sendToSubgraph(subgraphID, messages);
+    subgraphPlatformCompute.sendMessage(subgraphID, messages);
   }
 
   void sendToAll(Iterable<M> message) {

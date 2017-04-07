@@ -32,7 +32,7 @@ import java.util.Iterator;
 
 public class GiraphSubgraphComputation<S extends WritableComparable,
     I extends WritableComparable, V extends WritableComparable, E extends Writable, M extends Writable, SV extends Writable, EI extends WritableComparable> extends BasicComputation<SubgraphId<S>, SubgraphVertices<SV, V, E, I, EI, S>, E, SubgraphMessage<S,M>>
-    implements ISubgraphPlatformCompute<SV, V, E, M, I, EI, S> {
+    implements ISubgraphCompute<SV, V, E, M, I, EI, S> {
 
   private static final Logger LOG = Logger.getLogger(GiraphSubgraphComputation.class);
 
@@ -55,9 +55,9 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
   }
 
   @Override
-  public void sendToSubgraph(S subgraphId, Iterable<M> messages) {
+  public void sendMessage(S subgraphId, Iterable<M> messages) {
     for (M message: messages) {
-      sendToSubgraph(subgraphId, message);
+      sendMessageToSubgraph(subgraphId, message);
     }
   }
 
@@ -132,7 +132,7 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
   }
 
   @Override
-  public void sendToSubgraph(S subgraphId, M message) {
+  public void sendMessageToSubgraph(S subgraphId, M message) {
     SubgraphMessage sm = new SubgraphMessage(subgraphId, message);
     SubgraphId<S> sId = new SubgraphId<>(subgraphId, getPartition(subgraphId));
     sendMessage(sId, sm);

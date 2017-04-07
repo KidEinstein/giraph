@@ -213,14 +213,14 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
 //            (subgraph.getSubgraphVertices().getNumVertices() - remoteVertexCount) + "," +logMsg);
 
         // Giraph:SimpleShortestPathsComputation.java:82
-        //     sendToSubgraph(edge.getTargetVertexId(), new DoubleWritable(distance));
+        //     sendMessage(edge.getTargetVertexId(), new DoubleWritable(distance));
 
         // Notify remote vertices of new known shortest distance from this subgraph and parent.
 //    		for(Long remoteVertexID : remoteUpdateSet){
 //    			String payload = remoteVertexID + "," + shortestDistanceMap.get(remoteVertexID).toString();
 //    			SubGraphMessage msg = new SubGraphMessage(payload.getBytes());
 //    			msg.setTargetSubgraph(subgraph.getVertex(remoteVertexID).getRemoteSubgraphId());
-//    			sendToSubgraph(msg);
+//    			sendMessage(msg);
 //                changeCount++;
 //    		}
 
