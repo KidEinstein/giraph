@@ -75,7 +75,6 @@ import org.apache.giraph.utils.io.ExtendedDataInputOutput;
 import org.apache.giraph.worker.WorkerContext;
 import org.apache.giraph.worker.WorkerObserver;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -107,7 +106,6 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
   private final PerGraphTypeEnum<Language> valueLanguages;
   /** Whether values (IVEMM) need Jython wrappers */
   private final PerGraphTypeBoolean valueNeedsWrappers;
-
 
   /**
    * Use unsafe serialization? Cached for fast access to instantiate the
@@ -710,102 +708,6 @@ public class ImmutableClassesGiraphConfiguration<I extends WritableComparable,
   @SuppressWarnings("unchecked")
   public V createVertexValue() {
     return getVertexValueFactory().newInstance();
-  }
-
-  // For supporting subgraphs
-
-  public Long getSubgraphSourceVertex() {
-    return SUBGRAPH_SOURCE_VERTEX.get(this);
-  }
-
-  public String getPartitionStatsFile() {
-    return PARTITION_STATS_FILE.get(this);
-  }
-  public SubgraphIdFactory<? extends WritableComparable> getSubgraphIdFactory() {
-    return valueFactories.getSubgraphIdFactory();
-  }
-
-  public SubgraphMessageValueFactory<? extends Writable> getSubgraphMessageValueFactory() {
-    return valueFactories.getSubgraphMessageValueFactory();
-  }
-
-
-  public WritableComparable createSubgraphId() {
-    return getSubgraphIdFactory().newInstance();
-  }
-
-  public Writable createSubgraphMessageValue() {
-    return getSubgraphMessageValueFactory().newInstance();
-  }
-
-
-
-  public Class<? extends WritableComparable> getSubgraphIdClass() {
-    return classes.getSubgraphIdClass();
-  }
-
-  public Class<? extends WritableComparable> getSubgraphVertexIdClass() {
-    return classes.getSubgraphVertexIdClass();
-  }
-
-  public Class<? extends WritableComparable> getEdgeIdClass() {
-    return classes.getEdgeIdClass();
-  }
-
-
-  public Class<? extends Writable> getSubgraphMessageValueClass() {
-    return classes.getSubgraphMessageValueClass();
-  }
-
-  public Class<? extends Writable> getSubgraphValueClass() {
-    return classes.getSubgraphValueClass();
-  }
-
-  public Class<? extends Writable> getSubgraphVertexValueClass() {
-    return classes.getSubgraphVertexValueClass();
-  }
-
-  public SubgraphValueFactory<? extends Writable> getSubgraphValueFactory() {
-    return valueFactories.getSubgraphValueFactory();
-  }
-
-  public Writable createSubgraphValue() {
-    return getSubgraphValueFactory().newInstance();
-  }
-
-  public EdgeIdFactory<? extends Writable> getEdgeIdFactory() {
-    return valueFactories.getEdgeIdFactory();
-  }
-
-  public WritableComparable createEdgeId() {
-    return getEdgeIdFactory().newInstance();
-  }
-
-  public SubgraphVertexValueFactory<? extends Writable> getSubgraphVertexValueFactory() {
-    return valueFactories.getSubgraphVertexValueFactory();
-  }
-
-  public Writable createSubgraphVertexValue() {
-    return getSubgraphVertexValueFactory().newInstance();
-  }
-
-  public Writable createSubgraphEdgeValue() {
-    return WritableUtils.createWritable(SUBGRAPH_EDGE_VALUE_CLASS.get(this), this);
-  }
-
-  public SubgraphVertexIdFactory<? extends WritableComparable> getSubgraphVertexIdFactory() {
-    return valueFactories.getSubgraphVertexIdFactory();
-  }
-
-
-
-  public WritableComparable createSubgraphVertexId() {
-    return getSubgraphVertexIdFactory().newInstance();
-  }
-
-
-  public Writable getSubgraphVertexValue() {
-    return getSubgraphVertexValueFactory().newInstance();
   }
 
   /**

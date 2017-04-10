@@ -40,8 +40,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 public abstract class SendVertexIdDataCache<I extends WritableComparable, T,
     B extends VertexIdData<I, T>> extends SendDataCache<B> {
 
-  private static final Logger LOG =
-      Logger.getLogger(SendVertexIdDataCache.class);
   /**
    * Constructor.
    *
@@ -79,7 +77,6 @@ public abstract class SendVertexIdDataCache<I extends WritableComparable, T,
     // Get the data collection
     VertexIdData<I, T> partitionData =
         getPartitionData(workerInfo, partitionId);
-    //LOG.info("VertexIDData Class: " + partitionData.getClass());
     int originalSize = partitionData.getSize();
     partitionData.add(destVertexId, data);
     // Update the size of cached, outgoing data per worker

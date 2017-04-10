@@ -388,7 +388,6 @@ end[PURE_YARN]*/
           (Class<? extends VertexValueFactory>) Class
               .forName(cmd.getOptionValue("vvf")));
     }
-    // THIS IS WHERE CUSTOM ARGUMENTS ARE SET
     if (cmd.hasOption("ca")) {
       for (String caOptionValue : cmd.getOptionValues("ca")) {
         for (String paramValue :

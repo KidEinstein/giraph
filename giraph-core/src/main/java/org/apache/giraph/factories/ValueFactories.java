@@ -43,17 +43,6 @@ public class ValueFactories<I extends WritableComparable,
   /** Edge value factory. */
   private final EdgeValueFactory<E> edgeValueFactory;
 
-  private final SubgraphValueFactory<? extends Writable> subgraphValueFactory;
-
-  private final SubgraphVertexValueFactory<? extends Writable> subgraphVertexValueFactory;
-
-  private final EdgeIdFactory<? extends WritableComparable> edgeIdFactory;
-
-  private final SubgraphIdFactory<? extends WritableComparable> subgraphIdFactory;
-
-  private final SubgraphVertexIdFactory<? extends WritableComparable> subgraphVertexIdFactory;
-
-  private final SubgraphMessageValueFactory<? extends WritableComparable> subgraphMessageValueFactory;
 
   /**
    *
@@ -65,17 +54,8 @@ public class ValueFactories<I extends WritableComparable,
     vertexIdFactory = VERTEX_ID_FACTORY_CLASS.newInstance(conf);
     vertexValueFactory = VERTEX_VALUE_FACTORY_CLASS.newInstance(conf);
     edgeValueFactory = EDGE_VALUE_FACTORY_CLASS.newInstance(conf);
-    subgraphValueFactory = SUBGRAPH_VALUE_FACTORY_CLASS.newInstance(conf);
-    subgraphVertexValueFactory = SUBGRAPH_VERTEX_VALUE_FACTORY_CLASS.newInstance(conf);
-    edgeIdFactory = EDGE_ID_FACTORY_CLASS.newInstance(conf);
-    subgraphIdFactory = SUBGRAPH_ID_FACTORY_CLASS.newInstance(conf);
-    subgraphVertexIdFactory = SUBGRAPH_VERTEX_ID_FACTORY_CLASS.newInstance(conf);
-    subgraphMessageValueFactory = SUBGRAPH_MESSAGE_VALUE_FACTORY_CLASS.newInstance(conf);
   }
 
-  public EdgeIdFactory<? extends WritableComparable> getEdgeIdFactory() {
-    return edgeIdFactory;
-  }
 
   public EdgeValueFactory<E> getEdgeValueFactory() {
     return edgeValueFactory;
@@ -88,28 +68,6 @@ public class ValueFactories<I extends WritableComparable,
   public VertexValueFactory<V> getVertexValueFactory() {
     return vertexValueFactory;
   }
-
-  public SubgraphValueFactory<? extends Writable> getSubgraphValueFactory() {
-    return subgraphValueFactory;
-  }
-
-  public SubgraphVertexValueFactory<? extends Writable> getSubgraphVertexValueFactory() {
-    return subgraphVertexValueFactory;
-  }
-
-  public SubgraphIdFactory<? extends WritableComparable> getSubgraphIdFactory() {
-    return subgraphIdFactory;
-  }
-
-  public SubgraphVertexIdFactory<? extends WritableComparable> getSubgraphVertexIdFactory() {
-    return subgraphVertexIdFactory;
-  }
-
-  public SubgraphMessageValueFactory<? extends Writable> getSubgraphMessageValueFactory() {
-    return subgraphMessageValueFactory;
-  }
-
-
 
 
 }

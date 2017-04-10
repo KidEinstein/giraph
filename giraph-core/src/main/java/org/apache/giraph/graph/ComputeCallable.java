@@ -268,7 +268,6 @@ public class ComputeCallable<I extends WritableComparable, V extends Writable,
       Computation<I, V, E, M1, M2> computation,
       Partition<I, V, E> partition, OutOfCoreEngine oocEngine)
       throws IOException, InterruptedException {
-    LOG.info("Partition class: " + partition.getClass());
     PartitionStats partitionStats =
         new PartitionStats(partition.getId(), 0, 0, 0, 0, 0);
     long verticesComputedProgress = 0;
@@ -292,7 +291,7 @@ public class ComputeCallable<I extends WritableComparable, V extends Writable,
           context.progress();
           long tempTime = System.currentTimeMillis();
           computation.compute(vertex, messages);
-          LOG.info("Superstep,PartitionID,subgraphID,Time:" + serviceWorker.getSuperstep() + "," + partition.getId() + "," + ((Subgraph<SubgraphId<LongWritable>,?,?,?,?,?>)vertex).getSubgraphId() + "," + (System.currentTimeMillis() - tempTime));
+//          LOG.info("Superstep,PartitionID,subgraphID,Time:" + serviceWorker.getSuperstep() + "," + partition.getId() + "," + ((Subgraph<SubgraphId<LongWritable>,?,?,?,?,?>)vertex).getSubgraphId() + "," + (System.currentTimeMillis() - tempTime));
           // Need to unwrap the mutated edges (possibly)
           vertex.unwrapMutableEdges();
           //Compact edges representation if possible
