@@ -6,7 +6,7 @@
 
     <groupId>in.dream_lab.goffish</groupId>
     <artifactId>goffish-api</artifactId>
-    <version>3</version>
+    <version>3.1</version>
     <dependencies>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
