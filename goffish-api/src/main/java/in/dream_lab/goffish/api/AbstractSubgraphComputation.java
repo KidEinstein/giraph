@@ -56,4 +56,8 @@ public abstract class AbstractSubgraphComputation<S extends Writable, V extends 
   void sendToNeighbors(Iterable<M> messages) {
     subgraphPlatformCompute.sendToNeighbors(messages);
   }
+
+  public boolean hasVotedToHalt() {
+    return subgraphPlatformCompute.hasVotedToHalt();
+  }
 }

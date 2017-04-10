@@ -28,4 +28,6 @@ public interface ISubgraphCompute<S extends Writable, V extends WritableComparab
   void sendToNeighbors(Iterable<M> messages);
 
   String getConf(String key);
+
+  boolean hasVotedToHalt();
 }
