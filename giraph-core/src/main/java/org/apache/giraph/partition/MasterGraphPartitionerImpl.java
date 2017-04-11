@@ -19,14 +19,10 @@
 package org.apache.giraph.partition;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
-import com.google.common.collect.Table;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.graph.migration.MappingReader;
-import org.apache.giraph.graph.migration.MappingRow;
 import org.apache.giraph.worker.WorkerInfo;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
@@ -44,18 +40,21 @@ import com.google.common.collect.Lists;
 public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
     V extends Writable, E extends Writable>
     implements MasterGraphPartitioner<I, V, E> {
-  /** Provided configuration */
+  /**
+   * Provided configuration
+   */
   private final ImmutableClassesGiraphConfiguration<I, V, E> conf;
-  /** Save the last generated partition owner list */
+  /**
+   * Save the last generated partition owner list
+   */
   private List<PartitionOwner> partitionOwnerList;
 
-  ArrayList<MappingRow> partitionStats;
+  Map<Integer, Map<Integer, Set<Integer>>> partitionWorkerMapping;
 
   /**
    * Constructor.
    *
-   * @param conf
-   *          Configuration used.
+   * @param conf Configuration used.
    */
   public MasterGraphPartitionerImpl(
       ImmutableClassesGiraphConfiguration<I, V, E> conf) {
@@ -90,15 +89,20 @@ public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
       Collection<WorkerInfo> availableWorkers,
       int maxWorkers,
       long superstep) {
-    if (conf.getPartitionStatsFile() != null) {
-      if (partitionStats == null) {
+    if (MappingReader.MAPPING_FILE.get(conf) != null && superstep >= 3) {
+      if (partitionWorkerMapping == null) {
         try {
-          partitionStats = MappingReader.readFile(conf);
+          partitionWorkerMapping = MappingReader.readFile(conf);
         } catch (IOException e) {
           e.printStackTrace();
         }
       }
-      return PartitionBalancer.balancePartitionsAcrossWorkersImproved(conf, partitionStats, partitionOwnerList, allPartitionStatsList, availableWorkers);
+      if (partitionWorkerMapping.get((int) superstep - 2) == null) {
+        return PartitionBalancer.balancePartitionsAcrossWorkers(conf,
+            partitionOwnerList, allPartitionStatsList, availableWorkers);
+      } else {
+        return PartitionBalancer.balancePartitionsAcrossWorkersImproved(conf, partitionWorkerMapping.get((int) superstep - 2), partitionOwnerList, allPartitionStatsList, availableWorkers);
+      }
     }
     return PartitionBalancer.balancePartitionsAcrossWorkers(conf,
         partitionOwnerList, allPartitionStatsList, availableWorkers);
@@ -117,9 +121,9 @@ public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
   /**
    * Calculates worker that should be responsible for passed partition.
    *
-   * @param partition Current partition
+   * @param partition      Current partition
    * @param partitionCount Number of partitions
-   * @param workerCount Number of workers
+   * @param workerCount    Number of workers
    * @return index of worker responsible for current partition
    */
   protected abstract int getWorkerIndex(

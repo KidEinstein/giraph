@@ -789,11 +789,11 @@ end[PURE_YARN]*/
       int numThreads) {
     PartitionStore<I, V, E> partitionStore = serviceWorker.getPartitionStore();
     long verticesToCompute = 0;
-//    ConcurrentMap map = ((SimpleMessageStore)messageStore).getMap();
-//    ConcurrentMap incomingMessageStoreMap = ((SimpleMessageStore)serviceWorker.getServerData().getIncomingMessageStore()).getMap();
+    ConcurrentMap map = ((SimpleMessageStore)messageStore).getMap();
+    ConcurrentMap incomingMessageStoreMap = ((SimpleMessageStore)serviceWorker.getServerData().getIncomingMessageStore()).getMap();
     for (Integer partitionId : partitionStore.getPartitionIds()) {
-//      map.putIfAbsent(partitionId, Maps.newConcurrentMap());
-//      incomingMessageStoreMap.putIfAbsent(partitionId, Maps.newConcurrentMap());
+      map.putIfAbsent(partitionId, Maps.newConcurrentMap());
+      incomingMessageStoreMap.putIfAbsent(partitionId, Maps.newConcurrentMap());
       verticesToCompute += partitionStore.getPartitionVertexCount(partitionId);
     }
     LOG.info("Message store class: " + serviceWorker.getServerData().getIncomingMessageStore().getClass());

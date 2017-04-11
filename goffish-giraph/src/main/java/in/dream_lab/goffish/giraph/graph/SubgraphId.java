@@ -88,7 +88,6 @@ public class SubgraphId<S extends WritableComparable> implements WritableCompara
 
     public void readFields(DataInput dataInput) throws IOException {
       subgraphId = conf.createSubgraphId();
-      System.out.println("Haha SubgraphIdClass" + subgraphId.getClass().getSimpleName());
       subgraphId.readFields(dataInput);
       partitionId = dataInput.readInt();
     }

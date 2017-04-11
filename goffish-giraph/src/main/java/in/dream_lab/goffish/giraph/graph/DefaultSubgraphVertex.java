@@ -67,8 +67,8 @@ public class DefaultSubgraphVertex<V extends Writable, E extends Writable, I ext
 
   @Override
   public void write(DataOutput dataOutput) throws IOException {
-//        System.out.println("Write: " + "ID:" + id + id.getClass().getSimpleName());
-//        System.out.println("Write: " + "Value:" + value + value.getClass().getSimpleName());
+    System.out.println("Write: " + "ID:" + id + id.getClass().getSimpleName());
+    System.out.println("Write: " + "Value:" + value + value.getClass().getSimpleName());
     id.write(dataOutput);
     value.write(dataOutput);
     int numOutEdges = outEdges.size();
@@ -94,8 +94,8 @@ public class DefaultSubgraphVertex<V extends Writable, E extends Writable, I ext
 
     id.readFields(dataInput);
     value.readFields(dataInput);
-//    System.out.println("Read ID:" + id + "\t"+ id.getClass().getSimpleName());
-//    System.out.println("Read: " + "Value:" + value + value.getClass().getSimpleName());
+    System.out.println("Read ID:" + id + "\t"+ id.getClass().getSimpleName());
+    System.out.println("Read: " + "Value:" + value + value.getClass().getSimpleName());
 
     int numEdges;
     numEdges = dataInput.readInt();

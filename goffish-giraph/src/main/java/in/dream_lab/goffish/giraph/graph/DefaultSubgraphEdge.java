@@ -57,9 +57,4 @@ public class DefaultSubgraphEdge<I extends WritableComparable, E extends Writabl
     public boolean equals(Object obj) {
         return this.getSinkVertexId().equals(((IEdge)obj).getSinkVertexId());
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        return this.getSinkVertexId().equals(((SubgraphEdge)obj).getSinkVertexId());
-    }
 }

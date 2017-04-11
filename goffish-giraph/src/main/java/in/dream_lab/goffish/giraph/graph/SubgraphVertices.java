@@ -33,7 +33,7 @@ public class SubgraphVertices<S extends Writable, V extends Writable, E extends 
 
   private ImmutableClassesGiraphConfiguration conf;
 
-  MapWritable subgraphParitionMapping;
+  private MapWritable subgraphParitionMapping;
 
   public SubgraphVertices() {
 ////        System.out.println("Calling subgraph vertices constructor");

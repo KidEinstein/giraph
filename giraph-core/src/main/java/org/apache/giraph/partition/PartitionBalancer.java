@@ -18,19 +18,12 @@
 
 package org.apache.giraph.partition;
 
-import com.google.common.collect.Table;
-import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
-import org.apache.giraph.graph.migration.FirstFitDecreasing;
-import org.apache.giraph.graph.migration.MappingReader;
-import org.apache.giraph.graph.migration.MappingRow;
-import org.apache.giraph.graph.migration.PartitionMapping;
 import org.apache.giraph.worker.WorkerInfo;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Objects;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -238,39 +231,17 @@ public class PartitionBalancer {
   /**
    * Balance the partitions with an algorithm based on a value.
    * @param conf                 Configuration to find the algorithm
-   * @param mappingRows
+   * @param newWorkerPartitionMap
    * @param partitionOwners      All the owners of all partitions
    * @param allPartitionStats    All the partition stats
-   * @param availableWorkerInfos All the available workers    @return Balanced partition owners    */
+   * @param availableWorkerInfos All the available workers    @return Balanced partition owners       */
 
   public static Collection<PartitionOwner> balancePartitionsAcrossWorkersImproved(
       Configuration conf,
-      ArrayList<MappingRow> mappingRows, Collection<PartitionOwner> partitionOwners,
+      Map<Integer, Set<Integer>> newWorkerPartitionMap, Collection<PartitionOwner> partitionOwners,
       Collection<PartitionStats> allPartitionStats,
       Collection<WorkerInfo> availableWorkerInfos) {
     List<WorkerInfo> availableWorkerInfosList = (List<WorkerInfo>) availableWorkerInfos;
-    Collections.sort(availableWorkerInfosList, new Comparator<WorkerInfo>() {
-      @Override
-      public int compare(WorkerInfo o1, WorkerInfo o2) {
-        return o1.getTaskId() - o2.getTaskId();
-      }
-    });
-    List<Set<Integer>> bins = FirstFitDecreasing.pack(mappingRows);
-    HashMap<Integer, Set<Integer>> workerPartitionMap = new HashMap<>();
-    for (PartitionOwner partitionOwner : partitionOwners) {
-      int taskId = partitionOwner.getWorkerInfo().getTaskId();
-      int partitionId = partitionOwner.getPartitionId();
-      LOG.info("Old Mapping:PartitionId,TaskId:" + partitionId + "," + taskId);
-      if (workerPartitionMap.containsKey(taskId)) {
-        workerPartitionMap.get(taskId).add(partitionId);
-      } else {
-        Set<Integer> partitions = new HashSet<>();
-        partitions.add(partitionId);
-        workerPartitionMap.put(taskId, partitions);
-      }
-    }
-
-    Map<Integer, Set<Integer>> newWorkerPartitionMap = PartitionMapping.computeVmMapping(workerPartitionMap, bins, availableWorkerInfos.size());
     List<PartitionOwner> partitionOwnerList = (List<PartitionOwner>) partitionOwners;
     Collections.sort(partitionOwnerList, new Comparator<PartitionOwner>() {
       @Override
@@ -284,6 +255,7 @@ public class PartitionBalancer {
       WorkerInfo info = availableWorkerInfosList.get(taskId);
       for (Integer partitionId : entry.getValue()) {
         PartitionOwner partitionOwner = partitionOwnerList.get(partitionId);
+        partitionOwner.setPreviousWorkerInfo(partitionOwner.getWorkerInfo());
         partitionOwner.setWorkerInfo(info);
       }
     }
