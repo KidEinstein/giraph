@@ -3,6 +3,7 @@ package in.dream_lab.goffish.giraph.graph;
 import in.dream_lab.goffish.api.IEdge;
 import in.dream_lab.goffish.api.IVertex;
 import in.dream_lab.goffish.giraph.master.SubgraphMasterCompute;
+import org.apache.giraph.edge.Edge;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.*;
@@ -44,6 +45,13 @@ public class RemoteVerticesFinder extends GiraphSubgraphComputation<LongWritable
     ExtendedByteArrayDataOutput dataOutput = new ExtendedByteArrayDataOutput();
 
     int edgeCount = 0;
+
+    Iterable<Edge<SubgraphId<LongWritable>, DoubleWritable>> edges = subgraph.getEdges();
+
+    for (Edge<SubgraphId<LongWritable>, DoubleWritable> edge : subgraph.getEdges()) {
+      System.out.println("SubgraphEdge:" + subgraph.getId().getSubgraphId() + "," + edge.getTargetVertexId().getSubgraphId());
+    }
+
 
     for (IVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable> sv : vertices.values()) {
       // LOG.info("Test, Number of vertex edges: " + sv.getOutEdges().size());

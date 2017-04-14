@@ -115,7 +115,7 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
 
 
   private int getPartition(S subgraphId) {
-    return ((IntWritable) subgraph.getSubgraphVertices().getSubgraphParitionMapping().get(subgraphId)).get();
+    return ((IntWritable) subgraph.getSubgraphVertices().getSubgraphPartitionMapping().get(subgraphId)).get();
   }
 
   public void voteToHalt() {
