@@ -175,23 +175,30 @@ public class NettyWorkerClientRequestProcessor<I extends WritableComparable,
   @Override
   public void sendPartitionRequest(WorkerInfo workerInfo,
                                    Partition<I, V, E> partition) {
+    LOG.info("Calling sendPartitionRequest");
+
     if (LOG.isTraceEnabled()) {
       LOG.trace("sendVertexRequest: Sending to " + workerInfo +
           ", with partition " + partition);
     }
 
     WritableRequest vertexRequest = new SendVertexRequest<I, V, E>(partition);
+    LOG.info("Before doRequest");
     doRequest(workerInfo, vertexRequest);
+    LOG.info("After doRequest");
 
     // Messages are stored separately
     if (serviceWorker.getSuperstep() != BspService.INPUT_SUPERSTEP) {
+      LOG.info("Calling sendPartitionMessages");
       sendPartitionMessages(workerInfo, partition);
-      ConcurrentMap<I, VertexMutations<I, V, E>> vertexMutationMap =
-          serverData.getPartitionMutations().remove(partition.getId());
-      WritableRequest partitionMutationsRequest =
-          new SendPartitionMutationsRequest<I, V, E>(partition.getId(),
-              vertexMutationMap);
-      doRequest(workerInfo, partitionMutationsRequest);
+      LOG.info("Called sendPartitionMessages");
+//      ConcurrentMap<I, VertexMutations<I, V, E>> vertexMutationMap =
+//          serverData.getPartitionMutations().remove(partition.getId());
+//      WritableRequest partitionMutationsRequest =
+//          new SendPartitionMutationsRequest<I, V, E>(partition.getId(),
+//              vertexMutationMap);
+//      doRequest(workerInfo, partitionMutationsRequest);
+//      LOG.info("partitionMutationsRequest: " + partitionMutationsRequest);
     }
   }
 

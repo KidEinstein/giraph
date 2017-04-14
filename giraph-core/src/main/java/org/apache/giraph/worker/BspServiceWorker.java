@@ -1571,6 +1571,7 @@ else[HADOOP_NON_SECURE]*/
    */
   private void sendWorkerPartitions(
       Map<WorkerInfo, List<Integer>> workerPartitionMap) {
+    LOG.info("Calling sendWorkerPartitions");
     List<Entry<WorkerInfo, List<Integer>>> randomEntryList =
         new ArrayList<Entry<WorkerInfo, List<Integer>>>(
             workerPartitionMap.entrySet());
@@ -1593,7 +1594,7 @@ else[HADOOP_NON_SECURE]*/
         if (LOG.isInfoEnabled()) {
           LOG.info("sendWorkerPartitions: Sending worker " +
               workerPartitionList.getKey() + " partition " +
-              partitionId);
+              partitionId + "superstep" + getSuperstep());
         }
         workerClientRequestProcessor.sendPartitionRequest(
             workerPartitionList.getKey(),
@@ -1643,6 +1644,29 @@ else[HADOOP_NON_SECURE]*/
         workerGraphPartitioner.updatePartitionOwners(
             getWorkerInfo(), masterSetPartitionOwners);
     workerClient.openConnections();
+
+    LOG.debug("TEST,PARTITION,BspServiceWorker.exchangeVertexPartitions,worker,"+workerInfo.getTaskId()+","+
+
+        workerInfo.getHostname()+",depend_on");
+
+    for(WorkerInfo w:partitionExchange.getMyDependencyWorkerSet()){
+      LOG.debug(","+w.getTaskId()+","+w.getHostname()+"\n");
+    }
+
+    LOG.debug("TEST,PARTITION,BspServiceWorker.exchangeVertexPartitions,worker,"+workerInfo.getTaskId()+","+
+
+        workerInfo.getHostname()+",superstep,"+workerContext.getSuperstep()+",need_to_send_to");
+
+    for(Map.Entry<WorkerInfo, List<Integer> > entry : partitionExchange.getSendWorkerPartitionMap().entrySet()) {
+
+      LOG.debug("," + entry.getKey().getTaskId() + "," + entry.getKey().getHostname() + ","+
+          ",");
+      for(int i=0;i<entry.getValue().size();i++){
+        LOG.debug(","+entry.getValue().get(i));
+      }
+
+    }
+
 
     Map<WorkerInfo, List<Integer>> sendWorkerPartitionMap =
         partitionExchange.getSendWorkerPartitionMap();
