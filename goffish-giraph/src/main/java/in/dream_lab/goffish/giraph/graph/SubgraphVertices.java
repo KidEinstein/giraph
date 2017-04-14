@@ -3,8 +3,6 @@ package in.dream_lab.goffish.giraph.graph;
 import in.dream_lab.goffish.api.IRemoteVertex;
 import in.dream_lab.goffish.api.IVertex;
 import in.dream_lab.goffish.giraph.conf.GiraphSubgraphConfiguration;
-import in.dream_lab.goffish.giraph.graph.DefaultRemoteSubgraphVertex;
-import in.dream_lab.goffish.giraph.graph.DefaultSubgraphVertex;
 import org.apache.giraph.conf.GiraphConfigurationSettable;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.hadoop.io.MapWritable;
@@ -14,6 +12,8 @@ import org.apache.hadoop.io.WritableComparable;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by anirudh on 27/09/16.
@@ -33,7 +33,7 @@ public class SubgraphVertices<S extends Writable, V extends Writable, E extends 
 
   private ImmutableClassesGiraphConfiguration conf;
 
-  MapWritable subgraphParitionMapping;
+  private MapWritable subgraphPartitionMapping;
 
   public SubgraphVertices() {
 ////        System.out.println("Calling subgraph vertices constructor");
@@ -127,17 +127,19 @@ public class SubgraphVertices<S extends Writable, V extends Writable, E extends 
     subgraphValue.write(dataOutput);
     dataOutput.writeInt(vertices.size());
     for (IVertex<V, E, I, J> vertex : vertices.values()) {
-      ((DefaultSubgraphVertex)vertex).write(dataOutput);
+      ((DefaultSubgraphVertex) vertex).write(dataOutput);
     }
     dataOutput.writeInt(remoteVertices.size());
     for (IRemoteVertex<V, E, I, J, K> vertex : remoteVertices.values()) {
-      ((DefaultRemoteSubgraphVertex)vertex).write(dataOutput);
+      ((DefaultRemoteSubgraphVertex) vertex).write(dataOutput);
     }
+
+    subgraphPartitionMapping.write(dataOutput);
 //    System.out.println("Write Num Vertices:" + vertices.size());
   }
 
   public void readFields(DataInput dataInput) throws IOException {
-    GiraphSubgraphConfiguration<K,I,V,E, S, J> giraphSubgraphConfiguration = new GiraphSubgraphConfiguration(conf);
+    GiraphSubgraphConfiguration<K, I, V, E, S, J> giraphSubgraphConfiguration = new GiraphSubgraphConfiguration(conf);
     subgraphValue = giraphSubgraphConfiguration.createSubgraphValue();
     subgraphValue.readFields(dataInput);
     int numVertices = dataInput.readInt();
@@ -156,6 +158,9 @@ public class SubgraphVertices<S extends Writable, V extends Writable, E extends 
       remoteSubgraphVertex.readFields(giraphSubgraphConfiguration, dataInput);
       remoteVertices.put(remoteSubgraphVertex.getVertexId(), remoteSubgraphVertex);
     }
+
+    subgraphPartitionMapping = new MapWritable();
+    subgraphPartitionMapping.readFields(dataInput);
   }
 
   @Override
@@ -163,11 +168,11 @@ public class SubgraphVertices<S extends Writable, V extends Writable, E extends 
     conf = configuration;
   }
 
-  public void setSubgraphParitionMapping(MapWritable subgraphParitionMapping) {
-    this.subgraphParitionMapping = subgraphParitionMapping;
+  public void setSubgraphPartitionMapping(MapWritable subgraphPartitionMapping) {
+    this.subgraphPartitionMapping = subgraphPartitionMapping;
   }
 
-  public MapWritable getSubgraphParitionMapping() {
-    return subgraphParitionMapping;
+  public MapWritable getSubgraphPartitionMapping() {
+    return subgraphPartitionMapping;
   }
 }

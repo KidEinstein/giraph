@@ -19,7 +19,7 @@ public class RemoteVerticesFinder2 extends GiraphSubgraphComputation<LongWritabl
     DefaultSubgraph<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraph = (DefaultSubgraph) vertex;
     MapWritable subgraphPartitionMapping = getAggregatedValue(SubgraphMasterCompute.ID);
     SubgraphVertices<NullWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraphVertices = subgraph.getSubgraphVertices();
-    subgraph.getSubgraphVertices().setSubgraphParitionMapping(subgraphPartitionMapping);
+    subgraph.getSubgraphVertices().setSubgraphPartitionMapping(subgraphPartitionMapping);
     //System.out.println("RVF2 Subgraph ID: " + subgraph.getVertexId().getSubgraphId());
     HashMap<LongWritable, IVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable>> vertices = subgraphVertices.getLocalVertices();
     for (SubgraphMessage<LongWritable, BytesWritable> message : subgraphMessages) {

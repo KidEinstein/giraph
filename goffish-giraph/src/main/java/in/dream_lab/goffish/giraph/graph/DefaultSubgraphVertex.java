@@ -97,8 +97,7 @@ public class DefaultSubgraphVertex<V extends Writable, E extends Writable, I ext
 //    System.out.println("Read ID:" + id + "\t"+ id.getClass().getSimpleName());
 //    System.out.println("Read: " + "Value:" + value + value.getClass().getSimpleName());
 
-    int numEdges;
-    numEdges = dataInput.readInt();
+    int numEdges = dataInput.readInt();
 //    System.out.println("Read: " + "Number edges: " + numEdges);
     outEdges = Lists.newLinkedList();
     for (int i = 0; i < numEdges; i++) {
