@@ -133,7 +133,9 @@ public class SubgraphVertices<S extends Writable, V extends Writable, E extends 
     for (IRemoteVertex<V, E, I, J, K> vertex : remoteVertices.values()) {
       ((DefaultRemoteSubgraphVertex) vertex).write(dataOutput);
     }
-
+    if (subgraphPartitionMapping == null) {
+      subgraphPartitionMapping = new MapWritable();
+    }
     subgraphPartitionMapping.write(dataOutput);
 //    System.out.println("Write Num Vertices:" + vertices.size());
   }
