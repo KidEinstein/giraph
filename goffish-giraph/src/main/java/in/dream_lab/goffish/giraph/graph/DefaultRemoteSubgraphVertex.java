@@ -1,5 +1,6 @@
 package in.dream_lab.goffish.giraph.graph;
 
+import com.google.common.collect.Lists;
 import in.dream_lab.goffish.api.IRemoteVertex;
 import in.dream_lab.goffish.api.IEdge;
 import in.dream_lab.goffish.giraph.conf.GiraphSubgraphConfiguration;
@@ -52,18 +53,45 @@ public class DefaultRemoteSubgraphVertex<V extends Writable, E extends Writable,
 
   @Override
   public void readFields(GiraphSubgraphConfiguration<?, I, V, E, ?, J> conf, DataInput dataInput) throws IOException {
-    super.readFields(conf, dataInput);
+    // Getting the subgraph vertex internals
+    I id = conf.createSubgraphVertexId();
+    setId(id);
+    id.readFields(dataInput);
+    int numEdges = dataInput.readInt();
+//    System.out.println("Read: " + "Number edges: " + numEdges);
+    LinkedList<IEdge<E, I, J>> outEdges = Lists.newLinkedList();
+    for (int i = 0; i < numEdges; i++) {
+//      System.out.println("\n THIS IS I :  "+ i);
+      DefaultSubgraphEdge<I, E, J> se = new DefaultSubgraphEdge<>();
+      I targetId = conf.createSubgraphVertexId();
+      E edgeValue = conf.createEdgeValue();
+      targetId.readFields(dataInput);
+      edgeValue.readFields(dataInput);
+      se.initialize(null, edgeValue, targetId);
+//      System.out.println("Read: " + "Edge:" + se.getSinkVertexId() + " Class: " + se.getSinkVertexId().getClass().getSimpleName());
+      outEdges.add(se);
+    }
+    setOutEdges(outEdges);
     subgraphId = (K) conf.createSubgraphId();
     subgraphId.readFields(dataInput);
-    localState = conf.createSubgraphVertexValue();
-    localState.readFields(dataInput);
+//    localState = conf.createSubgraphVertexValue();
+//    localState.readFields(dataInput);
   }
 
   @Override
   public void write(DataOutput dataOutput) throws IOException {
-    super.write(dataOutput);
+    getId().write(dataOutput);
+    int numOutEdges = getOutEdges().size();
+    dataOutput.writeInt(numOutEdges);
+//        System.out.println("Write: " + "Number edges: " + numOutEdges);
+    for (IEdge<E, I, J> edge : getOutEdges()) {
+//            System.out.println("Write: " + "Edge:" + edge.getSinkVertexId() + " Class: " + edge.getSinkVertexId().getClass().getSimpleName());
+      edge.getSinkVertexId().write(dataOutput);
+      edge.getValue().write(dataOutput);
+    }
+//    System.out.println("Vertex ID Class,VertexValueClass:" + id.getClass() + "," + value.getClass());
     subgraphId.write(dataOutput);
-    localState.write(dataOutput);
+//    localState.write(dataOutput);
   }
 
   //  @Override
