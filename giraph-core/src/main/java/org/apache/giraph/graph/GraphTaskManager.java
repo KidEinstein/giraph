@@ -330,11 +330,14 @@ end[PURE_YARN]*/
         serviceWorker.startSuperstep();
       if (LOG.isDebugEnabled()) {
         LOG.debug("execute: " + MemoryUtils.getRuntimeMemoryStats());
+        LOG.debug("TEST,GraphTaskManager.execute,done masterAssignedPartitionOwners,"+superstep);
       }
       context.progress();
       serviceWorker.exchangeVertexPartitions(masterAssignedPartitionOwners);
       context.progress();
       boolean hasBeenRestarted = checkSuperstepRestarted(superstep);
+
+        LOG.debug("TEST,GraphTaskManager.execute,done partitionExchange,"+superstep);
 
       GlobalStats globalStats = serviceWorker.getGlobalStats();
 
@@ -371,6 +374,7 @@ end[PURE_YARN]*/
       // END of superstep compute loop
     }
 
+      LOG.debug("TEST,GraphTaskManager.execute,done compute"+serviceWorker.getSuperstep());
     if (LOG.isInfoEnabled()) {
       LOG.info("execute: BSP application done (global vertices marked done)");
     }
@@ -792,6 +796,7 @@ end[PURE_YARN]*/
     ConcurrentMap map = ((SimpleMessageStore)messageStore).getMap();
     ConcurrentMap incomingMessageStoreMap = ((SimpleMessageStore)serviceWorker.getServerData().getIncomingMessageStore()).getMap();
     for (Integer partitionId : partitionStore.getPartitionIds()) {
+      LOG.debug("TEST,GraphTaskManger.processGraphPartitions,wid,"+serviceWorker.getWorkerInfo().getTaskId()+",pid,"+partitionId+",superstep,"+serviceWorker.getWorkerContext().getSuperstep());
       map.putIfAbsent(partitionId, Maps.newConcurrentMap());
       incomingMessageStoreMap.putIfAbsent(partitionId, Maps.newConcurrentMap());
       verticesToCompute += partitionStore.getPartitionVertexCount(partitionId);

@@ -265,6 +265,11 @@ public class PartitionBalancer {
       LOG.info("New Mapping:PartitionId,TaskId:" + partitionId + "," + taskId);
     }
 
+      for(PartitionOwner p:partitionOwners){
+//          PartitionOwner p=partitionOwnerList.get(i);
+          LOG.debug("TEST,PartitionBalancer.balancePartitionsAcrossWorkersImproved,partitionOwners,pid,"+p.getPartitionId()+",wid,"+p.getWorkerInfo().getTaskId());
+
+      }
     return partitionOwners;
   }
 
@@ -281,6 +286,10 @@ public class PartitionBalancer {
     }
     BalanceValue balanceValue = BalanceValue.UNSET;
     if (balanceAlgorithm.equals(STATIC_BALANCE_ALGORITHM)) {
+        for(PartitionOwner p:partitionOwners){
+//            PartitionOwner p=partitionOwnerList.get(i);
+            LOG.debug("TEST,PartitionBalancer.balancePartitionsAcrossWorkers,partitionOwners,pid,"+p.getPartitionId()+",wid,"+p.getWorkerInfo().getTaskId());
+        }
       return partitionOwners;
     } else if (balanceAlgorithm.equals(EGDE_BALANCE_ALGORITHM)) {
       balanceValue = BalanceValue.EDGES;
@@ -356,6 +365,10 @@ public class PartitionBalancer {
       minQueue.add(chosenWorker);
     }
 
+    for(int i=0;i<partitionOwnerList.size();i++){
+      PartitionOwner p=partitionOwnerList.get(i);
+      LOG.debug("TEST,PartitionBalancer.balancePartitionsAcrossWorkersImproved,partitionOwners,"+p.toString());
+    }
     return partitionOwnerList;
   }
 
@@ -406,6 +419,7 @@ public class PartitionBalancer {
           workerPartitionOwnerMap.put(partitionOwner.getWorkerInfo(),
               tmpPartitionOwnerList);
         }
+
       }
     }
 

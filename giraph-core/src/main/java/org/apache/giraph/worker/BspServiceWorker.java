@@ -117,6 +117,8 @@ import org.json.JSONObject;
 
 import com.google.common.collect.Lists;
 
+import javax.validation.constraints.Null;
+
 /**
  * ZooKeeper-based implementation of {@link CentralizedServiceWorker}.
  *
@@ -1640,6 +1642,25 @@ else[HADOOP_NON_SECURE]*/
     // 3. Notify completion with a ZooKeeper stamp
     // 4. Wait for all my dependencies to be done (if any)
     // 5. Add the partitions to myself.
+
+    LOG.debug("TEST,BspServiceWorker.exchangeVertexPartitions,superstep,"+getSuperstep());
+
+      for(PartitionOwner p:masterSetPartitionOwners){
+//          PartitionOwner p=partitionOwnerList.get(i);
+          LOG.debug("TEST,BspServiceWorker.exchangeVertexPartitions,superstep,"+getSuperstep()+",masterSetPartitionOwners,pid,"+p.getPartitionId()+",wid,"+p.getWorkerInfo().getTaskId());
+
+
+          if((p.getPreviousWorkerInfo()!=null)  &&  p.getPreviousWorkerInfo().getTaskId()==workerInfo.getTaskId() ){
+
+              if(!workerServer.getServerData().getPartitionStore().hasPartition(p.getPartitionId())){
+                  p.setPreviousWorkerInfo(null);
+              }
+          }
+
+      }
+
+
+
     PartitionExchange partitionExchange =
         workerGraphPartitioner.updatePartitionOwners(
             getWorkerInfo(), masterSetPartitionOwners);

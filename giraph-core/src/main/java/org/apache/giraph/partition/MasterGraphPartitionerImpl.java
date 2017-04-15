@@ -28,6 +28,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
 import com.google.common.collect.Lists;
+import org.apache.log4j.Logger;
 
 /**
  * Abstracts and implements all MasterGraphPartitioner logic on top of a single
@@ -51,6 +52,9 @@ public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
 
   Map<Integer, Map<Integer, Set<Integer>>> partitionWorkerMapping;
 
+  /** Class logger */
+  private static final Logger LOG = Logger.getLogger(MasterGraphPartitionerImpl.class);
+
   /**
    * Constructor.
    *
@@ -73,6 +77,8 @@ public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
     for (int i = 0; i < partitionCount; i++) {
       partitionOwnerList.add(new BasicPartitionOwner(i, workerList.get(
           getWorkerIndex(i, partitionCount, workerList.size()))));
+
+      LOG.debug("TEST,MasterGraphPartitionerImpl.createInitialPartitionOwners,pid,"+i+",wid,"+partitionOwnerList.get(i).getWorkerInfo().getTaskId());
     }
 
     return partitionOwnerList;
@@ -89,6 +95,8 @@ public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
       Collection<WorkerInfo> availableWorkers,
       int maxWorkers,
       long superstep) {
+
+    LOG.debug("TEST,MasterGraphPartitionerImpl.generateChangedPartitionOwners,superstep,"+superstep);
     if (MappingReader.MAPPING_FILE.get(conf) != null && superstep >= 3) {
       if (partitionWorkerMapping == null) {
         try {

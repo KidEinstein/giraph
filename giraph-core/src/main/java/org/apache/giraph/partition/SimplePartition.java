@@ -21,11 +21,13 @@ package org.apache.giraph.partition;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import io.netty.buffer.ByteBufOutputStream;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.utils.WritableUtils;
@@ -34,6 +36,7 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.util.Progressable;
 
 import com.google.common.collect.Maps;
+import org.apache.log4j.Logger;
 
 /**
  * A simple map-based container that stores vertices.  Vertex ids will map to
@@ -50,6 +53,9 @@ public class SimplePartition<I extends WritableComparable,
     extends BasicPartition<I, V, E> {
   /** Vertex map for this range (keyed by index) */
   private ConcurrentMap<I, Vertex<I, V, E>> vertexMap;
+    /** Class logger */
+  private static final Logger LOG =
+            Logger.getLogger(SimplePartition.class);
 
   /**
    * Constructor for reflection.
@@ -135,6 +141,7 @@ public class SimplePartition<I extends WritableComparable,
 
   @Override
   public void readFields(DataInput input) throws IOException {
+    long startTime=System.currentTimeMillis();
     super.readFields(input);
     vertexMap = Maps.newConcurrentMap();
     int vertices = input.readInt();
@@ -150,16 +157,22 @@ public class SimplePartition<I extends WritableComparable,
             " already has same id " + vertex);
       }
     }
+    LOG.debug("TEST,SimplePartition.read,vertexLoop,"+vertices+",took,"+(System.currentTimeMillis()-startTime));
   }
 
   @Override
   public void write(DataOutput output) throws IOException {
+    long startTime=System.currentTimeMillis();
     super.write(output);
     output.writeInt(vertexMap.size());
     for (Vertex<I, V, E> vertex : vertexMap.values()) {
       progress();
       WritableUtils.writeVertexToDataOutput(output, vertex, getConf());
     }
+    ByteBufOutputStream b= (ByteBufOutputStream) output;
+
+    LOG.debug("TEST,SimplePartition.write,vertexLoop,"+vertexMap.size()+",took,"+(System.currentTimeMillis()-startTime)+",size,"+b.writtenBytes());
+//      LOG.debug();
   }
 
   @Override
