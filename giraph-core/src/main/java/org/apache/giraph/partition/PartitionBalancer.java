@@ -255,8 +255,11 @@ public class PartitionBalancer {
       WorkerInfo info = availableWorkerInfosList.get(taskId);
       for (Integer partitionId : entry.getValue()) {
         PartitionOwner partitionOwner = partitionOwnerList.get(partitionId);
-        partitionOwner.setPreviousWorkerInfo(partitionOwner.getWorkerInfo());
-        partitionOwner.setWorkerInfo(info);
+        if(partitionOwner.getWorkerInfo().getTaskId()!=taskId) {
+          LOG.debug("TEST,PartitionBalancer.balancePartitionsAcrossWorkersImproved,updated mapping for pid,"+partitionId+",oldWid,"+partitionOwner.getWorkerInfo().getTaskId()+",newWid,"+taskId);
+          partitionOwner.setPreviousWorkerInfo(partitionOwner.getWorkerInfo());
+          partitionOwner.setWorkerInfo(info);
+        }
       }
     }
     for (PartitionOwner partitionOwner : partitionOwners) {
