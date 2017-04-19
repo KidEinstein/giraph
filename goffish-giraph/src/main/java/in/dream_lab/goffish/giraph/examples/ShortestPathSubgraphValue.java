@@ -5,7 +5,9 @@ import org.apache.hadoop.io.Writable;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by anirudh on 10/02/17.
@@ -16,11 +18,19 @@ public class ShortestPathSubgraphValue implements Writable
 
   @Override
   public void write(DataOutput dataOutput) throws IOException {
-    throw new UnsupportedOperationException();
+    dataOutput.writeInt(shortestDistanceMap.size());
+    for (Map.Entry<Long, Short> entry : shortestDistanceMap.entrySet()) {
+      dataOutput.writeLong(entry.getKey());
+      dataOutput.writeShort(entry.getValue());
+    }
   }
 
   @Override
   public void readFields(DataInput dataInput) throws IOException {
-    throw new UnsupportedOperationException();
+    int size = dataInput.readInt();
+    shortestDistanceMap = new HashMap<>(size);
+    for (int i = 0; i < size; i++) {
+      shortestDistanceMap.put(dataInput.readLong(), dataInput.readShort());
+    }
   }
 }
