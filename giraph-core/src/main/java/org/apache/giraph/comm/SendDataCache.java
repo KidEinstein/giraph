@@ -25,8 +25,10 @@ import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.partition.PartitionOwner;
 import org.apache.giraph.utils.PairList;
 import org.apache.giraph.worker.WorkerInfo;
+import org.apache.log4j.Logger;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +59,9 @@ public abstract class SendDataCache<D> {
       Maps.newHashMap();
   /** Giraph configuration */
   private final ImmutableClassesGiraphConfiguration conf;
+    /** Class logger */
+    private static final Logger LOG =
+            Logger.getLogger(SendDataCache.class);
 
   /**
    * Constructor.
@@ -96,7 +101,19 @@ public abstract class SendDataCache<D> {
     int initialRequestSize =
         (int) (maxRequestSize * (1 + additionalRequestSize));
     initialBufferSizes = new int[maxWorker + 1];
+
+
+      for (Map.Entry<WorkerInfo, List<Integer>> entry : workerPartitions.entrySet()) {
+
+          WorkerInfo key = entry.getKey();
+          List value = entry.getValue();
+          LOG.debug("TEST,SendDataCache.SendDataCache,workerID,"+key.getTaskId()+",partitions,"+ Arrays.toString(value.toArray()));
+      }
+
     for (WorkerInfo workerInfo : serviceWorker.getWorkerInfoList()) {
+        LOG.debug("TEST,SendDataCache.SendDataCache,workerInfo,"+workerInfo+",initialSize,"+initialRequestSize);
+
+      if(workerPartitions.containsKey(workerInfo))
       initialBufferSizes[workerInfo.getTaskId()] =
           initialRequestSize / workerPartitions.get(workerInfo).size();
     }

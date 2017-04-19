@@ -1598,6 +1598,7 @@ else[HADOOP_NON_SECURE]*/
               workerPartitionList.getKey() + " partition " +
               partitionId + "superstep" + getSuperstep());
         }
+        LOG.info("Calling sendPartitionRequest");
         workerClientRequestProcessor.sendPartitionRequest(
             workerPartitionList.getKey(),
             partition);
