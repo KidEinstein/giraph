@@ -2,18 +2,13 @@ package in.dream_lab.goffish.giraph.formats;
 
 import in.dream_lab.goffish.api.IEdge;
 import in.dream_lab.goffish.api.IVertex;
-import in.dream_lab.goffish.giraph.graph.SubgraphId;
-import in.dream_lab.goffish.giraph.graph.SubgraphVertices;
-import in.dream_lab.goffish.giraph.graph.DefaultSubgraphEdge;
-import in.dream_lab.goffish.giraph.graph.DefaultSubgraphVertex;
+import in.dream_lab.goffish.giraph.conf.GiraphSubgraphConfiguration;
+import in.dream_lab.goffish.giraph.graph.*;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.io.formats.AdjacencyListTextVertexInputFormat;
 import org.apache.giraph.io.formats.TextDoubleDoubleAdjacencyListVertexInputFormat;
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.NullWritable;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
@@ -48,7 +43,7 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
 
         @Override
         public SubgraphVertices getSubgraphVertices() throws IOException, InterruptedException {
-            SubgraphVertices<LongWritable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraphVertices = new SubgraphVertices();
+            SubgraphVertices<Writable, DoubleWritable, DoubleWritable, LongWritable, LongWritable, LongWritable> subgraphVertices = new SubgraphVertices();
             HashMap<LongWritable, IVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable>> subgraphVerticesMap = new HashMap<>();
             while (getRecordReader().nextKeyValue()) {
                 // take all info from each line
@@ -61,7 +56,8 @@ public class LongDoubleDoubleAdjacencyListSubgraphInputFormat extends AdjacencyL
                 subgraphVerticesMap.put(subgraphVertex.getVertexId(), subgraphVertex);
             }
             subgraphVertices.initialize(subgraphVerticesMap);
-            subgraphVertices.setSubgraphValue(new LongWritable());
+            GiraphSubgraphConfiguration giraphSubgraphConfiguration = new GiraphSubgraphConfiguration(getConf());
+            subgraphVertices.setSubgraphValue(giraphSubgraphConfiguration.createSubgraphValue());
             return subgraphVertices;
         }
 

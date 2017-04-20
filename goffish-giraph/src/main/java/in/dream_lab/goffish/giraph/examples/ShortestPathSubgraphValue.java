@@ -18,6 +18,9 @@ public class ShortestPathSubgraphValue implements Writable
 
   @Override
   public void write(DataOutput dataOutput) throws IOException {
+    if (shortestDistanceMap == null) {
+      shortestDistanceMap = new HashMap<>();
+    }
     dataOutput.writeInt(shortestDistanceMap.size());
     for (Map.Entry<Long, Short> entry : shortestDistanceMap.entrySet()) {
       dataOutput.writeLong(entry.getKey());
