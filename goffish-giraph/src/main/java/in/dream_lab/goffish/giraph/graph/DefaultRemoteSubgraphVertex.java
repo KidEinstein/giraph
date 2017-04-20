@@ -66,6 +66,7 @@ public class DefaultRemoteSubgraphVertex<V extends Writable, E extends Writable,
 
   @Override
   public void write(DataOutput dataOutput) throws IOException {
+    // Write vertex ID
     getId().write(dataOutput);
 //        System.out.println("Write: " + "Number edges: " + numOutEdges);
 

@@ -37,7 +37,7 @@ public class MappingReader {
     while (line != null) {
       String[] entry = line.split(cvsSplitBy);
       int partitionId = Integer.parseInt(entry[0]);
-      int superStep =  Integer.parseInt(entry[1])+2;//as the user compute gets called in superstep 3
+      int superStep =  Integer.parseInt(entry[1]);//as the user compute gets called in superstep 3
       int workedId =  Integer.parseInt(entry[2])+1; //as the script allocates from the vmid 0
       if (mapping.containsKey(superStep)) {
         Map<Integer, Set<Integer>> widPidMap = mapping.get(superStep);

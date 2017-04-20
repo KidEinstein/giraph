@@ -94,6 +94,7 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
         userSubgraphComputationClass = SUBGRAPH_COMPUTATION_CLASS.get(getConf());
         LOG.info("User Class: " + userSubgraphComputationClass);
       }
+      getConf().set("giraph.subgraphValueClass", "in.dream_lab.goffish.giraph.examples.ShortestPathSubgraphValue");
       abstractSubgraphComputation = (AbstractSubgraphComputation<SV, V, E, M, I, EI, S>) ReflectionUtils.newInstance(userSubgraphComputationClass, getConf());
     }
     abstractSubgraphComputation.setSubgraphPlatformCompute(this);
