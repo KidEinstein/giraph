@@ -19,11 +19,11 @@ import in.dream_lab.goffish.api.IVertex;
 import in.dream_lab.goffish.giraph.examples.ShortestPathSubgraphValue;
 
 import org.apache.hadoop.io.*;
-
+//input is a folder which has files for all subgraphs
 /**
  * Created by ravikant on 15/5/17.
  */
-//input is a folder which has files for all subgraphs
+
 public class CreatePartitionStore {
 
     static IEdge<NullWritable, LongWritable, NullWritable> decodeVertexEdge(String id) {

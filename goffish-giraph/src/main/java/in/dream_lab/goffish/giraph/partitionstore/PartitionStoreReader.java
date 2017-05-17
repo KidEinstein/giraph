@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.apache.hadoop.io.*;
-
+//arg : serialized filename
 /**
  * Created by ravikant on 16/5/17.
  */
@@ -29,7 +29,7 @@ public class PartitionStoreReader {
 
     public static void main(String[] args) throws IOException {
 
-        //arg : serialized filename
+
         String filename=args[0];
 
         ByteBuf buffer = Unpooled.copiedBuffer(Files.readAllBytes((new File(filename)).toPath()));
