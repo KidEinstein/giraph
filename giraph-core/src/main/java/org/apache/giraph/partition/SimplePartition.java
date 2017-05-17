@@ -171,7 +171,7 @@ public class SimplePartition<I extends WritableComparable,
     }
     ByteBufOutputStream b= (ByteBufOutputStream) output;
 
-    LOG.debug("TEST,SimplePartition.write,vertexLoop,"+vertexMap.size()+",took,"+(System.currentTimeMillis()-startTime)+",size,"+b.writtenBytes());
+    LOG.debug("TEST,SimplePartition.write,vertexLoop,"+vertexMap.size()+",took,"+(System.currentTimeMillis()-startTime)+",size,"+b.writtenBytes()+",id,"+getId());
 //      LOG.debug();
   }
 
