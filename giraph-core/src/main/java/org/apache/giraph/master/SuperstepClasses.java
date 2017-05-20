@@ -223,8 +223,8 @@ public class SuperstepClasses implements Writable {
         "Vertex id", computationClass);
     ReflectionUtils.verifyTypes(conf.getVertexValueClass(), computationTypes[1],
         "Vertex value", computationClass);
-    ReflectionUtils.verifyTypes(conf.getEdgeValueClass(), computationTypes[2],
-        "Edge value", computationClass);
+//    ReflectionUtils.verifyTypes(conf.getEdgeValueClass(), computationTypes[2],
+//        "Edge value", computationClass);
 
     if (checkMatchingMesssageTypes) {
       ReflectionUtils.verifyTypes(incomingMessageClasses.getMessageClass(),

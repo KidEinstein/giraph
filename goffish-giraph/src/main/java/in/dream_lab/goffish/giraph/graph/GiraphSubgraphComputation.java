@@ -1,6 +1,7 @@
 package in.dream_lab.goffish.giraph.graph;
 
 import in.dream_lab.goffish.api.*;
+import in.dream_lab.goffish.giraph.master.SubgraphMasterCompute;
 import org.apache.giraph.conf.ClassConfOption;
 import org.apache.giraph.graph.*;
 import org.apache.giraph.utils.ReflectionUtils;
@@ -31,7 +32,7 @@ import java.util.Iterator;
 // K subgraph id  ---- S
 
 public class GiraphSubgraphComputation<S extends WritableComparable,
-    I extends WritableComparable, V extends WritableComparable, E extends Writable, M extends Writable, SV extends Writable, EI extends WritableComparable> extends BasicComputation<SubgraphId<S>, SubgraphVertices<SV, V, E, I, EI, S>, E, SubgraphMessage<S,M>>
+    I extends WritableComparable, V extends WritableComparable, E extends Writable, M extends Writable, SV extends Writable, EI extends WritableComparable> extends BasicComputation<SubgraphId<S>, SubgraphVertices<SV, V, E, I, EI, S>, E, SubgraphMessage<S, M>>
     implements ISubgraphCompute<SV, V, E, M, I, EI, S> {
 
   private static final Logger LOG = Logger.getLogger(GiraphSubgraphComputation.class);
@@ -56,7 +57,7 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
 
   @Override
   public void sendMessage(S subgraphId, Iterable<M> messages) {
-    for (M message: messages) {
+    for (M message : messages) {
       sendMessageToSubgraph(subgraphId, message);
     }
   }
@@ -80,24 +81,14 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
   }
   // TODO: Take care of state changes for the subgraph passed
 
-  public void compute(Vertex<SubgraphId<S>, SubgraphVertices<SV, V, E, I, EI, S>, E> vertex, Iterable<SubgraphMessage<S,M>> messages) throws IOException {
-    Class userSubgraphComputationClass;
-    long superstep = super.getSuperstep();
+  public void compute(Vertex<SubgraphId<S>, SubgraphVertices<SV, V, E, I, EI, S>, E> vertex, Iterable<SubgraphMessage<S, M>> messages) throws IOException {
+    subgraph = (DefaultSubgraph) vertex;
     if (abstractSubgraphComputation == null) {
-      if (superstep == 0) {
-        userSubgraphComputationClass = RemoteVerticesFinder.class;
-      } else if (superstep == 1) {
-        userSubgraphComputationClass = RemoteVerticesFinder2.class;
-      } else if (superstep == 2) {
-        userSubgraphComputationClass = RemoteVerticesFinder3.class;
-      } else {
-        userSubgraphComputationClass = SUBGRAPH_COMPUTATION_CLASS.get(getConf());
-        LOG.info("User Class: " + userSubgraphComputationClass);
-      }
+      Class userSubgraphComputationClass = SUBGRAPH_COMPUTATION_CLASS.get(getConf());
+      LOG.info("User Class: " + userSubgraphComputationClass);
       abstractSubgraphComputation = (AbstractSubgraphComputation<SV, V, E, M, I, EI, S>) ReflectionUtils.newInstance(userSubgraphComputationClass, getConf());
     }
     abstractSubgraphComputation.setSubgraphPlatformCompute(this);
-    subgraph = (DefaultSubgraph) vertex;
     abstractSubgraphComputation.compute(new IMessageIterable(messages));
   }
 
@@ -148,7 +139,7 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
     return getConf().get(key);
   }
 
-  private class IMessageIterable implements Iterable<IMessage<S,M>> {
+  private class IMessageIterable implements Iterable<IMessage<S, M>> {
     private Iterable<SubgraphMessage<S, M>> subgraphMessagesIterable;
 
     public IMessageIterable(Iterable<SubgraphMessage<S, M>> subgraphMessagesIterable) {
