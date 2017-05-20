@@ -1265,4 +1265,6 @@ public class GiraphConfiguration extends Configuration
   public int getHdfsFileCreationRetryWaitMs() {
     return HDFS_FILE_CREATION_RETRY_WAIT_MS.get(this);
   }
+
+  public int getSourcePartition(){return SOURCE_PARTITION.get(this);}
 }
