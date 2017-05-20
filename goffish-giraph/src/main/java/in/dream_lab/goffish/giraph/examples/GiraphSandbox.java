@@ -24,8 +24,8 @@ public class GiraphSandbox extends AbstractSubgraphComputation<NullWritable, Dou
       }
     }
     System.out.println("Printing remote");
-    for (IVertex subgraphVertex : subgraph.getRemoteVertices()) {
-      System.out.println("Remote Vertex: " + subgraphVertex.getVertexId());
+    for (IRemoteVertex subgraphVertex : subgraph.getRemoteVertices()) {
+      System.out.println("Remote Vertex: " + subgraphVertex.getVertexId() + ",RSID:" + subgraphVertex.getSubgraphId());
     }
     voteToHalt();
   }

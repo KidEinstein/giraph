@@ -118,7 +118,9 @@ public class SubgraphVertices<S extends Writable, V extends Writable, E extends 
 
   public void initialize(HashMap<I, IVertex<V, E, I, J>> vertices) {
     this.vertices = vertices;
-    this.remoteVertices = new HashMap<>();
+    if (remoteVertices == null) {
+      this.remoteVertices = new HashMap<>();
+    }
   }
 
   @Override
