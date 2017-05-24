@@ -1,9 +1,13 @@
 package in.dream_lab.goffish.giraph.formats;
 
+import com.google.common.collect.Lists;
 import in.dream_lab.goffish.api.IEdge;
+import in.dream_lab.goffish.api.IRemoteVertex;
 import in.dream_lab.goffish.api.IVertex;
-import in.dream_lab.goffish.giraph.graph.SubgraphId;
+import in.dream_lab.goffish.giraph.conf.GiraphSubgraphConfiguration;
+import in.dream_lab.goffish.giraph.graph.*;
 import org.apache.giraph.edge.Edge;
+import org.apache.giraph.edge.EdgeFactory;
 import org.apache.giraph.graph.Vertex;
 import org.apache.giraph.io.VertexInputFormat;
 import org.apache.giraph.io.VertexReader;
@@ -15,13 +19,13 @@ import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by anirudh on 15/05/17.
  */
-public abstract class FlatTextSubgraphInputFormat<I extends WritableComparable,
-    V extends Writable, E extends Writable> extends VertexInputFormat<I, V, E> {
+public abstract class FlatTextSubgraphInputFormat<S extends Writable, V extends Writable,
+    E extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable> extends VertexInputFormat<SubgraphId<K>, SubgraphVertices<S,V,E,I,J,K>, NullWritable> {
 
   protected GiraphSubgraphTextInputFormat subgraphTextInputFormat = new GiraphSubgraphTextInputFormat();
 
@@ -49,7 +53,7 @@ public abstract class FlatTextSubgraphInputFormat<I extends WritableComparable,
    * need common exception handling while preprocessing, then extend
    * {@link TextSubgraphInputFormat.TextVertexReaderFromEachLineProcessedHandlingExceptions}.
    */
-  protected abstract class FlatTextVertexReader extends VertexReader<I, V, E> {
+  protected abstract class FlatTextVertexReader extends VertexReader<SubgraphId<K>, SubgraphVertices<S,V,E,I,J,K>, NullWritable> {
     /**
      * Internal line record reader
      */
@@ -116,45 +120,65 @@ public abstract class FlatTextSubgraphInputFormat<I extends WritableComparable,
    * Abstract class to be implemented by the user to read a vertex from each
    * text line after preprocessing it.
    *
-   * @param <T> The resulting type of preprocessing.
    */
-  protected abstract class FlatTextVertexReaderFromEachLineProcessed<T> extends
+  protected abstract class FlatTextVertexReaderFromEachLineProcessed extends
       FlatTextVertexReader {
+
+    private boolean initialized;
+
+    private HashMap<K, SubgraphInput> inputSubgraphs;
+
+    private Iterator<SubgraphInput> subgraphInputIterator;
+
+    @Override
+    public void initialize(InputSplit inputSplit, TaskAttemptContext context) throws IOException, InterruptedException {
+      super.initialize(inputSplit, context);
+      inputSubgraphs = new HashMap<>();
+      initialized = false;
+    }
 
     @Override
     public final boolean nextVertex() throws IOException, InterruptedException {
-      return getRecordReader().nextKeyValue();
+      return getRecordReader().nextKeyValue() || subgraphInputIterator.hasNext();
     }
 
     @Override
-    public final Vertex<I, V, E> getCurrentVertex() throws IOException,
+    public final Vertex<SubgraphId<K>, SubgraphVertices<S,V,E,I,J,K>, NullWritable> getCurrentVertex() throws IOException,
         InterruptedException {
-      // TODO: Changed to subgraph
-      Vertex<I, V, E> vertex;
-      vertex = getConf().createVertex();
-      Text line = getRecordReader().getCurrentValue();
-      T processed = preprocessLine(line);
-      // Get SID + PID
-      I sid = getSId(processed);
+      if (!initialized) {
+        GiraphSubgraphConfiguration giraphSubgraphConfiguration = new GiraphSubgraphConfiguration(getConf());
+        do {
+          Text line = getRecordReader().getCurrentValue();
+          String[] processed = preprocessLine(line);
+          SubgraphId<K> subgraphId = getSId(processed);
 
-      // Initializing internals of a subgraph
-      V subgraphVertices = getSubgraphVertices();
+          K sid = subgraphId.getSubgraphId();
 
-      // Get subgraph neighbors
-      Iterable<Edge<I, E>> subgraphNeighbors = getSubgraphNeighbors(processed);
+          SubgraphInput subgraphInput;
 
-      // Initializing the subgraph object (vertex in Giraph's case)
-      vertex.initialize(sid, subgraphVertices,
-          subgraphNeighbors);
-      return vertex;
+          if (inputSubgraphs.containsKey(sid)) {
+            subgraphInput = inputSubgraphs.get(sid);
+          } else {
+            subgraphInput = createSubgraphInput(giraphSubgraphConfiguration, subgraphId);
+            inputSubgraphs.put(sid, subgraphInput);
+          }
+
+          subgraphInput.addEntry(processed);
+        } while (getRecordReader().nextKeyValue());
+
+        subgraphInputIterator = inputSubgraphs.values().iterator();
+
+        initialized = true;
+      }
+
+      Vertex subgraph = getConf().createVertex();
+
+      return subgraphInputIterator.next().populateSubgraph(subgraph);
     }
 
-    public abstract I getSId(T line);
+    public abstract SubgraphInput createSubgraphInput(GiraphSubgraphConfiguration conf, SubgraphId<K> sid);
 
-    public abstract IVertex readVertex(T line) throws IOException;
-
-
-    public abstract V getSubgraphVertices() throws IOException, InterruptedException;
+    public abstract SubgraphId<K> getSId(String[] line);
 
     /**
      * ,
@@ -165,32 +189,93 @@ public abstract class FlatTextSubgraphInputFormat<I extends WritableComparable,
      * @return the preprocessed object
      * @throws IOException exception that can be thrown while reading
      */
-    protected abstract T preprocessLine(Text line) throws IOException;
-
-
-//    /**
-//     * Reads vertex value from the preprocessed line.
-//     *
-//     * @param line the object obtained by preprocessing the line
-//     * @return the vertex value
-//     * @throws IOException exception that can be thrown while reading
-//     */
-//    protected abstract DoubleWritable getValue(T line) throws IOException;
-
-    /**
-     * Reads edges from the preprocessed line.
-     *
-     * @param line the object obtained by preprocessing the line
-     * @return the edges
-     * @throws IOException exception that can be thrown while reading
-     */
-    protected abstract Iterable<IEdge> getVertexEdges(T line) throws IOException;
-
-    protected abstract Iterable<Edge<I, E>> getSubgraphNeighbors(T line) throws IOException;
-
-
+    protected abstract String[] preprocessLine(Text line) throws IOException;
   }
 
+  protected abstract class SubgraphInput {
+
+    private SubgraphId<K> subgraphId;
+
+    private HashSet<SubgraphId<K>> neighboringSubgraphs;
+
+    private HashMap<I, IVertex<V, E, I, J>> vertices;
+
+    private HashMap<I, IRemoteVertex<V, E, I, J, K>> remoteVertices;
+
+    private GiraphSubgraphConfiguration conf;
+
+    public SubgraphInput(SubgraphId<K> subgraphId, GiraphSubgraphConfiguration conf) {
+      this.subgraphId = subgraphId;
+      this.conf = conf;
+      vertices = new HashMap<>();
+      remoteVertices = new HashMap<>();
+      neighboringSubgraphs = new HashSet<>();
+    }
+
+    public abstract I decodeId(String s);
+
+    public abstract K decodeSId(String s);
+
+    public void addEntry(String[] values) {
+      DefaultSubgraphVertex<V, E, I, J> subgraphVertex = new DefaultSubgraphVertex();
+      subgraphVertex.initialize(decodeId(values[1]), getSubgraphVertexValue(), getVertexEdges(values));
+      vertices.put(subgraphVertex.getId(), subgraphVertex);
+    }
+
+    public abstract V getSubgraphVertexValue();
+
+    /**
+     * Decode an edge from the line into an instance of a correctly typed Edge
+     *
+     * @param vertexId The edge's id from the line
+     * @return Edge with given target id and value
+     */
+    public IEdge createVertexEdge(I vertexId) {
+      DefaultSubgraphEdge<I, NullWritable, NullWritable> subgraphEdge = new DefaultSubgraphEdge<>();
+      subgraphEdge.initialize(NullWritable.get(), NullWritable.get(), vertexId);
+      return subgraphEdge;
+    }
+
+    protected LinkedList<IEdge<E, I, J>> getVertexEdges(String[] values) {
+      int i = 3;
+      LinkedList<IEdge<E, I, J>> edges = Lists.newLinkedList();
+      while (i < values.length) {
+        I vertexId = decodeId(values[i]);
+        IEdge<E, I, J> e = createVertexEdge(vertexId);
+        edges.add(e);
+        K remoteSId = decodeSId(values[i + 1]);
+        int remotePId = Integer.parseInt(values[i + 2]);
+        System.out.println("SID: " + subgraphId + ",RSID:" + remoteSId + ",RPID:" + remotePId);
+        if (!subgraphId.getSubgraphId().equals(remoteSId)) {
+          neighboringSubgraphs.add(new SubgraphId<>(remoteSId, remotePId));
+          DefaultRemoteSubgraphVertex<V, E, I, J, K> remoteSubgraphVertex = new DefaultRemoteSubgraphVertex<>();
+          remoteSubgraphVertex.setSubgraphId(remoteSId);
+          remoteSubgraphVertex.setId(vertexId);
+          remoteVertices.put(e.getSinkVertexId(), remoteSubgraphVertex);
+        }
+        i += 3;
+      }
+      return edges;
+    }
+
+    protected Vertex populateSubgraph(Vertex subgraph) {
+      SubgraphVertices<S, V, E, I, J, K> subgraphVertices = new SubgraphVertices<>();
+      subgraphVertices.setRemoteVertices(remoteVertices);
+      subgraphVertices.initialize(vertices);
+      subgraphVertices.setSubgraphValue((S) conf.createSubgraphValue());
+      subgraph.initialize(subgraphId, subgraphVertices, getSubgraphNeighbors());
+      return subgraph;
+    }
+
+    protected Iterable<Edge<SubgraphId<K>, NullWritable>> getSubgraphNeighbors() {
+      List<Edge<SubgraphId<K>, NullWritable>> edges = Lists.newLinkedList();
+      for (SubgraphId<K> sId: neighboringSubgraphs){
+        edges.add(EdgeFactory.create(sId, NullWritable.get()));
+      }
+      return edges;
+    }
+
+  }
 
 }
 
