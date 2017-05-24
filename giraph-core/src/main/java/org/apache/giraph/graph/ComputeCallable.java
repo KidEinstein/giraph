@@ -25,6 +25,7 @@ import org.apache.giraph.bsp.CentralizedServiceWorker;
 import org.apache.giraph.comm.WorkerClientRequestProcessor;
 import org.apache.giraph.comm.messages.MessageStore;
 import org.apache.giraph.comm.netty.NettyWorkerClientRequestProcessor;
+import org.apache.giraph.conf.GiraphConstants;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.io.SimpleVertexWriter;
 import org.apache.giraph.metrics.GiraphMetrics;
@@ -42,13 +43,14 @@ import org.apache.giraph.utils.TimedLogger;
 import org.apache.giraph.utils.Trimmable;
 import org.apache.giraph.worker.WorkerProgress;
 import org.apache.giraph.worker.WorkerThreadGlobalCommUsage;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.log4j.Logger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -268,11 +270,19 @@ public class ComputeCallable<I extends WritableComparable, V extends Writable,
       Computation<I, V, E, M1, M2> computation,
       Partition<I, V, E> partition, OutOfCoreEngine oocEngine)
       throws IOException, InterruptedException {
+
+      int source_partition=configuration.getSourcePartition();
+
     PartitionStats partitionStats =
         new PartitionStats(partition.getId(), 0, 0, 0, 0, 0);
     long verticesComputedProgress = 0;
     // Make sure this is thread-safe across runs
     long startTime = System.currentTimeMillis();
+    if(serviceWorker.getSuperstep()==3 && partition.getId()!=source_partition){
+        LOG.debug("TEST,ComputeCallable.computePartition,superstep,"+serviceWorker.getSuperstep()+",returned partititon,"+partition.getId()+",return without computation");
+        return partitionStats;
+    }
+
     synchronized (partition) {
       int count = 0;
       for (Vertex<I, V, E> vertex : partition) {
@@ -319,6 +329,7 @@ public class ComputeCallable<I extends WritableComparable, V extends Writable,
           verticesComputedProgress = 0;
         }
       }
+
       messageStore.clearPartition(partition.getId());
     }
     LOG.info("Superstep,PartitionID,Time:" + serviceWorker.getSuperstep() + "," + partition.getId() + "," + (System.currentTimeMillis() - startTime));

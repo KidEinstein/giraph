@@ -1200,5 +1200,11 @@ public interface GiraphConstants {
   BooleanConfOption PREFER_IP_ADDRESSES =
       new BooleanConfOption("giraph.preferIP", false,
       "Prefer IP addresses instead of host names");
+
+  /** Minimum stragglers of the superstep before printing them out */
+  IntConfOption SOURCE_PARTITION =
+          new IntConfOption("giraph.sourcePartition", 1,
+                  "partition with source vertex for algo like sssp");
+
 }
 // CHECKSTYLE: resume InterfaceIsTypeCheck
