@@ -45,6 +45,9 @@ public class SubgraphVertices<S extends Writable, V extends Writable, E extends 
 ////            e.printStackTrace(System.out);
 //            e.printStackTrace();
 //        }
+    remoteVertices = new HashMap<>();
+    vertices = new HashMap<>();
+    subgraphPartitionMapping = new MapWritable();
   }
 
   public HashMap<I, IRemoteVertex<V, E, I, J, K>> getRemoteVertices() {

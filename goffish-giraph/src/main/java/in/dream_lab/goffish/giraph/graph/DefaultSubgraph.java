@@ -24,6 +24,8 @@ public class DefaultSubgraph<SV extends Writable, V extends Writable, E extends 
     >
     extends DefaultVertex<SubgraphId<S>, SubgraphVertices<SV, V, E, I, EI, S>, E> implements ISubgraph<SV, V, E, I, EI, S> {
 
+  public boolean isInitialized = false;
+
   public void setRemoteVertices(HashMap<I, IRemoteVertex<V, E, I, EI, S>> remoteVertices) {
     SubgraphVertices<SV, V, E, I, EI, S> subgraphVertices = getValue();
     subgraphVertices.setRemoteVertices(remoteVertices);

@@ -16,17 +16,11 @@ public class GiraphFlatTextInputSubgraphComputation<S extends WritableComparable
 
   @Override
   public void compute(Vertex vertex, Iterable iterable) throws IOException {
-    DefaultSubgraph<SV, V, E, I, EI, S> subgraph = (DefaultSubgraph) vertex;
-    long superstep = getSuperstep();
-    if (superstep == 0) {
-      MapWritable subgraphPartitionMapping = getAggregatedValue(SubgraphMasterCompute.ID);
-      subgraph.getSubgraphVertices().setSubgraphPartitionMapping(subgraphPartitionMapping);
-    }
     super.compute(vertex, iterable);
   }
 
   @Override
   public long getSuperstep() {
-    return super.getSuperstep() + 2;
+    return super.getSuperstep() + 3;
   }
 }

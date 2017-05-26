@@ -12,13 +12,7 @@ public class FlatInputSubgraphMasterCompute extends DefaultMasterCompute {
 
   @Override
   public void compute() {
-    long superstep = getSuperstep();
-    if (superstep == 0) {
-      setComputation(SubgraphPartitionMappingFinder.class);
-    } else {
-      setComputation(GiraphFlatTextInputSubgraphComputation.class);
-    }
-
+   setComputation(GiraphFlatTextInputSubgraphComputation.class);
   }
 
   @Override
