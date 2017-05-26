@@ -192,7 +192,7 @@ public abstract class FlatTextSubgraphInputFormat<S extends Writable, V extends 
     protected abstract String[] preprocessLine(Text line) throws IOException;
   }
 
-  protected abstract class SubgraphInput {
+  public abstract class SubgraphInput {
 
     private SubgraphId<K> subgraphId;
 
@@ -207,7 +207,7 @@ public abstract class FlatTextSubgraphInputFormat<S extends Writable, V extends 
     public SubgraphInput(SubgraphId<K> subgraphId, GiraphSubgraphConfiguration conf) {
       this.subgraphId = subgraphId;
       this.conf = conf;
-      vertices = new HashMap<>();
+      vertices = new HashMap<>( );
       remoteVertices = new HashMap<>();
       neighboringSubgraphs = new HashSet<>();
     }
@@ -245,7 +245,6 @@ public abstract class FlatTextSubgraphInputFormat<S extends Writable, V extends 
         edges.add(e);
         K remoteSId = decodeSId(values[i + 1]);
         int remotePId = Integer.parseInt(values[i + 2]);
-        System.out.println("SID: " + subgraphId + ",RSID:" + remoteSId + ",RPID:" + remotePId);
         if (!subgraphId.getSubgraphId().equals(remoteSId)) {
           neighboringSubgraphs.add(new SubgraphId<>(remoteSId, remotePId));
           DefaultRemoteSubgraphVertex<V, E, I, J, K> remoteSubgraphVertex = new DefaultRemoteSubgraphVertex<>();
@@ -263,8 +262,17 @@ public abstract class FlatTextSubgraphInputFormat<S extends Writable, V extends 
       subgraphVertices.setRemoteVertices(remoteVertices);
       subgraphVertices.initialize(vertices);
       subgraphVertices.setSubgraphValue((S) conf.createSubgraphValue());
+      subgraphVertices.setSubgraphPartitionMapping(getSubgraphPartitionMapping());
       subgraph.initialize(subgraphId, subgraphVertices, getSubgraphNeighbors());
       return subgraph;
+    }
+
+    protected MapWritable getSubgraphPartitionMapping() {
+      MapWritable subgraphPartitionMapping = new MapWritable();
+      for (SubgraphId<K> subgraphId : neighboringSubgraphs) {
+        subgraphPartitionMapping.put(subgraphId.getSubgraphId(), new IntWritable(subgraphId.getPartitionId()));
+      }
+      return subgraphPartitionMapping;
     }
 
     protected Iterable<Edge<SubgraphId<K>, NullWritable>> getSubgraphNeighbors() {

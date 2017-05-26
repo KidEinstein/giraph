@@ -21,6 +21,7 @@ public class ShortestPathSubgraphValue implements Writable
     if (shortestDistanceMap == null) {
       shortestDistanceMap = new HashMap<>();
     }
+    System.out.println("MAP SIZE WRITE: " + shortestDistanceMap.size());
     dataOutput.writeInt(shortestDistanceMap.size());
     for (Map.Entry<Long, Short> entry : shortestDistanceMap.entrySet()) {
       dataOutput.writeLong(entry.getKey());
@@ -31,6 +32,7 @@ public class ShortestPathSubgraphValue implements Writable
   @Override
   public void readFields(DataInput dataInput) throws IOException {
     int size = dataInput.readInt();
+    System.out.println("MAP SIZE READ: " + size);
     shortestDistanceMap = new HashMap<>(size);
     for (int i = 0; i < size; i++) {
       shortestDistanceMap.put(dataInput.readLong(), dataInput.readShort());

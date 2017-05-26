@@ -48,14 +48,13 @@ public class PartitionStoreReader {
         int numVertices = dataInput.readInt();
 //    System.out.println("Read Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
         System.out.println("Read Num Vertices:" + numVertices);
-        HashMap<LongWritable, IVertex<DoubleWritable, DoubleWritable, LongWritable, LongWritable>>vertices = new HashMap<>();
+        HashMap<LongWritable, IVertex<NullWritable, DoubleWritable, LongWritable, LongWritable>>vertices = new HashMap<>();
         for (int i = 0; i < numVertices; i++) {
             DefaultSubgraphVertex subgraphVertex = new DefaultSubgraphVertex();
 
             LongWritable id = new LongWritable();
             id.readFields(dataInput);
-            DoubleWritable value=new DoubleWritable();
-            value.readFields(dataInput);
+            NullWritable value = NullWritable.get();
 
             subgraphVertex.setId(id);
             subgraphVertex.setValue(value);
@@ -86,14 +85,21 @@ public class PartitionStoreReader {
         HashMap<LongWritable, IRemoteVertex>remoteVertices = new HashMap<>();
         int numRemoteVertices = dataInput.readInt();
 
-        v.setRemoteVertices(remoteVertices);
 
         System.out.println("This subgraph has remote vertices "+numRemoteVertices);
-//        for (int i = 0; i < numRemoteVertices; i++) {
-//            DefaultRemoteSubgraphVertex<V, E, I, J, K> remoteSubgraphVertex = new DefaultRemoteSubgraphVertex<>();
-//            remoteSubgraphVertex.readFields(giraphSubgraphConfiguration, dataInput);
-//            remoteVertices.put(remoteSubgraphVertex.getVertexId(), remoteSubgraphVertex);
-//        }
+        for (int i = 0; i < numRemoteVertices; i++) {
+            DefaultRemoteSubgraphVertex remoteSubgraphVertex = new DefaultRemoteSubgraphVertex<>();
+            LongWritable id = new LongWritable();
+            id.readFields(dataInput);
+            remoteSubgraphVertex.setId(id);
+            //    System.out.println("Read: " + "Number edges: " + numEdges);
+            LongWritable subgraphId = new LongWritable();
+            subgraphId.readFields(dataInput);
+            remoteSubgraphVertex.setSubgraphId(subgraphId);
+            remoteVertices.put(id, remoteSubgraphVertex);
+        }
+
+        v.setRemoteVertices(remoteVertices);
 
         MapWritable subgraphPartitionMapping = new MapWritable();
         subgraphPartitionMapping.readFields(dataInput);
