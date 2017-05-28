@@ -16,6 +16,9 @@
 package in.dream_lab.goffish.giraph.examples;
 
 import in.dream_lab.goffish.api.*;
+import in.dream_lab.goffish.giraph.graph.DefaultSubgraph;
+import in.dream_lab.goffish.giraph.partitionstore.InputLoader;
+import in.dream_lab.goffish.giraph.partitionstore.PartitionStoreReader;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.BytesWritable;
@@ -24,6 +27,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.*;
 
 
@@ -100,6 +104,24 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
 //      log("START superstep with received input messages count = " + packedSubGraphMessages.size());
 
       Set<IVertex<LongWritable, NullWritable, LongWritable, NullWritable>> rootVertices = null;
+
+    // Lazy loading test
+    if(!((DefaultSubgraph) subgraph).isInitialized){
+
+//        InputLoader loader=new InputLoader();
+        PartitionStoreReader reader=new PartitionStoreReader();
+        try {
+//            loader.readPartitionStore("/user/bduser/serialization_check/", (DefaultSubgraph) subgraph);
+            LOG.debug("Compute: loading"+"/user/bduser/serialization_check/"+((DefaultSubgraph) subgraph).getId()+".ser");
+            reader.readSubgraph( "hdfs://orion-00:9000/user/bduser/serialization_check/"+((DefaultSubgraph) subgraph).getSubgraphId()+".ser",(DefaultSubgraph) subgraph);
+//            while(!((DefaultSubgraph) subgraph).isInitialized){
+//                wait(10);
+//            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+    }
 
       ///////////////////////////////////////////////////////////
       // First superstep. Get source superstep as input.

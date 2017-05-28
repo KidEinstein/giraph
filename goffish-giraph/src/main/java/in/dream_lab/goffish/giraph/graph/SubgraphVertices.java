@@ -24,7 +24,7 @@ import java.util.Set;
  * @param <E> Edge data
  */
 
-public class SubgraphVertices<S extends Writable, V extends Writable, E extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable
+public class  SubgraphVertices<S extends Writable, V extends Writable, E extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable
     > implements Writable, GiraphConfigurationSettable {
 
   private HashMap<I, IRemoteVertex<V, E, I, J, K>> remoteVertices;
@@ -132,9 +132,11 @@ public class SubgraphVertices<S extends Writable, V extends Writable, E extends 
     subgraphValue.write(dataOutput);
     dataOutput.writeInt(vertices.size());
     for (IVertex<V, E, I, J> vertex : vertices.values()) {
+      System.out.println("TEST,SubgraphVertices.write,writing vertex,"+vertex.getVertexId());
       ((DefaultSubgraphVertex) vertex).write(dataOutput);
     }
     dataOutput.writeInt(remoteVertices.size());
+    System.out.println("TEST,SubgraphVertices.write,remoteV size,"+remoteVertices.size());
     for (IRemoteVertex<V, E, I, J, K> vertex : remoteVertices.values()) {
       ((DefaultRemoteSubgraphVertex) vertex).write(dataOutput);
     }
@@ -142,6 +144,7 @@ public class SubgraphVertices<S extends Writable, V extends Writable, E extends 
       subgraphPartitionMapping = new MapWritable();
     }
     subgraphPartitionMapping.write(dataOutput);
+
 //    System.out.println("Write Num Vertices:" + vertices.size());
   }
 

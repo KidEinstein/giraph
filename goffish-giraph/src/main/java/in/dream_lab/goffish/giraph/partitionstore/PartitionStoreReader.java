@@ -5,34 +5,55 @@ import in.dream_lab.goffish.api.IEdge;
 import in.dream_lab.goffish.api.IRemoteVertex;
 import in.dream_lab.goffish.api.IVertex;
 import in.dream_lab.goffish.giraph.examples.ShortestPathSubgraphValue;
-import in.dream_lab.goffish.giraph.graph.DefaultRemoteSubgraphVertex;
-import in.dream_lab.goffish.giraph.graph.DefaultSubgraphEdge;
-import in.dream_lab.goffish.giraph.graph.DefaultSubgraphVertex;
-import in.dream_lab.goffish.giraph.graph.SubgraphVertices;
+import in.dream_lab.goffish.giraph.graph.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.io.*;
+import org.apache.log4j.Logger;
 
-
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.apache.hadoop.io.*;
+//import java.nio.file.Path;
+
+
 //arg : serialized filename
 /**
  * Created by ravikant on 16/5/17.
  */
 public class PartitionStoreReader {
 
-    public static void main(String[] args) throws IOException {
+    public static final Logger LOG = Logger.getLogger(PartitionStore.class);
+
+    public void readSubgraph(String filename, DefaultSubgraph sg) throws IOException, URISyntaxException {
 
 
-        String filename=args[0];
+//        String filename=args[0];
 
-        ByteBuf buffer = Unpooled.copiedBuffer(Files.readAllBytes((new File(filename)).toPath()));
+//        ByteBuf buffer = Unpooled.copiedBuffer(Files.readAllBytes((new File(filename)).toPath()));
+
+        Configuration conf = new Configuration();
+//        FileSystem fs = FileSystem.get(new URI("hdfs://orion-00:9000/" + filename), conf);
+//        FileStatus[] fileStatus = fs.listStatus(new Path("hdfs://orion-00:9000/" + filename));
+
+        Path path = new Path(filename);
+        FileSystem hdfs = path.getFileSystem(conf);
+        ContentSummary cSummary = hdfs.getContentSummary(path);
+        long length = cSummary.getLength();
+
+        byte[] bf=new byte[(int)length];
+
+        FSDataInputStream fsDataInputStream = hdfs.open(path);
+
+        fsDataInputStream.read(0L,  bf, 0, (int)length);
+
+        ByteBuf buffer = Unpooled.copiedBuffer(bf);
 
         ByteBufInputStream dataInput=new ByteBufInputStream(buffer);
 
@@ -46,8 +67,8 @@ public class PartitionStoreReader {
         v.setSubgraphValue(subgraphValue);
 
         int numVertices = dataInput.readInt();
-//    System.out.println("Read Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
-        System.out.println("Read Num Vertices:" + numVertices);
+//    LOG.debug("Read Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
+        LOG.debug("Read Num Vertices:" + numVertices);
         HashMap<LongWritable, IVertex<NullWritable, DoubleWritable, LongWritable, LongWritable>>vertices = new HashMap<>();
         for (int i = 0; i < numVertices; i++) {
             DefaultSubgraphVertex subgraphVertex = new DefaultSubgraphVertex();
@@ -61,7 +82,7 @@ public class PartitionStoreReader {
 
             int numEdges = dataInput.readInt();
 
-            System.out.println("Reading vertex "+id+" has edges "+numEdges);
+            LOG.debug("Reading vertex "+id+" has edges "+numEdges);
             LinkedList<IEdge> outEdges = Lists.newLinkedList();
             for (int j = 0; j < numEdges; j++) {
 
@@ -73,7 +94,7 @@ public class PartitionStoreReader {
                 se.initialize(null, null, targetId);
 
                 outEdges.add(se);
-                System.out.println("Reading vertex "+id+" has edge to "+targetId);
+                LOG.debug("Reading vertex "+id+" has edge to "+targetId);
             }
 
             subgraphVertex.setOutEdges(outEdges);
@@ -86,13 +107,13 @@ public class PartitionStoreReader {
         int numRemoteVertices = dataInput.readInt();
 
 
-        System.out.println("This subgraph has remote vertices "+numRemoteVertices);
+        LOG.debug("This subgraph has remote vertices "+numRemoteVertices);
         for (int i = 0; i < numRemoteVertices; i++) {
             DefaultRemoteSubgraphVertex remoteSubgraphVertex = new DefaultRemoteSubgraphVertex<>();
             LongWritable id = new LongWritable();
             id.readFields(dataInput);
             remoteSubgraphVertex.setId(id);
-            //    System.out.println("Read: " + "Number edges: " + numEdges);
+            //    LOG.debug("Read: " + "Number edges: " + numEdges);
             LongWritable subgraphId = new LongWritable();
             subgraphId.readFields(dataInput);
             remoteSubgraphVertex.setSubgraphId(subgraphId);
@@ -106,9 +127,14 @@ public class PartitionStoreReader {
 
         v.setSubgraphPartitionMapping(subgraphPartitionMapping);
 
-        System.out.println("TEST,PartitionStore,readlocal_vertex," + v.getNumVertices()+" "+vertices.size());
+        LOG.debug("TEST,PartitionStore,readlocal_vertex," + v.getNumVertices()+" "+vertices.size());
 
+        sg.setSubgraphValue(v);
 
     }
 
+    public static void main(String[] args) throws IOException, URISyntaxException {
+        PartitionStoreReader r=new PartitionStoreReader();
+//        r.readSubgraph(args[0]);
+    }
 }
