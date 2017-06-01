@@ -56,7 +56,12 @@ public class BspInputFormat extends InputFormat<Text, Text> {
     boolean isYarnJob = GiraphConstants.IS_PURE_YARN_JOB.get(conf);
     if (splitMasterWorker && !isYarnJob) {
       maxTasks += 1;
+    } else if (isYarnJob) {
+      // Yarn Jobs always spawn one more task than maxWorkers
+      // ApplicationMaster.java:165
+      maxTasks++;
     }
+
     if (LOG.isDebugEnabled()) {
       LOG.debug("getMaxTasks: Max workers = " + maxWorkers +
           ", split master/worker = " + splitMasterWorker +

@@ -240,7 +240,8 @@ public class PartitionBalancer {
       Configuration conf,
       Map<Integer, Set<Integer>> newWorkerPartitionMap, Collection<PartitionOwner> partitionOwners,
       Collection<PartitionStats> allPartitionStats,
-      Collection<WorkerInfo> availableWorkerInfos) {
+      Collection<WorkerInfo> availableWorkerInfos,
+      int superstep) {
     List<WorkerInfo> availableWorkerInfosList = (List<WorkerInfo>) availableWorkerInfos;
     List<PartitionOwner> partitionOwnerList = (List<PartitionOwner>) partitionOwners;
     Collections.sort(partitionOwnerList, new Comparator<PartitionOwner>() {
@@ -265,7 +266,8 @@ public class PartitionBalancer {
     for (PartitionOwner partitionOwner : partitionOwners) {
       int taskId = partitionOwner.getWorkerInfo().getTaskId();
       int partitionId = partitionOwner.getPartitionId();
-      LOG.info("New Mapping:PartitionId,TaskId:" + partitionId + "," + taskId);
+      if(superstep>=3)
+      LOG.debug("TEST,Mapping,Superstep,PartitionId,TaskId,"+superstep+"," + partitionId + "," + taskId);
     }
 
       for(PartitionOwner p:partitionOwners){

@@ -3,6 +3,7 @@ package in.dream_lab.goffish.giraph.conf;
 import in.dream_lab.goffish.giraph.factories.*;
 import org.apache.giraph.conf.BooleanConfOption;
 import org.apache.giraph.conf.ClassConfOption;
+import org.apache.giraph.conf.IntConfOption;
 import org.apache.giraph.conf.LongConfOption;
 import org.apache.hadoop.io.*;
 
@@ -58,8 +59,15 @@ public interface GiraphSubgraphConstants {
   ClassConfOption<Writable> SUBGRAPH_VERTEX_EDGE_VALUE_CLASS =
       ClassConfOption.create("giraph.subgraphEdgeValueClass",
           NullWritable.class, Writable.class,
-          "Subgraph vertex value class");LongConfOption SUBGRAPH_SOURCE_VERTEX =
+          "Subgraph vertex value class");
+
+  LongConfOption SUBGRAPH_SOURCE_VERTEX =
                   new LongConfOption("giraph.subgraphSourceVertex", 0, "Source vertex for algorithms like SSP");
+
+  IntConfOption SOURCE_PARTITION =
+          new IntConfOption("giraph.source_partition", 0, "partition which has Source vertex for algorithms like SSP");
+
+
   ClassConfOption<WritableComparable> SUBGRAPH_EDGE_ID_CLASS =
           ClassConfOption.create("giraph.edgeIdClass",
                   LongWritable.class, WritableComparable.class,

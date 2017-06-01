@@ -470,6 +470,8 @@ public class BspServiceWorker<I extends WritableComparable,
           CheckpointStatus.NONE);
     }
 
+    LOG.debug("TEST,BSPServiceWorker.setup,START");
+
     JSONObject jobState = getJobState();
     if (jobState != null) {
       try {
@@ -501,6 +503,7 @@ public class BspServiceWorker<I extends WritableComparable,
         getWorkerInfo(), masterSetPartitionOwners);
     getPartitionStore().initialize();
 
+    LOG.debug("TEST,BSPServiceWorker.setup,DONE workerGraphPartitioner.updatePartitionOwners");
 /*if[HADOOP_NON_SECURE]
     workerClient.setup();
 else[HADOOP_NON_SECURE]*/
@@ -1657,6 +1660,11 @@ else[HADOOP_NON_SECURE]*/
                   p.setPreviousWorkerInfo(null);
               }
           }
+        if((p.getPreviousWorkerInfo()!=null)  &&  p.getPreviousWorkerInfo().getTaskId()==p.getWorkerInfo().getTaskId() ){
+
+          LOG.debug("TEST,BspServiceWorker.exchangeVertexPartitions,superstep,"+getSuperstep()+",pid,"+p.getPartitionId()+",has same prev and current wid,"+p.getWorkerInfo().getTaskId());
+          p.setPreviousWorkerInfo(null);
+        }
 
       }
 

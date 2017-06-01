@@ -278,12 +278,13 @@ public class ComputeCallable<I extends WritableComparable, V extends Writable,
     long verticesComputedProgress = 0;
     // Make sure this is thread-safe across runs
     long startTime = System.currentTimeMillis();
-    if(serviceWorker.getSuperstep()==3 && partition.getId()!=source_partition){
-        LOG.debug("TEST,ComputeCallable.computePartition,superstep,"+serviceWorker.getSuperstep()+",returned partititon,"+partition.getId()+",return without computation");
-        return partitionStats;
-    }
+//    if(serviceWorker.getSuperstep()==3 && partition.getId()!=source_partition){
+//        LOG.debug("TEST,ComputeCallable.computePartition,superstep,"+serviceWorker.getSuperstep()+",returned partititon,"+partition.getId()+",return without computation");
+//        return partitionStats;
+//    }
 
     synchronized (partition) {
+
       int count = 0;
       for (Vertex<I, V, E> vertex : partition) {
         // If out-of-core mechanism is used, check whether this thread

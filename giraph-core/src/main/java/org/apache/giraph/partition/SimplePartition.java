@@ -141,23 +141,43 @@ public class SimplePartition<I extends WritableComparable,
 
   @Override
   public void readFields(DataInput input) throws IOException {
-    long startTime=System.currentTimeMillis();
-    super.readFields(input);
-    vertexMap = Maps.newConcurrentMap();
-    int vertices = input.readInt();
-//    System.out.println(" read fields is being called !! with vertices : "+ vertices);
 
-    for (int i = 0; i < vertices; ++i) {
-      progress();
-      Vertex<I, V, E> vertex =
-          WritableUtils.readVertexFromDataInput(input, getConf());
-      if (vertexMap.put(vertex.getId(), vertex) != null) {
-        throw new IllegalStateException(
-            "readFields: " + this +
-            " already has same id " + vertex);
-      }
+      super.readFields(input);
+
+      int pid= getId();
+
+      int vertices = input.readInt();
+
+      //FIXME: for lazy loading we need to load only sgid --get the sg object-- read the value
+      for (int i = 0; i < vertices; ++i) {
+          progress();
+
+          long vid=input.readInt();
+
+          Vertex vertex=getVertex(vid);
+
+          vertex.getValue().readFields(input);
+
     }
-    LOG.debug("TEST,SimplePartition.read,vertexLoop,"+vertices+",took,"+(System.currentTimeMillis()-startTime));
+
+
+//    long startTime=System.currentTimeMillis();
+//    super.readFields(input);
+//    vertexMap = Maps.newConcurrentMap();
+//    int vertices = input.readInt();
+////    System.out.println(" read fields is being called !! with vertices : "+ vertices);
+//
+//    for (int i = 0; i < vertices; ++i) {
+//      progress();
+//      Vertex<I, V, E> vertex =
+//          WritableUtils.readVertexFromDataInput(input, getConf());
+//      if (vertexMap.put(vertex.getId(), vertex) != null) {
+//        throw new IllegalStateException(
+//            "readFields: " + this +
+//            " already has same id " + vertex);
+//      }
+//    }
+//    LOG.debug("TEST,SimplePartition.read,vertexLoop,"+vertices+",took,"+(System.currentTimeMillis()-startTime));
   }
 
   @Override

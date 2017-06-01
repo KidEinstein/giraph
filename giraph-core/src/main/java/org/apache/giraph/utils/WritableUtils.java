@@ -31,6 +31,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.giraph.edge.Edge;
 import org.apache.giraph.edge.OutEdges;
@@ -42,6 +44,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs.Ids;
@@ -56,6 +59,7 @@ public class WritableUtils {
    */
   private WritableUtils() { }
 
+  private static final Logger LOG  = Logger.getLogger(WritableUtils.class);
   /**
    * Instantiate a new Writable, checking for NullWritable along the way.
    *
@@ -539,8 +543,21 @@ public class WritableUtils {
       Vertex<I, V, E> vertex,
       ImmutableClassesGiraphConfiguration<I, V, E> conf)
     throws IOException {
+
+      String classname=input.getClass().toString().split(" ")[1];
+
     vertex.getId().readFields(input);
+
+    long startTime=System.currentTimeMillis();
     vertex.getValue().readFields(input);
+
+     LOG.info("TEST,WritableUtils.readvertexToDataIntput,input.class,"+input.getClass());
+
+      if(classname.equals("io.netty.buffer.ByteBufInputStream"))
+
+          LOG.info("TEST,WritableUtils.readvertexToDataIntput,took,"+(System.currentTimeMillis()-startTime));
+
+
     ((OutEdges<I, E>) vertex.getEdges()).readFields(input);
     if (input.readBoolean()) {
       vertex.voteToHalt();
@@ -593,12 +610,42 @@ public class WritableUtils {
       Vertex<I, V, E> vertex,
       ImmutableClassesGiraphConfiguration<I, V, E> conf)
     throws IOException {
-    vertex.getId().write(output);
-    vertex.getValue().write(output);
-    ((OutEdges<I, E>) vertex.getEdges()).write(output);
-    output.writeBoolean(vertex.isHalted());
-  }
 
+      String classname = output.getClass().toString().split(" ")[1];
+      int initial_size = 0;
+
+//      if (classname.equals("io.netty.buffer.ByteBufOutputStream")) {
+//
+//          LOG.info("TEST,WritableUtils.writevertexToDataOutput,initial_size," + ((ByteBufOutputStream) output).writtenBytes());
+//
+//          initial_size = ((ByteBufOutputStream) output).writtenBytes();
+//
+//          long startTime = System.currentTimeMillis();
+//
+//          vertex.getValue().write(output);
+//
+//          LOG.info("TEST,WritableUtils.writevertexToDataOutput,took," + (System.currentTimeMillis() - startTime) + ",size," + (((ByteBufOutputStream) output).writtenBytes() - initial_size));
+//
+//          LOG.info("TEST,WritableUtils.writevertexToDataOutput,debug,"+((ByteBufOutputStream) output).writtenBytes()+","+initial_size + ",size," + (((ByteBufOutputStream) output).writtenBytes() - initial_size));
+//
+//      } else {
+
+          vertex.getId().write(output);
+
+
+          vertex.getValue().write(output);
+
+
+//      LOG.info("TEST,WritableUtils.writevertexToDataOutput,output.class,"+output.getClass()+","+(output.getClass().toString().split(" ")[1])+","+(classname.equals("io.netty.buffer.ByteBufOutputStream")) );
+//      ByteBufOutputStream b=null;
+//      String classname=output.getClass().toString().split(" ")[1];
+
+
+          ((OutEdges<I, E>) vertex.getEdges()).write(output);
+          output.writeBoolean(vertex.isHalted());
+
+//      }
+  }
   /**
    * Write class to data output. Also handles the case when class is null.
    *

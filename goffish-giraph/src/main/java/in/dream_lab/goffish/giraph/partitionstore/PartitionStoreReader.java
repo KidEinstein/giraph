@@ -33,6 +33,8 @@ public class PartitionStoreReader {
 
     public void readSubgraph(String filename, DefaultSubgraph sg) throws IOException, URISyntaxException {
 
+        LOG.debug("PartitionStoreReader got argument "+filename);
+
 
 //        String filename=args[0];
 
@@ -64,7 +66,8 @@ public class PartitionStoreReader {
         ShortestPathSubgraphValue subgraphValue = new ShortestPathSubgraphValue();
         subgraphValue.readFields(dataInput);
 
-        v.setSubgraphValue(subgraphValue);
+
+        sg.setSubgraphValue(subgraphValue);
 
         int numVertices = dataInput.readInt();
 //    LOG.debug("Read Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
@@ -101,7 +104,7 @@ public class PartitionStoreReader {
 
             vertices.put((LongWritable) subgraphVertex.getVertexId(), subgraphVertex);
         }
-        v.initialize(vertices);
+
 
         HashMap<LongWritable, IRemoteVertex>remoteVertices = new HashMap<>();
         int numRemoteVertices = dataInput.readInt();
@@ -120,17 +123,23 @@ public class PartitionStoreReader {
             remoteVertices.put(id, remoteSubgraphVertex);
         }
 
-        v.setRemoteVertices(remoteVertices);
+//        v.setRemoteVertices(remoteVertices);
+//        sg.getSubgraphValue()
 
         MapWritable subgraphPartitionMapping = new MapWritable();
         subgraphPartitionMapping.readFields(dataInput);
 
-        v.setSubgraphPartitionMapping(subgraphPartitionMapping);
+//        v.setSubgraphPartitionMapping(subgraphPartitionMapping);
+        sg.lazyload(vertices,remoteVertices,subgraphPartitionMapping);
 
-        LOG.debug("TEST,PartitionStore,readlocal_vertex," + v.getNumVertices()+" "+vertices.size());
 
-        sg.setSubgraphValue(v);
+        LOG.debug("TEST,PartitionStore,readlocal_vertex," + sg.getVertexCount()+" "+vertices.size());
 
+//        sg.setSubgraphValue();
+
+        sg.setInitialized();
+
+        LOG.debug("SGID "+sg.getSubgraphId()+" initialized in pid "+sg.getPartitionId()+" has vertices "+sg.getVertexCount());
     }
 
     public static void main(String[] args) throws IOException, URISyntaxException {

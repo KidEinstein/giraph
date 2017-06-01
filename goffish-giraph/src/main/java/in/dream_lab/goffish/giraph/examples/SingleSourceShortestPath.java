@@ -17,7 +17,7 @@ package in.dream_lab.goffish.giraph.examples;
 
 import in.dream_lab.goffish.api.*;
 import in.dream_lab.goffish.giraph.graph.DefaultSubgraph;
-import in.dream_lab.goffish.giraph.partitionstore.InputLoader;
+import in.dream_lab.goffish.giraph.graph.SubgraphId;
 import in.dream_lab.goffish.giraph.partitionstore.PartitionStoreReader;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
@@ -106,22 +106,30 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
       Set<IVertex<LongWritable, NullWritable, LongWritable, NullWritable>> rootVertices = null;
 
     // Lazy loading test
-    if(!((DefaultSubgraph) subgraph).isInitialized){
+    if(!((DefaultSubgraph) subgraph).isInitialized()){
 
 //        InputLoader loader=new InputLoader();
-        PartitionStoreReader reader=new PartitionStoreReader();
-        try {
+//        PartitionStoreReader reader=new PartitionStoreReader();
+//        try {
 //            loader.readPartitionStore("/user/bduser/serialization_check/", (DefaultSubgraph) subgraph);
-            LOG.debug("Compute: loading"+"/user/bduser/serialization_check/"+((DefaultSubgraph) subgraph).getId()+".ser");
-            reader.readSubgraph( "hdfs://orion-00:9000/user/bduser/serialization_check/"+((DefaultSubgraph) subgraph).getSubgraphId()+".ser",(DefaultSubgraph) subgraph);
-//            while(!((DefaultSubgraph) subgraph).isInitialized){
-//                wait(10);
-//            }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+//            LOG.debug("Compute: loading"+"/user/bduser/serialization_check/"+((DefaultSubgraph) subgraph).getId()+".ser");
 
+//            LOG.debug("Loading  ((DefaultSubgraph) subgraph).getSubgraphId() "+((DefaultSubgraph) subgraph).getSubgraphId()+ " in partition "+((DefaultSubgraph) subgraph).getPartitionId());
+//
+//            LOG.debug("Loading  ((DefaultSubgraph) subgraph).getSubgraphId().get "+((LongWritable)(((DefaultSubgraph) subgraph).getSubgraphId())).get());
+
+//            reader.readSubgraph( "hdfs://orion-00:9000/user/bduser/serialization_check/"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+".ser",(DefaultSubgraph) subgraph);
+            while(!((DefaultSubgraph) subgraph).isInitialized()){
+//                wait(10);
+//                LOG.debug("WAITING for loading");
+//                continue;
+           }
+        LOG.debug("LOADING DONE");
+//        } catch (URISyntaxException e) {
+//            e.printStackTrace();
+//        }
     }
+
 
       ///////////////////////////////////////////////////////////
       // First superstep. Get source superstep as input.
@@ -144,6 +152,10 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
         ShortestPathSubgraphValue subgraphValue = new ShortestPathSubgraphValue();
         subgraph.setSubgraphValue(subgraphValue);
         subgraphValue.shortestDistanceMap = new HashMap<Long, Short>((int) subgraph.getVertexCount());
+
+
+        LOG.debug("COMPUTE VCOUNT "+subgraph.getVertexCount());
+
         for (IVertex<LongWritable, NullWritable, LongWritable, NullWritable> v : subgraph.getLocalVertices()) {
           subgraphValue.shortestDistanceMap.put(v.getVertexId().get(), Short.MAX_VALUE);
         }

@@ -31,6 +31,10 @@ public class  SubgraphVertices<S extends Writable, V extends Writable, E extends
   private S subgraphValue;
   private HashMap<I, IVertex<V, E, I, J>> vertices;
 
+  public void setVertices(HashMap<I, IVertex<V, E, I, J>> vertices) {
+    this.vertices = vertices;
+  }
+
   private ImmutableClassesGiraphConfiguration conf;
 
   private MapWritable subgraphPartitionMapping;
@@ -125,25 +129,25 @@ public class  SubgraphVertices<S extends Writable, V extends Writable, E extends
       this.remoteVertices = new HashMap<>();
     }
   }
-
+  //FIXME: send only subgraphValue in case of the lazy loading
   @Override
   public void write(DataOutput dataOutput) throws IOException {
 //    System.out.println("Write Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
     subgraphValue.write(dataOutput);
-    dataOutput.writeInt(vertices.size());
-    for (IVertex<V, E, I, J> vertex : vertices.values()) {
-      System.out.println("TEST,SubgraphVertices.write,writing vertex,"+vertex.getVertexId());
-      ((DefaultSubgraphVertex) vertex).write(dataOutput);
-    }
-    dataOutput.writeInt(remoteVertices.size());
-    System.out.println("TEST,SubgraphVertices.write,remoteV size,"+remoteVertices.size());
-    for (IRemoteVertex<V, E, I, J, K> vertex : remoteVertices.values()) {
-      ((DefaultRemoteSubgraphVertex) vertex).write(dataOutput);
-    }
-    if (subgraphPartitionMapping == null) {
-      subgraphPartitionMapping = new MapWritable();
-    }
-    subgraphPartitionMapping.write(dataOutput);
+//    dataOutput.writeInt(vertices.size());
+//    for (IVertex<V, E, I, J> vertex : vertices.values()) {
+//      System.out.println("TEST,SubgraphVertices.write,writing vertex,"+vertex.getVertexId());
+//      ((DefaultSubgraphVertex) vertex).write(dataOutput);
+//    }
+//    dataOutput.writeInt(remoteVertices.size());
+//    System.out.println("TEST,SubgraphVertices.write,remoteV size,"+remoteVertices.size());
+//    for (IRemoteVertex<V, E, I, J, K> vertex : remoteVertices.values()) {
+//      ((DefaultRemoteSubgraphVertex) vertex).write(dataOutput);
+//    }
+//    if (subgraphPartitionMapping == null) {
+//      subgraphPartitionMapping = new MapWritable();
+//    }
+//    subgraphPartitionMapping.write(dataOutput);
 
 //    System.out.println("Write Num Vertices:" + vertices.size());
   }
@@ -152,25 +156,25 @@ public class  SubgraphVertices<S extends Writable, V extends Writable, E extends
     GiraphSubgraphConfiguration<K, I, V, E, S, J> giraphSubgraphConfiguration = new GiraphSubgraphConfiguration(conf);
     subgraphValue = giraphSubgraphConfiguration.createSubgraphValue();
     subgraphValue.readFields(dataInput);
-    int numVertices = dataInput.readInt();
-//    System.out.println("Read Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
-//    System.out.println("Read Num Vertices:" + numVertices);
-    vertices = new HashMap<>();
-    for (int i = 0; i < numVertices; i++) {
-      DefaultSubgraphVertex<V, E, I, J> subgraphVertex = new DefaultSubgraphVertex<V, E, I, J>();
-      subgraphVertex.readFields(giraphSubgraphConfiguration, dataInput);
-      vertices.put(subgraphVertex.getVertexId(), subgraphVertex);
-    }
-    remoteVertices = new HashMap<>();
-    int numRemoteVertices = dataInput.readInt();
-    for (int i = 0; i < numRemoteVertices; i++) {
-      DefaultRemoteSubgraphVertex<V, E, I, J, K> remoteSubgraphVertex = new DefaultRemoteSubgraphVertex<>();
-      remoteSubgraphVertex.readFields(giraphSubgraphConfiguration, dataInput);
-      remoteVertices.put(remoteSubgraphVertex.getVertexId(), remoteSubgraphVertex);
-    }
-
-    subgraphPartitionMapping = new MapWritable();
-    subgraphPartitionMapping.readFields(dataInput);
+//    int numVertices = dataInput.readInt();
+////    System.out.println("Read Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
+////    System.out.println("Read Num Vertices:" + numVertices);
+//    vertices = new HashMap<>();
+//    for (int i = 0; i < numVertices; i++) {
+//      DefaultSubgraphVertex<V, E, I, J> subgraphVertex = new DefaultSubgraphVertex<V, E, I, J>();
+//      subgraphVertex.readFields(giraphSubgraphConfiguration, dataInput);
+//      vertices.put(subgraphVertex.getVertexId(), subgraphVertex);
+//    }
+//    remoteVertices = new HashMap<>();
+//    int numRemoteVertices = dataInput.readInt();
+//    for (int i = 0; i < numRemoteVertices; i++) {
+//      DefaultRemoteSubgraphVertex<V, E, I, J, K> remoteSubgraphVertex = new DefaultRemoteSubgraphVertex<>();
+//      remoteSubgraphVertex.readFields(giraphSubgraphConfiguration, dataInput);
+//      remoteVertices.put(remoteSubgraphVertex.getVertexId(), remoteSubgraphVertex);
+//    }
+//
+//    subgraphPartitionMapping = new MapWritable();
+//    subgraphPartitionMapping.readFields(dataInput);
   }
 
   @Override

@@ -23,6 +23,10 @@ public class GiraphSubgraphConfiguration<S extends WritableComparable,
     return GiraphSubgraphConstants.SUBGRAPH_SOURCE_VERTEX.get(conf);
   }
 
+  public Integer getSourcePartition() {
+    return GiraphSubgraphConstants.SOURCE_PARTITION.get(conf);
+  }
+
 //  public SubgraphMessageValueFactory<? extends Writable> getSubgraphMessageValueFactory() {
 //    return subgraphValueFactories.getSubgraphMessageValueFactory();
 //  }

@@ -109,7 +109,7 @@ public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
         return PartitionBalancer.balancePartitionsAcrossWorkers(conf,
             partitionOwnerList, allPartitionStatsList, availableWorkers);
       } else {
-        return PartitionBalancer.balancePartitionsAcrossWorkersImproved(conf, partitionWorkerMapping.get((int) superstep - 2), partitionOwnerList, allPartitionStatsList, availableWorkers);
+        return PartitionBalancer.balancePartitionsAcrossWorkersImproved(conf, partitionWorkerMapping.get((int) superstep - 2), partitionOwnerList, allPartitionStatsList, availableWorkers,(int)superstep);
       }
     }
     return PartitionBalancer.balancePartitionsAcrossWorkers(conf,

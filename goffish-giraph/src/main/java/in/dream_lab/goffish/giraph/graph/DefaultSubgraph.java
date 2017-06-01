@@ -6,6 +6,7 @@ import in.dream_lab.goffish.api.IEdge;
 import in.dream_lab.goffish.api.IVertex;
 import org.apache.giraph.graph.*;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.WritableComparable;
 
 import java.util.HashMap;
@@ -24,9 +25,31 @@ public class DefaultSubgraph<SV extends Writable, V extends Writable, E extends 
     >
     extends DefaultVertex<SubgraphId<S>, SubgraphVertices<SV, V, E, I, EI, S>, E> implements ISubgraph<SV, V, E, I, EI, S> {
 
-  public boolean isInitialized = false;
+//    SubgraphVertices<S extends Writable, V extends Writable, E extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable?
+//private HashMap<I, IRemoteVertex<V, E, I, J, K>> remoteVertices;
+//    private S subgraphValue;
+//    private HashMap<I, IVertex<V, E, I, J>> vertices;
+//    private MapWritable subgraphPartitionMapping;
 
-  public void setRemoteVertices(HashMap<I, IRemoteVertex<V, E, I, EI, S>> remoteVertices) {
+  public  boolean  initialized = false;
+
+
+  public synchronized boolean isInitialized() {
+    return initialized;
+  }
+
+  public synchronized void setInitialized() {
+    this.initialized = true;
+  }
+
+  public void lazyload(HashMap<I, IVertex<V,E,I,EI>> vertices,HashMap<I, IRemoteVertex<V,E,I,EI,S>> rv,MapWritable mapping){
+
+      getValue().setVertices(vertices);
+      getValue().setRemoteVertices(rv);
+      getValue().setSubgraphPartitionMapping(mapping);
+  }
+
+    public void setRemoteVertices(HashMap<I, IRemoteVertex<V, E, I, EI, S>> remoteVertices) {
     SubgraphVertices<SV, V, E, I, EI, S> subgraphVertices = getValue();
     subgraphVertices.setRemoteVertices(remoteVertices);
   }
