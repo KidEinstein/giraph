@@ -222,10 +222,13 @@ public class NettyWorkerClientRequestProcessor<I extends WritableComparable,
         messageStore.getPartitionDestinationVertices(partitionId)) {
       // Messages cannot be re-used from this iterable, but add()
       // serializes the message, making this safe
+      int count=0;
       Iterable<Writable> messages = messageStore.getVertexMessages(vertexId);
       for (Writable message : messages) {
         vertexIdMessages.add(vertexId, message);
+        count++;
       }
+      LOG.debug("SENDMSGSTORE,vid,"+vertexId+",has msgCount,"+count);
       if (vertexIdMessages.getSize() > maxMessagesSizePerWorker) {
         LOG.info("Test, Message Size: " + vertexIdMessages.getSize() + "Destination: "+ partitionId);
         WritableRequest messagesRequest =

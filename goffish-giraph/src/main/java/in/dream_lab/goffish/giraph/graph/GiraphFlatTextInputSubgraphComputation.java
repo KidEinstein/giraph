@@ -21,21 +21,14 @@ public class GiraphFlatTextInputSubgraphComputation<S extends WritableComparable
   @Override
   public void compute(Vertex vertex, Iterable iterable) throws IOException {
 
-      if(getSuperstep()==0){
+//      if(getSuperstep()==0){
           //lazy loading test
           if(!((DefaultSubgraph)vertex).isInitialized()){
-
-//              ISubgraph<ShortestPathSubgraphValue, LongWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph =( (DefaultSubgraph)getSubgraph());
-
-//              if(subgraph==null){
-//
-//                  LOG.debug("CALLABLE subgraph is null");
-//                  LOG.debug("Subgraph "+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+" is null");
-//              }
 
               PartitionStoreReader reader=new PartitionStoreReader();
               try {
 
+                  LOG.debug("Calling ReadSubgraph for sgid,"+((LongWritable)((DefaultSubgraph) vertex).getSubgraphId()).get());
                   reader.readSubgraph( "hdfs://orion-00:9000/user/bduser/serialization_check/"+((LongWritable)((DefaultSubgraph) vertex).getSubgraphId()).get()+".ser",(DefaultSubgraph) vertex);
               } catch (URISyntaxException e) {
                   e.printStackTrace();
@@ -43,7 +36,7 @@ public class GiraphFlatTextInputSubgraphComputation<S extends WritableComparable
 
           }
 
-      }
+//      }
 
 
         super.compute(vertex, iterable);

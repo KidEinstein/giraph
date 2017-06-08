@@ -4,6 +4,7 @@ import in.dream_lab.goffish.giraph.conf.GiraphSubgraphConfiguration;
 import org.apache.giraph.conf.GiraphConfigurationSettable;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.log4j.Logger;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -13,6 +14,7 @@ import java.io.IOException;
  * Created by anirudh on 29/09/16.
  */
 public class SubgraphId<S extends WritableComparable> implements WritableComparable, GiraphConfigurationSettable {
+    private static final Logger LOG  = Logger.getLogger(SubgraphId.class);
     private int partitionId;
     private S subgraphId;
     private GiraphSubgraphConfiguration<S, ?, ?, ?, ?, ?> conf;
@@ -42,6 +44,7 @@ public class SubgraphId<S extends WritableComparable> implements WritableCompara
     public void write(DataOutput dataOutput) throws IOException {
         subgraphId.write(dataOutput);
         dataOutput.writeInt(partitionId);
+        LOG.debug("SGW_ID,sgid,"+subgraphId+",pid,"+partitionId);
     }
 
     @Override
@@ -90,6 +93,7 @@ public class SubgraphId<S extends WritableComparable> implements WritableCompara
       subgraphId = conf.createSubgraphId();
       subgraphId.readFields(dataInput);
       partitionId = dataInput.readInt();
+        LOG.debug("SGR_ID,sgid,"+subgraphId+",pid,"+partitionId);
     }
 
     @Override

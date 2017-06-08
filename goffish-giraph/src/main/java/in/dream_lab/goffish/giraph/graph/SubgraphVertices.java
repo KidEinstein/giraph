@@ -3,17 +3,21 @@ package in.dream_lab.goffish.giraph.graph;
 import in.dream_lab.goffish.api.IRemoteVertex;
 import in.dream_lab.goffish.api.IVertex;
 import in.dream_lab.goffish.giraph.conf.GiraphSubgraphConfiguration;
+import in.dream_lab.goffish.giraph.examples.ShortestPathSubgraphValue;
 import org.apache.giraph.conf.GiraphConfigurationSettable;
 import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
+import org.apache.giraph.utils.ReflectionUtils;
+import org.apache.giraph.utils.WritableUtils;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.log4j.Logger;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by anirudh on 27/09/16.
@@ -27,6 +31,7 @@ import java.util.Set;
 public class  SubgraphVertices<S extends Writable, V extends Writable, E extends Writable, I extends WritableComparable, J extends WritableComparable, K extends WritableComparable
     > implements Writable, GiraphConfigurationSettable {
 
+    private static final Logger LOG  = Logger.getLogger(SubgraphVertices.class);
   private HashMap<I, IRemoteVertex<V, E, I, J, K>> remoteVertices;
   private S subgraphValue;
   private HashMap<I, IVertex<V, E, I, J>> vertices;
@@ -129,11 +134,12 @@ public class  SubgraphVertices<S extends Writable, V extends Writable, E extends
       this.remoteVertices = new HashMap<>();
     }
   }
-  //FIXME: send only subgraphValue in case of the lazy loading
+  //FIXME: send only subgraphValue(Shortest distance map) in case of the lazy loading
   @Override
   public void write(DataOutput dataOutput) throws IOException {
-//    System.out.println("Write Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
+    LOG.debug("SGW_VALWrite Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
     subgraphValue.write(dataOutput);
+
 //    dataOutput.writeInt(vertices.size());
 //    for (IVertex<V, E, I, J> vertex : vertices.values()) {
 //      System.out.println("TEST,SubgraphVertices.write,writing vertex,"+vertex.getVertexId());
@@ -148,14 +154,22 @@ public class  SubgraphVertices<S extends Writable, V extends Writable, E extends
 //      subgraphPartitionMapping = new MapWritable();
 //    }
 //    subgraphPartitionMapping.write(dataOutput);
-
+//
 //    System.out.println("Write Num Vertices:" + vertices.size());
+
   }
 
   public void readFields(DataInput dataInput) throws IOException {
+
     GiraphSubgraphConfiguration<K, I, V, E, S, J> giraphSubgraphConfiguration = new GiraphSubgraphConfiguration(conf);
     subgraphValue = giraphSubgraphConfiguration.createSubgraphValue();
-    subgraphValue.readFields(dataInput);
+
+//      subgraphValue=((S)(new ShortestPathSubgraphValue()));
+//      subgraphValue=(S)ReflectionUtils.newInstance(ShortestPathSubgraphValue.class);
+
+      LOG.debug("SGW_VALRead Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
+      subgraphValue.readFields(dataInput);
+
 //    int numVertices = dataInput.readInt();
 ////    System.out.println("Read Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
 ////    System.out.println("Read Num Vertices:" + numVertices);

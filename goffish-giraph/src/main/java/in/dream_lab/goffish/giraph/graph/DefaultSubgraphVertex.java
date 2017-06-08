@@ -7,6 +7,7 @@ import in.dream_lab.goffish.giraph.conf.GiraphSubgraphConfiguration;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.log4j.Logger;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -18,6 +19,8 @@ import java.util.LinkedList;
  */
 public class DefaultSubgraphVertex<V extends Writable, E extends Writable, I extends WritableComparable,
     J extends WritableComparable> implements IVertex<V, E, I, J>, WritableComparable {
+
+    private static final Logger LOG  = Logger.getLogger(DefaultSubgraphVertex.class);
 
   private I id;
   private V value;
@@ -75,19 +78,20 @@ public class DefaultSubgraphVertex<V extends Writable, E extends Writable, I ext
 
   @Override
   public void write(DataOutput dataOutput) throws IOException {
-//    System.out.println("Write: " + "ID:" + id + id.getClass().getSimpleName());
-//    System.out.println("Write: " + "Value:" + value + value.getClass().getSimpleName());
+    LOG.debug("SGVWrite: " + "ID:" + id + id.getClass().getSimpleName());
+    LOG.debug("SGVWrite: " + "Value:" + value + value.getClass().getSimpleName());
     id.write(dataOutput);
     value.write(dataOutput);
     int numOutEdges = outEdges.size();
     dataOutput.writeInt(numOutEdges);
-//        System.out.println("Write: " + "Number edges: " + numOutEdges);
+        LOG.debug("SGVWrite:Number edges: " + numOutEdges);
     for (IEdge<E, I, J> edge : outEdges) {
-//            System.out.println("Write: " + "Edge:" + edge.getSinkVertexId() + " Class: " + edge.getSinkVertexId().getClass().getSimpleName());
+            LOG.debug("SGVWrite: " + "Edge,SRC" +id+",Sink,"+ edge.getSinkVertexId()+",Value,"+edge.getValue() + " Class: " + edge.getSinkVertexId().getClass().getSimpleName());
       edge.getSinkVertexId().write(dataOutput);
-      edge.getValue().write(dataOutput);
+      //FIXME:edgevalue is null
+//      edge.getValue().write(dataOutput);
     }
-//    System.out.println("Vertex ID Class,VertexValueClass:" + id.getClass() + "," + value.getClass());
+    LOG.debug("SGVWVertex ID Class,VertexValueClass:" + id.getClass() + "," + value.getClass());
   }
 
   @Override
@@ -102,21 +106,22 @@ public class DefaultSubgraphVertex<V extends Writable, E extends Writable, I ext
 
     id.readFields(dataInput);
     value.readFields(dataInput);
-//    System.out.println("Read ID:" + id + "\t"+ id.getClass().getSimpleName());
-//    System.out.println("Read: " + "Value:" + value + value.getClass().getSimpleName());
+    LOG.debug("SGVRRead ID:" + id + "\t"+ id.getClass().getSimpleName());
+    LOG.debug("SGVRRead: " + "Value:" + value + value.getClass().getSimpleName());
 
     int numEdges = dataInput.readInt();
-//    System.out.println("Read: " + "Number edges: " + numEdges);
+    LOG.debug("SGVRead: " + "Number edges: " + numEdges);
     outEdges = Lists.newLinkedList();
     for (int i = 0; i < numEdges; i++) {
-//      System.out.println("\n THIS IS I :  "+ i);
+//      LOG.debug("\n THIS IS I :  "+ i);
       DefaultSubgraphEdge<I, E, J> se = new DefaultSubgraphEdge<>();
       I targetId = conf.createSubgraphVertexId();
       E edgeValue = conf.createEdgeValue();
       targetId.readFields(dataInput);
-      edgeValue.readFields(dataInput);
-      se.initialize(null, edgeValue, targetId);
-//      System.out.println("Read: " + "Edge:" + se.getSinkVertexId() + " Class: " + se.getSinkVertexId().getClass().getSimpleName());
+//      edgeValue.readFields(dataInput);
+//      se.initialize(null, edgeValue, targetId);
+        se.initialize(null, null, targetId);
+      LOG.debug("SGVRead: " + "Edge,SRC,"+id+",Sink," + se.getSinkVertexId() +",Value,"+edgeValue +" Class: " + se.getSinkVertexId().getClass().getSimpleName());
       outEdges.add(se);
     }
   }

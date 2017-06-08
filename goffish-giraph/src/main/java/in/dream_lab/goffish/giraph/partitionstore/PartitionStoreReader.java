@@ -67,7 +67,7 @@ public class PartitionStoreReader {
         subgraphValue.readFields(dataInput);
 
 
-        sg.setSubgraphValue(subgraphValue);
+//        sg.setSubgraphValue(subgraphValue);
 
         int numVertices = dataInput.readInt();
 //    LOG.debug("Read Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());

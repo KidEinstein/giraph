@@ -124,10 +124,35 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
 //                LOG.debug("WAITING for loading");
 //                continue;
            }
-        LOG.debug("LOADING DONE");
+        LOG.debug("LOADED in COMPUTE sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId()+",superstep,"+getSuperstep()+",VCOUNT,"+subgraph.getVertexCount());
+
+        if(getSuperstep()>0) {
+            ShortestPathSubgraphValue subgraphValue = (subgraph).getSubgraphValue();
+            Map<Long, Short> distanceMap = subgraphValue.shortestDistanceMap;
+
+            LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() +",num_entries,"+subgraphValue.shortestDistanceMap.size());
+
+            for (Map.Entry<Long, Short> pair : distanceMap.entrySet()) {
+                LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() + ",vid," + pair.getKey() + ",distance," + pair.getValue() + ",sgid," + ((LongWritable) ((DefaultSubgraph) subgraph).getSubgraphId()).get() + ",pid," + ((DefaultSubgraph) subgraph).getPartitionId());
+            }
+        }
 //        } catch (URISyntaxException e) {
 //            e.printStackTrace();
 //        }
+    }else{
+        LOG.debug("ALREADY LOADED sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId()+",superstep,"+getSuperstep()+",VCOUNT,"+subgraph.getVertexCount());
+
+        for (IVertex<LongWritable, NullWritable, LongWritable, NullWritable> v : subgraph.getLocalVertices()) {
+            LOG.debug("Local_Vertices,Superstep,"+getSuperstep()+",vid,"+v.getVertexId()+",sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId());
+        }
+
+        ShortestPathSubgraphValue  subgraphValue = ( subgraph).getSubgraphValue();
+        Map<Long, Short> distanceMap = subgraphValue.shortestDistanceMap;
+
+        LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() +",num_entries,"+subgraphValue.shortestDistanceMap.size());
+        for(Map.Entry<Long,Short>pair:distanceMap.entrySet()){
+            LOG.debug("DISTANCE_MAP,Superstep,"+getSuperstep()+",vid,"+pair.getKey()+",distance,"+pair.getValue()+",sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId());
+        }
     }
 
 
@@ -154,7 +179,7 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
         subgraphValue.shortestDistanceMap = new HashMap<Long, Short>((int) subgraph.getVertexCount());
 
 
-        LOG.debug("COMPUTE VCOUNT "+subgraph.getVertexCount());
+//        LOG.debug("COMPUTE VCOUNT "+subgraph.getVertexCount());
 
         for (IVertex<LongWritable, NullWritable, LongWritable, NullWritable> v : subgraph.getLocalVertices()) {
           subgraphValue.shortestDistanceMap.put(v.getVertexId().get(), Short.MAX_VALUE);
@@ -353,7 +378,7 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
 //        SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> currentVertex = vertices.get(new LongWritable(sinkVertex));
         //LOG.info("Test, Current vertex object: " + currentVertex);
 
-        //LOG.info("Test, Current vertex: " + currentVertex.getVertexId());
+        LOG.debug("SSSP, sinkVID,"+sinkVertex+",distance,"+sinkDistance);
         short distance = subgraphValue.shortestDistanceMap.get(sinkVertex);
         if (sinkDistance < distance) {
           subgraphValue.shortestDistanceMap.put(sinkVertex, sinkDistance);

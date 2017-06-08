@@ -544,26 +544,33 @@ public class WritableUtils {
       ImmutableClassesGiraphConfiguration<I, V, E> conf)
     throws IOException {
 
-      String classname=input.getClass().toString().split(" ")[1];
+//      String classname=input.getClass().toString().split(" ")[1];
 
+      LOG.debug("SGR_ID_begin");
     vertex.getId().readFields(input);
 
-    long startTime=System.currentTimeMillis();
+//    long startTime=System.currentTimeMillis();
+      LOG.debug("SGW_VAL_begin,");
     vertex.getValue().readFields(input);
 
-     LOG.info("TEST,WritableUtils.readvertexToDataIntput,input.class,"+input.getClass());
+//     LOG.info("TEST,WritableUtils.readvertexToDataIntput,input.class,"+input.getClass());
+//
+//      if(classname.equals("io.netty.buffer.ByteBufInputStream"))
+//
+//          LOG.info("TEST,WritableUtils.readvertexToDataIntput,took,"+(System.currentTimeMillis()-startTime));
 
-      if(classname.equals("io.netty.buffer.ByteBufInputStream"))
-
-          LOG.info("TEST,WritableUtils.readvertexToDataIntput,took,"+(System.currentTimeMillis()-startTime));
-
-
+      LOG.debug("SGW_EDGE_begin");
     ((OutEdges<I, E>) vertex.getEdges()).readFields(input);
     if (input.readBoolean()) {
       vertex.voteToHalt();
     } else {
       vertex.wakeUp();
     }
+
+      LOG.debug("SGR,vertexClass,"+vertex.getClass().getSimpleName()+",vidClass,"+vertex.getId()+",valueclass,"+vertex.getValue()+",edges,"+vertex.getEdges().getClass()+","+vertex.getEdges()+","+vertex.getNumEdges());
+
+
+    LOG.debug("SGREAD,sgid,"+vertex.getId()+",value,"+vertex.getValue()+",isHalted,"+vertex.isHalted()+",edgeCount,"+((OutEdges<I, E>) vertex.getEdges()).size());
   }
 
   /**
@@ -630,20 +637,23 @@ public class WritableUtils {
 //
 //      } else {
 
+            LOG.debug("SGW_ID_begin");
           vertex.getId().write(output);
 
-
+      LOG.debug("SGW_VAL_begin");
           vertex.getValue().write(output);
 
+          LOG.debug("SGW,vertexClass,"+vertex.getClass().getSimpleName()+",vidClass,"+vertex.getId()+",valueclass,"+vertex.getValue()+",edges,"+vertex.getEdges().getClass()+","+vertex.getEdges()+","+vertex.getNumEdges());
 
 //      LOG.info("TEST,WritableUtils.writevertexToDataOutput,output.class,"+output.getClass()+","+(output.getClass().toString().split(" ")[1])+","+(classname.equals("io.netty.buffer.ByteBufOutputStream")) );
 //      ByteBufOutputStream b=null;
 //      String classname=output.getClass().toString().split(" ")[1];
 
-
+      LOG.debug("SGW_EDGE_begin");
           ((OutEdges<I, E>) vertex.getEdges()).write(output);
           output.writeBoolean(vertex.isHalted());
 
+      
 //      }
   }
   /**

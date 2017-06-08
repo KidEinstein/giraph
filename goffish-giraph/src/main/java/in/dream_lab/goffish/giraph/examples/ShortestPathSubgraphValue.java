@@ -26,57 +26,65 @@ public class ShortestPathSubgraphValue implements Writable
       shortestDistanceMap = new HashMap<>();
     }
 
-    String classname = dataOutput.getClass().toString().split(" ")[1];
-    int initial_size = 0;
+//    String classname = dataOutput.getClass().toString().split(" ")[1];
+//    int initial_size = 0;
 
-    if (classname.equals("io.netty.buffer.ByteBufOutputStream")) {
+//    if (classname.equals("io.netty.buffer.ByteBufOutputStream")) {
 
-      LOG.info("TEST,ShortestPathSubgraphValue.write,initial_size," + ((ByteBufOutputStream) dataOutput).writtenBytes());
-
-      initial_size = ((ByteBufOutputStream) dataOutput).writtenBytes();
+//      LOG.info("TEST,ShortestPathSubgraphValue.write,initial_size," + ((ByteBufOutputStream) dataOutput).writtenBytes());
+//
+//      initial_size = ((ByteBufOutputStream) dataOutput).writtenBytes();
 
       long startTime = System.currentTimeMillis();
 
 
       dataOutput.writeInt(shortestDistanceMap.size());
+        LOG.debug("SGVALUEW,NUM_V,"+shortestDistanceMap.size());
       for (Map.Entry<Long, Short> entry : shortestDistanceMap.entrySet()) {
         dataOutput.writeLong(entry.getKey());
         dataOutput.writeShort(entry.getValue());
+        LOG.debug("SGVALUEW,VID,"+entry.getKey()+",DISTANCE,"+entry.getValue());
       }
 
-      LOG.info("TEST,ShortestPathSubgraphValue.write,took," + (System.currentTimeMillis() - startTime) + ",size," + (((ByteBufOutputStream) dataOutput).writtenBytes() - initial_size));
+//      LOG.info("TEST,ShortestPathSubgraphValue.write,took," + (System.currentTimeMillis() - startTime) + ",size," + (((ByteBufOutputStream) dataOutput).writtenBytes() - initial_size));
+//
+//      LOG.info("TEST,ShortestPathSubgraphValue.write,debug," + ((ByteBufOutputStream) dataOutput).writtenBytes() + "," + initial_size + ",size," + (((ByteBufOutputStream) dataOutput).writtenBytes() - initial_size));
 
-      LOG.info("TEST,ShortestPathSubgraphValue.write,debug," + ((ByteBufOutputStream) dataOutput).writtenBytes() + "," + initial_size + ",size," + (((ByteBufOutputStream) dataOutput).writtenBytes() - initial_size));
-
-    } else {
-      dataOutput.writeInt(shortestDistanceMap.size());
-      for (Map.Entry<Long, Short> entry : shortestDistanceMap.entrySet()) {
-        dataOutput.writeLong(entry.getKey());
-        dataOutput.writeShort(entry.getValue());
-      }
-    }
+//    } else {
+//      dataOutput.writeInt(shortestDistanceMap.size());
+//      for (Map.Entry<Long, Short> entry : shortestDistanceMap.entrySet()) {
+//        dataOutput.writeLong(entry.getKey());
+//        dataOutput.writeShort(entry.getValue());
+//      }
+//    }
   }
   @Override
   public void readFields(DataInput dataInput) throws IOException {
 
-      String classname = dataInput.getClass().toString().split(" ")[1];
+//      String classname = dataInput.getClass().toString().split(" ")[1];
 
 
-      if (classname.equals("io.netty.buffer.ByteBufInputStream")) {
+//      if (classname.equals("io.netty.buffer.ByteBufInputStream")) {
           long startTime = System.currentTimeMillis();
           int size = dataInput.readInt();
+          LOG.debug("SGVALUER,NUM_V,"+size);
           shortestDistanceMap = new HashMap<>(size);
+          long vid;
+          short distance;
           for (int i = 0; i < size; i++) {
-              shortestDistanceMap.put(dataInput.readLong(), dataInput.readShort());
+               vid=dataInput.readLong();
+               distance=dataInput.readShort();
+              shortestDistanceMap.put(vid, distance);
+            LOG.debug("SGVALUER,VID,"+vid+",DISTANCE,"+distance);
           }
           LOG.info("TEST,ShortestPathSubgraphValue.read,took," + (System.currentTimeMillis() - startTime));
 
-    }else{
-      int size = dataInput.readInt();
-    shortestDistanceMap = new HashMap<>(size);
-    for (int i = 0; i < size; i++) {
-      shortestDistanceMap.put(dataInput.readLong(), dataInput.readShort());
-    }
-    }
+//    }else{
+//      int size = dataInput.readInt();
+//    shortestDistanceMap = new HashMap<>(size);
+//    for (int i = 0; i < size; i++) {
+//      shortestDistanceMap.put(dataInput.readLong(), dataInput.readShort());
+//    }
+//    }
   }
 }

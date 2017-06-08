@@ -90,6 +90,26 @@
             <artifactId>goffish-api</artifactId>
             <version>3.1</version>
         </dependency>
+         <!--https://mvnrepository.com/artifact/commons-collections/commons-collections-->
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+
+
+        <!--<dependency>-->
+            <!--<groupId>com.esotericsoftware.kryo</groupId>-->
+            <!--<artifactId>kryo</artifactId>-->
+            <!--<version>4.0.0</version>-->
+        <!--</dependency>-->
+        <!--&lt;!&ndash; https://mvnrepository.com/artifact/com.esotericsoftware/kryo &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>com.esotericsoftware</groupId>-->
+            <!--<artifactId>kryo</artifactId>-->
+            <!--<version>4.0.0</version>-->
+        <!--</dependency>-->
+
     </dependencies>
 
 
