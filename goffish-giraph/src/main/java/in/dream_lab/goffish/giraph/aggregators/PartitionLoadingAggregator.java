@@ -1,6 +1,7 @@
 package in.dream_lab.goffish.giraph.aggregators;
 
 import org.apache.giraph.aggregators.Aggregator;
+import org.apache.hadoop.io.MapWritable;
 
 /**
  * Created by ravikant on 20/5/17.
