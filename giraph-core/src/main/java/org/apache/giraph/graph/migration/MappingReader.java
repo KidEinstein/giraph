@@ -16,7 +16,7 @@ import java.util.*;
  * Created by ravikant on 1/2/17.
  */
 
-//TODO: return a table of mapping
+//FIXME: SUperstep number for giraph and goffish is same
 public class MappingReader {
   public static final StrConfOption MAPPING_FILE = new StrConfOption("mappingFile", null, "Mapping file");
   private static Logger LOG = Logger.getLogger(MappingReader.class);
@@ -33,12 +33,12 @@ public class MappingReader {
     String line;
 
     line = br.readLine();
-    //input format partitionID,superstep,workerID
+    //input format partitionID,superstep,workerID //FIXME: partititon ID for giraph starts from 0
     while (line != null) {
       String[] entry = line.split(cvsSplitBy);
       int partitionId = Integer.parseInt(entry[0]);
-      int superStep =  Integer.parseInt(entry[1]);//as the user compute gets called in superstep 3
-      int workedId =  Integer.parseInt(entry[2])+1; //as the script allocates from the vmid 0
+      int superStep =  Integer.parseInt(entry[1])-1;//FIXME:script starts from supersep 1 and user compute gets called in superstep 0
+      int workedId =  Integer.parseInt(entry[2])+1; //FIXME: the script allocates from the vmid 0
       if (mapping.containsKey(superStep)) {
         Map<Integer, Set<Integer>> widPidMap = mapping.get(superStep);
         if (widPidMap.containsKey(workedId)) {

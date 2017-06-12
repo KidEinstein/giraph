@@ -332,12 +332,13 @@ end[PURE_YARN]*/
         LOG.debug("execute: " + MemoryUtils.getRuntimeMemoryStats());
         LOG.debug("TEST,GraphTaskManager.execute,done masterAssignedPartitionOwners,"+superstep);
       }
+      long startime=System.currentTimeMillis();
       context.progress();
       serviceWorker.exchangeVertexPartitions(masterAssignedPartitionOwners);
       context.progress();
       boolean hasBeenRestarted = checkSuperstepRestarted(superstep);
 
-        LOG.debug("TEST,GraphTaskManager.execute,done partitionExchange,"+superstep);
+        LOG.debug("TEST,GraphTaskManager.execute,done partitionExchange,superstep,"+superstep+",took,"+(System.currentTimeMillis()-startime));
 
       GlobalStats globalStats = serviceWorker.getGlobalStats();
 
@@ -823,6 +824,7 @@ end[PURE_YARN]*/
               serviceWorker);
         }
       };
+    LOG.debug("ThreadCount,"+numThreads+",wid,"+serviceWorker.getWorkerInfo().getTaskId());
     List<Collection<PartitionStats>> results =
         ProgressableUtils.getResultsWithNCallables(callableFactory, numThreads,
             "compute-%d", context);

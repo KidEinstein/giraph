@@ -21,15 +21,20 @@ public class GiraphFlatTextInputSubgraphComputation<S extends WritableComparable
   @Override
   public void compute(Vertex vertex, Iterable iterable) throws IOException {
 
+      final String SERIALIZED_INPUT_PATH = "giraph.serialized.input.path";
 //      if(getSuperstep()==0){
           //lazy loading test
           if(!((DefaultSubgraph)vertex).isInitialized()){
 
               PartitionStoreReader reader=new PartitionStoreReader();
               try {
-
-                  LOG.debug("Calling ReadSubgraph for sgid,"+((LongWritable)((DefaultSubgraph) vertex).getSubgraphId()).get());
-                  reader.readSubgraph( "hdfs://orion-00:9000/user/bduser/serialization_check/"+((LongWritable)((DefaultSubgraph) vertex).getSubgraphId()).get()+".ser",(DefaultSubgraph) vertex);
+                  //TODO:get the path from conf
+                   String hdfspath=getConf(SERIALIZED_INPUT_PATH);
+//                  LOG.debug("Calling ReadSubgraph,superstep" +getSuperstep() +",sgid,"+((LongWritable)((DefaultSubgraph) vertex).getSubgraphId()).get()+" in dir "+hdfspath);
+                  long startTime=System.currentTimeMillis();
+//                  reader.readSubgraph( "hdfs://orion-00:9000/user/bduser/lazy_loading/ORKT-40/"+((LongWritable)((DefaultSubgraph) vertex).getSubgraphId()).get()+".ser",(DefaultSubgraph) vertex);
+                  reader.readSubgraph( hdfspath+((LongWritable)((DefaultSubgraph) vertex).getSubgraphId()).get()+".ser",(DefaultSubgraph) vertex);
+                  LOG.debug("Calling ReadSubgraph,superstep" +getSuperstep() +",sgid,"+((LongWritable)((DefaultSubgraph) vertex).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) vertex).getPartitionId()+" in dir "+hdfspath+",took,"+(System.currentTimeMillis()-startTime));
               } catch (URISyntaxException e) {
                   e.printStackTrace();
               }

@@ -124,35 +124,35 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
 //                LOG.debug("WAITING for loading");
 //                continue;
            }
-        LOG.debug("LOADED in COMPUTE sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId()+",superstep,"+getSuperstep()+",VCOUNT,"+subgraph.getVertexCount());
+        LOG.debug("LOADED in COMPUTE sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId()+",superstep,"+getSuperstep()+",VCOUNT,"+subgraph.getLocalVertexCount());
 
-        if(getSuperstep()>0) {
-            ShortestPathSubgraphValue subgraphValue = (subgraph).getSubgraphValue();
-            Map<Long, Short> distanceMap = subgraphValue.shortestDistanceMap;
-
-            LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() +",num_entries,"+subgraphValue.shortestDistanceMap.size());
-
-            for (Map.Entry<Long, Short> pair : distanceMap.entrySet()) {
-                LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() + ",vid," + pair.getKey() + ",distance," + pair.getValue() + ",sgid," + ((LongWritable) ((DefaultSubgraph) subgraph).getSubgraphId()).get() + ",pid," + ((DefaultSubgraph) subgraph).getPartitionId());
-            }
-        }
+//        if(getSuperstep()>0) {
+//            ShortestPathSubgraphValue subgraphValue = (subgraph).getSubgraphValue();
+//            Map<Long, Short> distanceMap = subgraphValue.shortestDistanceMap;
+//
+//            LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() +",num_entries,"+subgraphValue.shortestDistanceMap.size());
+//
+////            for (Map.Entry<Long, Short> pair : distanceMap.entrySet()) {
+////                LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() + ",vid," + pair.getKey() + ",distance," + pair.getValue() + ",sgid," + ((LongWritable) ((DefaultSubgraph) subgraph).getSubgraphId()).get() + ",pid," + ((DefaultSubgraph) subgraph).getPartitionId());
+////            }
+//        }
 //        } catch (URISyntaxException e) {
 //            e.printStackTrace();
 //        }
     }else{
-        LOG.debug("ALREADY LOADED sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId()+",superstep,"+getSuperstep()+",VCOUNT,"+subgraph.getVertexCount());
+        LOG.debug("ALREADY LOADED sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId()+",superstep,"+getSuperstep()+",VCOUNT,"+subgraph.getLocalVertexCount());
 
-        for (IVertex<LongWritable, NullWritable, LongWritable, NullWritable> v : subgraph.getLocalVertices()) {
-            LOG.debug("Local_Vertices,Superstep,"+getSuperstep()+",vid,"+v.getVertexId()+",sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId());
-        }
+//        for (IVertex<LongWritable, NullWritable, LongWritable, NullWritable> v : subgraph.getLocalVertices()) {
+//            LOG.debug("Local_Vertices,Superstep,"+getSuperstep()+",vid,"+v.getVertexId()+",sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId());
+//        }
 
         ShortestPathSubgraphValue  subgraphValue = ( subgraph).getSubgraphValue();
         Map<Long, Short> distanceMap = subgraphValue.shortestDistanceMap;
 
         LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() +",num_entries,"+subgraphValue.shortestDistanceMap.size());
-        for(Map.Entry<Long,Short>pair:distanceMap.entrySet()){
-            LOG.debug("DISTANCE_MAP,Superstep,"+getSuperstep()+",vid,"+pair.getKey()+",distance,"+pair.getValue()+",sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId());
-        }
+//        for(Map.Entry<Long,Short>pair:distanceMap.entrySet()){
+//            LOG.debug("DISTANCE_MAP,Superstep,"+getSuperstep()+",vid,"+pair.getKey()+",distance,"+pair.getValue()+",sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId());
+//        }
     }
 
 
@@ -378,7 +378,7 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
 //        SubgraphVertex<LongWritable, LongWritable, LongWritable, NullWritable, NullWritable> currentVertex = vertices.get(new LongWritable(sinkVertex));
         //LOG.info("Test, Current vertex object: " + currentVertex);
 
-        LOG.debug("SSSP, sinkVID,"+sinkVertex+",distance,"+sinkDistance);
+//        LOG.debug("SSSP, sinkVID,"+sinkVertex+",distance,"+sinkDistance);
         short distance = subgraphValue.shortestDistanceMap.get(sinkVertex);
         if (sinkDistance < distance) {
           subgraphValue.shortestDistanceMap.put(sinkVertex, sinkDistance);
@@ -386,7 +386,7 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
         }
       }
     }
-    LOG.info("Superstep,SubgraphId,unpackedReceivedMessageCount,packedReceivedMessageCount,rootVertices:" + getSuperstep() + "," + subgraph.getSubgraphId() + "," + unpackedMessageCount + "," + packedMessageCount + "," + rootVertices.size());
+    LOG.debug("Superstep,SubgraphId,unpackedReceivedMessageCount,packedReceivedMessageCount,rootVertices:" + getSuperstep() + "," + subgraph.getSubgraphId() + "," + unpackedMessageCount + "," + packedMessageCount + "," + rootVertices.size());
   }
 
 
@@ -492,7 +492,7 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
     } // end vertex traversal
 
     // FIXME:TEMPDEL
-    LOG.info("Superstep,SubgraphId,localUpdate,incrementalChangeCount:" + getSuperstep() + "," + subgraph.getSubgraphId() + "," + localUpdateCount + "," + incrementalChangeCount);
+    LOG.debug("Superstep,SubgraphId,localUpdate,incrementalChangeCount:" + getSuperstep() + "," + subgraph.getSubgraphId() + "," + localUpdateCount + "," + incrementalChangeCount);
   }
 
 }

@@ -1187,8 +1187,11 @@ else[HADOOP_NON_SECURE]*/
     setCachedSuperstep(getSuperstep() - 1);
     if (finishedSuperstepStats.getCheckpointStatus() !=
         CheckpointStatus.CHECKPOINT_AND_HALT) {
-      saveVertices(finishedSuperstepStats.getLocalVertexCount());
-      saveEdges();
+
+      if(getServerData().getPartitionStore().getNumPartitions()>0) {
+        saveVertices(finishedSuperstepStats.getLocalVertexCount());
+        saveEdges();
+      }
     }
     WorkerProgress.get().finishStoring();
     if (workerProgressWriter != null) {

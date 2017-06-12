@@ -33,7 +33,8 @@ public class PartitionStoreReader {
 
     public void readSubgraph(String filename, DefaultSubgraph sg) throws IOException, URISyntaxException {
 
-        LOG.debug("PartitionStoreReader got argument "+filename);
+        int totaledges=0;
+//        LOG.debug("PartitionStoreReader got argument "+filename);
 
 
 //        String filename=args[0];
@@ -71,7 +72,7 @@ public class PartitionStoreReader {
 
         int numVertices = dataInput.readInt();
 //    LOG.debug("Read Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
-        LOG.debug("Read Num Vertices:" + numVertices);
+//        LOG.debug("Read Num Vertices:" + numVertices);
         HashMap<LongWritable, IVertex<NullWritable, DoubleWritable, LongWritable, LongWritable>>vertices = new HashMap<>();
         for (int i = 0; i < numVertices; i++) {
             DefaultSubgraphVertex subgraphVertex = new DefaultSubgraphVertex();
@@ -85,7 +86,8 @@ public class PartitionStoreReader {
 
             int numEdges = dataInput.readInt();
 
-            LOG.debug("Reading vertex "+id+" has edges "+numEdges);
+            totaledges+=numEdges;
+//            LOG.debug("Reading vertex "+id+" has edges "+numEdges);
             LinkedList<IEdge> outEdges = Lists.newLinkedList();
             for (int j = 0; j < numEdges; j++) {
 
@@ -97,7 +99,7 @@ public class PartitionStoreReader {
                 se.initialize(null, null, targetId);
 
                 outEdges.add(se);
-                LOG.debug("Reading vertex "+id+" has edge to "+targetId);
+//                LOG.debug("Reading vertex "+id+" has edge to "+targetId);
             }
 
             subgraphVertex.setOutEdges(outEdges);
@@ -110,7 +112,7 @@ public class PartitionStoreReader {
         int numRemoteVertices = dataInput.readInt();
 
 
-        LOG.debug("This subgraph has remote vertices "+numRemoteVertices);
+//        LOG.debug("This subgraph has remote vertices "+numRemoteVertices);
         for (int i = 0; i < numRemoteVertices; i++) {
             DefaultRemoteSubgraphVertex remoteSubgraphVertex = new DefaultRemoteSubgraphVertex<>();
             LongWritable id = new LongWritable();
@@ -133,13 +135,13 @@ public class PartitionStoreReader {
         sg.lazyload(vertices,remoteVertices,subgraphPartitionMapping);
 
 
-        LOG.debug("TEST,PartitionStore,readlocal_vertex," + sg.getVertexCount()+" "+vertices.size());
+//        LOG.debug("TEST,PartitionStore,readlocal_vertex," + sg.getVertexCount()+" "+vertices.size());
 
 //        sg.setSubgraphValue();
 
         sg.setInitialized();
 
-        LOG.debug("SGID "+sg.getSubgraphId()+" initialized in pid "+sg.getPartitionId()+" has vertices "+sg.getVertexCount());
+        LOG.debug("SGID "+sg.getSubgraphId()+" initialized in pid "+sg.getPartitionId()+" has vertices "+sg.getLocalVertexCount()+",edges,"+totaledges);
     }
 
     public static void main(String[] args) throws IOException, URISyntaxException {

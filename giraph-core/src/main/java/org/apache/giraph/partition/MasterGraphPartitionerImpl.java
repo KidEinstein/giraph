@@ -49,7 +49,9 @@ public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
    * Save the last generated partition owner list
    */
   private List<PartitionOwner> partitionOwnerList;
-
+    /**
+     * map with key as superstep and value as map (key->partition value-->worker id)
+     */
   Map<Integer, Map<Integer, Set<Integer>>> partitionWorkerMapping;
 
   /** Class logger */
@@ -97,7 +99,7 @@ public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
       long superstep) {
 
     LOG.debug("TEST,MasterGraphPartitionerImpl.generateChangedPartitionOwners,superstep,"+superstep);
-    if (MappingReader.MAPPING_FILE.get(conf) != null && superstep >= 3) {
+    if (MappingReader.MAPPING_FILE.get(conf) != null && superstep >= 0) {
       if (partitionWorkerMapping == null) {
         try {
           partitionWorkerMapping = MappingReader.readFile(conf);
@@ -105,15 +107,19 @@ public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
           e.printStackTrace();
         }
       }
-      if (partitionWorkerMapping.get((int) superstep - 2) == null) {
-        return PartitionBalancer.balancePartitionsAcrossWorkers(conf,
-            partitionOwnerList, allPartitionStatsList, availableWorkers);
+      if (partitionWorkerMapping.get((int) superstep ) == null) {
+        return PartitionBalancer.balancePartitionsAcrossWorkers2(conf,
+            partitionOwnerList, allPartitionStatsList, availableWorkers,superstep);
       } else {
-        return PartitionBalancer.balancePartitionsAcrossWorkersImproved(conf, partitionWorkerMapping.get((int) superstep - 2), partitionOwnerList, allPartitionStatsList, availableWorkers,(int)superstep);
+        return PartitionBalancer.balancePartitionsAcrossWorkersImproved(conf, partitionWorkerMapping.get((int) superstep), partitionOwnerList, allPartitionStatsList, availableWorkers,(int)superstep);
       }
     }
-    return PartitionBalancer.balancePartitionsAcrossWorkers(conf,
-        partitionOwnerList, allPartitionStatsList, availableWorkers);
+    else
+      return PartitionBalancer.balancePartitionsAcrossWorkers2(conf,
+              partitionOwnerList, allPartitionStatsList, availableWorkers,superstep);
+
+//    return PartitionBalancer.balancePartitionsAcrossWorkers(conf,
+//        partitionOwnerList, allPartitionStatsList, availableWorkers);
   }
 
   @Override

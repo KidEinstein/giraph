@@ -278,6 +278,36 @@ public class PartitionBalancer {
     return partitionOwners;
   }
 
+
+    public static Collection<PartitionOwner> balancePartitionsAcrossWorkers2(
+            Configuration conf,
+            Collection<PartitionOwner> partitionOwners,
+            Collection<PartitionStats> allPartitionStats,
+            Collection<WorkerInfo> availableWorkerInfos, long superstep) {
+
+//////////////////////////////////////////////////////////
+//        if (superstep == 2){
+//            //Testing for partition id 0
+//            List<WorkerInfo> availableWorkerInfosList = (List<WorkerInfo>) availableWorkerInfos;
+//            List<PartitionOwner> partitionOwnerList = (List<PartitionOwner>) partitionOwners;
+//            Collections.sort(partitionOwnerList, new Comparator<PartitionOwner>() {
+//                @Override
+//                public int compare(PartitionOwner o1, PartitionOwner o2) {
+//                    return o1.getPartitionId() - o2.getPartitionId();
+//                }
+//            });
+//            PartitionOwner partitionOwner = partitionOwnerList.get(0);
+//            partitionOwner.setPreviousWorkerInfo(partitionOwner.getWorkerInfo());
+//            partitionOwner.setWorkerInfo((partitionOwnerList.get(2)).getWorkerInfo());
+//        }
+///////////////////////////////////////////////////////////
+        for(PartitionOwner p:partitionOwners){
+//            PartitionOwner p=partitionOwnerList.get(i);
+            LOG.debug("TEST,PartitionBalancer.balancePartitionsAcrossWorkers2,partitionOwners,pid,"+p.getPartitionId()+",wid,"+p.getWorkerInfo().getTaskId()+",superstep,"+superstep);
+        }
+        return partitionOwners;
+    }
+
   public static Collection<PartitionOwner> balancePartitionsAcrossWorkers(
       Configuration conf,
       Collection<PartitionOwner> partitionOwners,
@@ -291,10 +321,6 @@ public class PartitionBalancer {
     }
     BalanceValue balanceValue = BalanceValue.UNSET;
     if (balanceAlgorithm.equals(STATIC_BALANCE_ALGORITHM)) {
-        for(PartitionOwner p:partitionOwners){
-//            PartitionOwner p=partitionOwnerList.get(i);
-            LOG.debug("TEST,PartitionBalancer.balancePartitionsAcrossWorkers,partitionOwners,pid,"+p.getPartitionId()+",wid,"+p.getWorkerInfo().getTaskId());
-        }
       return partitionOwners;
     } else if (balanceAlgorithm.equals(EGDE_BALANCE_ALGORITHM)) {
       balanceValue = BalanceValue.EDGES;

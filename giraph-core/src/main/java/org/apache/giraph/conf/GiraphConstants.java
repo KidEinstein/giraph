@@ -1201,10 +1201,14 @@ public interface GiraphConstants {
       new BooleanConfOption("giraph.preferIP", false,
       "Prefer IP addresses instead of host names");
 
-  /** Minimum stragglers of the superstep before printing them out */
+  /** Source partition */
   IntConfOption SOURCE_PARTITION =
           new IntConfOption("giraph.sourcePartition", 1,
                   "partition with source vertex for algo like sssp");
+
+  /** Override the Hadoop log level and set the desired log level. */
+  StrConfOption SERIALIZED_INPUT_PATH = new StrConfOption("giraph.serialized.input.path", "hdfs://orion-00:9000/user/bduser/lazy_loading/ORKT-40/",
+          "Path where topology information for each subgraph is stored in serialized file");
 
 }
 // CHECKSTYLE: resume InterfaceIsTypeCheck

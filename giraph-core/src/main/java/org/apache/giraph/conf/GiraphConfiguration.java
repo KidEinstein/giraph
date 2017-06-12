@@ -1265,6 +1265,14 @@ public class GiraphConfiguration extends Configuration
   public int getHdfsFileCreationRetryWaitMs() {
     return HDFS_FILE_CREATION_RETRY_WAIT_MS.get(this);
   }
-
+    /**
+     * @return source partition for BFS
+     *
+     */
   public int getSourcePartition(){return SOURCE_PARTITION.get(this);}
+    /**
+     * @return the hdfs path where serialized file for each subgraph is stored
+     *
+     */
+  public String getSerializedInputPath(){return SERIALIZED_INPUT_PATH.get(this);}
 }

@@ -89,7 +89,7 @@ public class DefaultSubgraphVertex<V extends Writable, E extends Writable, I ext
             LOG.debug("SGVWrite: " + "Edge,SRC" +id+",Sink,"+ edge.getSinkVertexId()+",Value,"+edge.getValue() + " Class: " + edge.getSinkVertexId().getClass().getSimpleName());
       edge.getSinkVertexId().write(dataOutput);
       //FIXME:edgevalue is null
-//      edge.getValue().write(dataOutput);
+      edge.getValue().write(dataOutput);
     }
     LOG.debug("SGVWVertex ID Class,VertexValueClass:" + id.getClass() + "," + value.getClass());
   }
@@ -118,9 +118,9 @@ public class DefaultSubgraphVertex<V extends Writable, E extends Writable, I ext
       I targetId = conf.createSubgraphVertexId();
       E edgeValue = conf.createEdgeValue();
       targetId.readFields(dataInput);
-//      edgeValue.readFields(dataInput);
-//      se.initialize(null, edgeValue, targetId);
-        se.initialize(null, null, targetId);
+      edgeValue.readFields(dataInput);
+      se.initialize(null, edgeValue, targetId);
+//        se.initialize(null, null, targetId);
       LOG.debug("SGVRead: " + "Edge,SRC,"+id+",Sink," + se.getSinkVertexId() +",Value,"+edgeValue +" Class: " + se.getSinkVertexId().getClass().getSimpleName());
       outEdges.add(se);
     }

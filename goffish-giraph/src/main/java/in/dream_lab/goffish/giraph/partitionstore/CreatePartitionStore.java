@@ -34,16 +34,18 @@ public class CreatePartitionStore {
     public static void main(String[] args) throws IOException {
         HashMap<LongWritable, SubgraphInputImpl> inputSubgraphs = new HashMap<>();
 
-        System.out.println(System.getProperty("java.class.path"));
+//        System.out.println(System.getProperty("java.class.path"));
 
         File folder = new File(args[0]);
         String graphName=args[1];
         File[] listOfFiles = folder.listFiles();
 
         for (int i = 0; i < listOfFiles.length; i++) {
+            inputSubgraphs.clear();
             File file = listOfFiles[i];
             if (file.isFile() && file.getName().endsWith(".txt")) {
                 // Open the file
+                System.out.println("Processing file "+file.getName());
                 FileInputStream fstream = new FileInputStream(file);
                 BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
 
@@ -59,7 +61,7 @@ public class CreatePartitionStore {
                     SubgraphId<LongWritable> subgraphId = new SubgraphId<>(sgid, Integer.parseInt(values[0]));
 
                     // Print the content on the console
-                    System.out.println (strLine);
+//                    System.out.println (strLine);
 
                     SubgraphInputImpl subgraphInput;
 
@@ -71,6 +73,8 @@ public class CreatePartitionStore {
                     }
 
                     subgraphInput.addEntry(values);
+
+
 
 //                    DefaultSubgraphVertex sVertex = new DefaultSubgraphVertex();
 //                    sVertex.initialize(new LongWritable(Long.parseLong(processedLine[0])), new DoubleWritable(Double.parseDouble(processedLine[1])), getVertexEdges(processedLine));
@@ -120,6 +124,9 @@ public class CreatePartitionStore {
     private static void writeSubgraphs(HashMap<LongWritable, SubgraphInputImpl> inputSubgraphs) throws IOException {
         for (Map.Entry<LongWritable, SubgraphInputImpl> entry : inputSubgraphs.entrySet()) {
             File outfile = new File(entry.getKey() + ".ser");
+
+            System.out.println("SGID,"+entry.getValue().getSubgraphId().getSubgraphId()+",pid,"+entry.getValue().getSubgraphId().getPartitionId()+",has VCOUNT,"+entry.getValue().getVertexLocalCount());
+
             FileOutputStream fop = new FileOutputStream(outfile);
 
 //                io.netty.buffer.UnpooledHeapByteBuf
@@ -147,10 +154,20 @@ public class CreatePartitionStore {
 
         private HashMap<I, IRemoteVertex<V, E, I, J, K>> remoteVertices;
 
+        public SubgraphId<K> getSubgraphId() {
+            return subgraphId;
+        }
+
+        public int getVertexLocalCount() {
+            return vertices.size();
+
+        }
+
         public SubgraphInput(SubgraphId<K> subgraphId) {
             this.subgraphId = subgraphId;
             vertices = new HashMap<>( );
             remoteVertices = new HashMap<>();
+
             neighboringSubgraphs = new HashSet<>();
         }
 
@@ -187,7 +204,7 @@ public class CreatePartitionStore {
                 edges.add(e);
                 K remoteSId = decodeSId(values[i + 1]);
                 int remotePId = Integer.parseInt(values[i + 2]);
-                System.out.println("SID: " + subgraphId.getSubgraphId() + " Vertex ID " + values[1] + " Sink Vertex ID" + e.getSinkVertexId() + ",RSID:" + remoteSId + ",RPID:" + remotePId);
+//                System.out.println("SID: " + subgraphId.getSubgraphId() + " Vertex ID " + values[1] + " Sink Vertex ID" + e.getSinkVertexId() + ",RSID:" + remoteSId + ",RPID:" + remotePId);
                 if (!subgraphId.getSubgraphId().equals(remoteSId)) {
                     neighboringSubgraphs.add(new SubgraphId<>(remoteSId, remotePId));
                     DefaultRemoteSubgraphVertex<V, E, I, J, K> remoteSubgraphVertex = new DefaultRemoteSubgraphVertex<>();

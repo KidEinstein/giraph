@@ -39,11 +39,11 @@ public class ShortestPathSubgraphValue implements Writable
 
 
       dataOutput.writeInt(shortestDistanceMap.size());
-        LOG.debug("SGVALUEW,NUM_V,"+shortestDistanceMap.size());
+//        LOG.debug("SGVALUEW,NUM_V,"+shortestDistanceMap.size());
       for (Map.Entry<Long, Short> entry : shortestDistanceMap.entrySet()) {
         dataOutput.writeLong(entry.getKey());
         dataOutput.writeShort(entry.getValue());
-        LOG.debug("SGVALUEW,VID,"+entry.getKey()+",DISTANCE,"+entry.getValue());
+//        LOG.debug("SGVALUEW,VID,"+entry.getKey()+",DISTANCE,"+entry.getValue());
       }
 
 //      LOG.info("TEST,ShortestPathSubgraphValue.write,took," + (System.currentTimeMillis() - startTime) + ",size," + (((ByteBufOutputStream) dataOutput).writtenBytes() - initial_size));
@@ -67,15 +67,16 @@ public class ShortestPathSubgraphValue implements Writable
 //      if (classname.equals("io.netty.buffer.ByteBufInputStream")) {
           long startTime = System.currentTimeMillis();
           int size = dataInput.readInt();
-          LOG.debug("SGVALUER,NUM_V,"+size);
+//          LOG.debug("SGVALUER,NUM_V,"+size);
           shortestDistanceMap = new HashMap<>(size);
           long vid;
           short distance;
           for (int i = 0; i < size; i++) {
-               vid=dataInput.readLong();
-               distance=dataInput.readShort();
-              shortestDistanceMap.put(vid, distance);
-            LOG.debug("SGVALUER,VID,"+vid+",DISTANCE,"+distance);
+//               vid=dataInput.readLong();
+//               distance=dataInput.readShort();
+//              shortestDistanceMap.put(vid, distance);
+              shortestDistanceMap.put(dataInput.readLong(),dataInput.readShort());
+//            LOG.debug("SGVALUER,VID,"+vid+",DISTANCE,"+distance);
           }
           LOG.info("TEST,ShortestPathSubgraphValue.read,took," + (System.currentTimeMillis() - startTime));
 
