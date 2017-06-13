@@ -34,7 +34,7 @@ public class GiraphFlatTextInputSubgraphComputation<S extends WritableComparable
                   long startTime=System.currentTimeMillis();
 //                  reader.readSubgraph( "hdfs://orion-00:9000/user/bduser/lazy_loading/ORKT-40/"+((LongWritable)((DefaultSubgraph) vertex).getSubgraphId()).get()+".ser",(DefaultSubgraph) vertex);
                   reader.readSubgraph( hdfspath+((LongWritable)((DefaultSubgraph) vertex).getSubgraphId()).get()+".ser",(DefaultSubgraph) vertex);
-                  LOG.debug("Calling ReadSubgraph,superstep" +getSuperstep() +",sgid,"+((LongWritable)((DefaultSubgraph) vertex).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) vertex).getPartitionId()+" in dir "+hdfspath+",took,"+(System.currentTimeMillis()-startTime));
+                  LOG.debug("Calling ReadSubgraph,superstep," +getSuperstep() +",sgid,"+((LongWritable)((DefaultSubgraph) vertex).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) vertex).getPartitionId()+",in_dir,"+hdfspath+",took,"+(System.currentTimeMillis()-startTime));
               } catch (URISyntaxException e) {
                   e.printStackTrace();
               }

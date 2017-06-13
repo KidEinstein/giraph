@@ -824,7 +824,7 @@ end[PURE_YARN]*/
               serviceWorker);
         }
       };
-    LOG.debug("ThreadCount,"+numThreads+",wid,"+serviceWorker.getWorkerInfo().getTaskId());
+    LOG.debug("ThreadCount,"+numThreads+",wid,"+serviceWorker.getWorkerInfo().getTaskId()+",,superstep,"+serviceWorker.getSuperstep()+",pcount,"+serviceWorker.getPartitionStore().getNumPartitions());
     List<Collection<PartitionStats>> results =
         ProgressableUtils.getResultsWithNCallables(callableFactory, numThreads,
             "compute-%d", context);
