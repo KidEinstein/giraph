@@ -601,8 +601,8 @@ under the License.
           <configuration>
             <source>${project.build.targetJdk}</source>
             <target>${project.build.targetJdk}</target>
-            <!--<executable>${project.build.javaHome}/bin/javac</executable>
-            <fork>true</fork>-->
+            <!--<executable>${project.build.javaHome}/bin/javac</executable>-->
+            <!--<fork>true</fork> -->
          </configuration>
         </plugin>
         <plugin>
@@ -2254,9 +2254,10 @@ under the License.
 
   <modules>
     <module>giraph-core</module>
+    <!--<module>giraph-block-app</module>-->
+    <!--<module>giraph-examples</module>-->
     <module>goffish-giraph</module>
       <module>goffish-api</module>
-    <!--<module>goffish-partitionstore</module>-->
   </modules>
 
 </project>

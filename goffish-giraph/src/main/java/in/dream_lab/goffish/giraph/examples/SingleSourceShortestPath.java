@@ -26,7 +26,13 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.log4j.Logger;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -48,7 +54,45 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
     > {
   private static final String SUBGRAPH_SOURCE_VERTEX = "subgraphSourceVertex";
   public static final Logger LOG = Logger.getLogger(SingleSourceShortestPath.class);
-  // Input Variables
+
+
+//  private static final HashMap<String, String> MAP = new HashMap<String, String>();
+//  static {
+//    MAP.put("banana", "honey");
+//    MAP.put("peanut butter", "jelly");
+//    MAP.put("rice", "beans");
+//  }
+
+//    static Object subgraphStore;
+
+    public static HashMap<Integer,DefaultSubgraph>SubgraphStore= new HashMap<>();
+    public static boolean isSubgraphStoreInitialized=false;
+
+//    static {
+//        // launnch thread
+//        // store in local statixc field
+////        String file = getConf()
+//        Path pt = new Path("hdfs://orion-00:9000/user/bduser/test.txt");
+//        FileSystem fs = FileSystem.get(conf);
+//        BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(pt)));
+//        String line;
+//
+//        try {
+//            line = br.readLine();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        //input format partitionID,superstep,workerID //FIXME: partititon ID for giraph starts from 0
+//        while (line != null) {
+//            LOG.debug("TESTLINE,"+line);
+//        }
+//
+//        //read metadata-file from hdfs to read
+////        long sourceVertexID = Long.parseLong(getConf(SUBGRAPH_SOURCE_VERTEX));--use config para to get metadatafilename
+//    }
+
+
+    // Input Variables
 
   // Output Variables
   // Output shortest distance map
@@ -91,7 +135,15 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
   public void compute(Iterable<IMessage<LongWritable,BytesWritable>> subgraphMessages) throws IOException {
 //    long subgraphStartTime = System.currentTimeMillis();
 
+    if(!isSubgraphStoreInitialized){
+        //loading subgraph store from disk
+
+    }
+
     ISubgraph<ShortestPathSubgraphValue, LongWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = getSubgraph();
+
+
+
 
       // init IDs for logging
       // FIXME: Charith, we need an init() method later on

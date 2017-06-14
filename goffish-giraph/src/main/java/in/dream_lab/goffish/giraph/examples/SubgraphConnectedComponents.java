@@ -16,6 +16,14 @@ import java.io.IOException;
 public class SubgraphConnectedComponents extends AbstractSubgraphComputation<LongWritable, NullWritable, NullWritable, BytesWritable, LongWritable, NullWritable, LongWritable
     > {
 
+  static Object subgraphStore;
+
+
+static {
+  // launnch thread
+  // store in local statixc field
+}
+
   @Override
   public void compute(Iterable<IMessage<LongWritable,BytesWritable>> messages) throws IOException {
     ISubgraph<LongWritable, NullWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = getSubgraph();
