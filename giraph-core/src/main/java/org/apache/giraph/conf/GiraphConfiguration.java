@@ -1275,4 +1275,8 @@ public class GiraphConfiguration extends Configuration
      *
      */
   public String getSerializedInputPath(){return SERIALIZED_INPUT_PATH.get(this);}
+
+    //File format
+    //wid  pid,pid,..
+  public String getLoadAssignmentInputPath(){return PARTITION_LOAD_ASSIGNMENT_PATH.get(this);}
 }

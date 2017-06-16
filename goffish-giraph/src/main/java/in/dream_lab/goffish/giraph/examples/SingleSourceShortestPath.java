@@ -18,7 +18,10 @@ package in.dream_lab.goffish.giraph.examples;
 import in.dream_lab.goffish.api.*;
 import in.dream_lab.goffish.giraph.graph.DefaultSubgraph;
 import in.dream_lab.goffish.giraph.graph.SubgraphId;
+import in.dream_lab.goffish.giraph.graph.SubgraphVertices;
+import in.dream_lab.goffish.giraph.partitionstore.LoadMappingReader;
 import in.dream_lab.goffish.giraph.partitionstore.PartitionStoreReader;
+import in.dream_lab.goffish.giraph.partitionstore.SubgraphStoreLoader;
 import org.apache.giraph.utils.ExtendedByteArrayDataInput;
 import org.apache.giraph.utils.ExtendedByteArrayDataOutput;
 import org.apache.hadoop.io.BytesWritable;
@@ -56,43 +59,8 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
   public static final Logger LOG = Logger.getLogger(SingleSourceShortestPath.class);
 
 
-//  private static final HashMap<String, String> MAP = new HashMap<String, String>();
-//  static {
-//    MAP.put("banana", "honey");
-//    MAP.put("peanut butter", "jelly");
-//    MAP.put("rice", "beans");
-//  }
-
-//    static Object subgraphStore;
-
-    public static HashMap<Integer,DefaultSubgraph>SubgraphStore= new HashMap<>();
+    public static HashMap<Long,SubgraphVertices>SubgraphStore= new HashMap<>();
     public static boolean isSubgraphStoreInitialized=false;
-
-//    static {
-//        // launnch thread
-//        // store in local statixc field
-////        String file = getConf()
-//        Path pt = new Path("hdfs://orion-00:9000/user/bduser/test.txt");
-//        FileSystem fs = FileSystem.get(conf);
-//        BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(pt)));
-//        String line;
-//
-//        try {
-//            line = br.readLine();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        //input format partitionID,superstep,workerID //FIXME: partititon ID for giraph starts from 0
-//        while (line != null) {
-//            LOG.debug("TESTLINE,"+line);
-//        }
-//
-//        //read metadata-file from hdfs to read
-////        long sourceVertexID = Long.parseLong(getConf(SUBGRAPH_SOURCE_VERTEX));--use config para to get metadatafilename
-//    }
-
-
-    // Input Variables
 
   // Output Variables
   // Output shortest distance map
@@ -127,6 +95,8 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
     }
   }
 
+    final String PARTITION_LOAD_ASSIGNMENT_PATH = "giraph.loadassignment.input.path";
+    final String SERIALIZED_INPUT_PATH = "giraph.serialized.input.path";
 
   /***
    * MAIN COMPUTE METHOD
@@ -135,16 +105,47 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
   public void compute(Iterable<IMessage<LongWritable,BytesWritable>> subgraphMessages) throws IOException {
 //    long subgraphStartTime = System.currentTimeMillis();
 
-    if(!isSubgraphStoreInitialized){
-        //loading subgraph store from disk
+      ISubgraph<ShortestPathSubgraphValue, LongWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = getSubgraph();
+
+    if(getSuperstep()==0) {
+        synchronized (SubgraphStore) {
+            if (!isSubgraphStoreInitialized) {
+                //read the partition ids to be read from hdfs
+                String hdfspath = getConf(PARTITION_LOAD_ASSIGNMENT_PATH);
+                int wid = getMyWorkerID();
+                //file format wid,pid1,pid2,...
+                Set<Integer> partitionsToLoad= LoadMappingReader.readFile(hdfspath,wid);
+
+
+                for (Integer pid:partitionsToLoad){
+                    LOG.debug("LOADP,wid,"+wid+",loading pid,"+pid);
+                }
+
+                hdfspath=getConf(SERIALIZED_INPUT_PATH);
+                try {
+                    SubgraphStoreLoader.readPartitionStore(hdfspath,partitionsToLoad,SubgraphStore);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+                isSubgraphStoreInitialized = true;
+            }
+
+            LOG.debug("SubgraphStore,wid,"+getMyWorkerID()+",has subgraphCount,"+SubgraphStore.size());
+        }
+
 
     }
 
-    ISubgraph<ShortestPathSubgraphValue, LongWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = getSubgraph();
 
 
+      if(!((DefaultSubgraph)subgraph).isInitialized()){
 
-
+          ((DefaultSubgraph)subgraph).setSubgraphValue(SubgraphStore.get(((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()));
+          LOG.debug("SSSPInit,sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",LOCALV,"+( ((DefaultSubgraph) subgraph).getLocalVertexCount()));
+          ((DefaultSubgraph)subgraph).setInitialized();
+      }
       // init IDs for logging
       // FIXME: Charith, we need an init() method later on
 //      if(getSuperstep() == 0) {
@@ -157,55 +158,55 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
 
       Set<IVertex<LongWritable, NullWritable, LongWritable, NullWritable>> rootVertices = null;
 
-    // Lazy loading test
-    if(!((DefaultSubgraph) subgraph).isInitialized()){
-
-//        InputLoader loader=new InputLoader();
-//        PartitionStoreReader reader=new PartitionStoreReader();
-//        try {
-//            loader.readPartitionStore("/user/bduser/serialization_check/", (DefaultSubgraph) subgraph);
-//            LOG.debug("Compute: loading"+"/user/bduser/serialization_check/"+((DefaultSubgraph) subgraph).getId()+".ser");
-
-//            LOG.debug("Loading  ((DefaultSubgraph) subgraph).getSubgraphId() "+((DefaultSubgraph) subgraph).getSubgraphId()+ " in partition "+((DefaultSubgraph) subgraph).getPartitionId());
+//    // Lazy loading test
+//    if(!((DefaultSubgraph) subgraph).isInitialized()){
 //
-//            LOG.debug("Loading  ((DefaultSubgraph) subgraph).getSubgraphId().get "+((LongWritable)(((DefaultSubgraph) subgraph).getSubgraphId())).get());
-
-//            reader.readSubgraph( "hdfs://orion-00:9000/user/bduser/serialization_check/"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+".ser",(DefaultSubgraph) subgraph);
-            while(!((DefaultSubgraph) subgraph).isInitialized()){
-//                wait(10);
-//                LOG.debug("WAITING for loading");
-//                continue;
-           }
-        LOG.debug("LOADED in COMPUTE sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId()+",superstep,"+getSuperstep()+",VCOUNT,"+subgraph.getLocalVertexCount());
-
-//        if(getSuperstep()>0) {
-//            ShortestPathSubgraphValue subgraphValue = (subgraph).getSubgraphValue();
-//            Map<Long, Short> distanceMap = subgraphValue.shortestDistanceMap;
+////        InputLoader loader=new InputLoader();
+////        PartitionStoreReader reader=new PartitionStoreReader();
+////        try {
+////            loader.readPartitionStore("/user/bduser/serialization_check/", (DefaultSubgraph) subgraph);
+////            LOG.debug("Compute: loading"+"/user/bduser/serialization_check/"+((DefaultSubgraph) subgraph).getId()+".ser");
 //
-//            LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() +",num_entries,"+subgraphValue.shortestDistanceMap.size());
+////            LOG.debug("Loading  ((DefaultSubgraph) subgraph).getSubgraphId() "+((DefaultSubgraph) subgraph).getSubgraphId()+ " in partition "+((DefaultSubgraph) subgraph).getPartitionId());
+////
+////            LOG.debug("Loading  ((DefaultSubgraph) subgraph).getSubgraphId().get "+((LongWritable)(((DefaultSubgraph) subgraph).getSubgraphId())).get());
 //
-////            for (Map.Entry<Long, Short> pair : distanceMap.entrySet()) {
-////                LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() + ",vid," + pair.getKey() + ",distance," + pair.getValue() + ",sgid," + ((LongWritable) ((DefaultSubgraph) subgraph).getSubgraphId()).get() + ",pid," + ((DefaultSubgraph) subgraph).getPartitionId());
-////            }
-//        }
-//        } catch (URISyntaxException e) {
-//            e.printStackTrace();
-//        }
-    }else{
-        LOG.debug("ALREADY LOADED sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId()+",superstep,"+getSuperstep()+",VCOUNT,"+subgraph.getLocalVertexCount());
-
-//        for (IVertex<LongWritable, NullWritable, LongWritable, NullWritable> v : subgraph.getLocalVertices()) {
-//            LOG.debug("Local_Vertices,Superstep,"+getSuperstep()+",vid,"+v.getVertexId()+",sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId());
-//        }
-
-        ShortestPathSubgraphValue  subgraphValue = ( subgraph).getSubgraphValue();
-        Map<Long, Short> distanceMap = subgraphValue.shortestDistanceMap;
-
-        LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() +",num_entries,"+subgraphValue.shortestDistanceMap.size());
-//        for(Map.Entry<Long,Short>pair:distanceMap.entrySet()){
-//            LOG.debug("DISTANCE_MAP,Superstep,"+getSuperstep()+",vid,"+pair.getKey()+",distance,"+pair.getValue()+",sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId());
-//        }
-    }
+////            reader.readSubgraph( "hdfs://orion-00:9000/user/bduser/serialization_check/"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+".ser",(DefaultSubgraph) subgraph);
+//            while(!((DefaultSubgraph) subgraph).isInitialized()){
+////                wait(10);
+////                LOG.debug("WAITING for loading");
+////                continue;
+//           }
+//        LOG.debug("LOADED in COMPUTE sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId()+",superstep,"+getSuperstep()+",VCOUNT,"+subgraph.getLocalVertexCount());
+//
+////        if(getSuperstep()>0) {
+////            ShortestPathSubgraphValue subgraphValue = (subgraph).getSubgraphValue();
+////            Map<Long, Short> distanceMap = subgraphValue.shortestDistanceMap;
+////
+////            LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() +",num_entries,"+subgraphValue.shortestDistanceMap.size());
+////
+//////            for (Map.Entry<Long, Short> pair : distanceMap.entrySet()) {
+//////                LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() + ",vid," + pair.getKey() + ",distance," + pair.getValue() + ",sgid," + ((LongWritable) ((DefaultSubgraph) subgraph).getSubgraphId()).get() + ",pid," + ((DefaultSubgraph) subgraph).getPartitionId());
+//////            }
+////        }
+////        } catch (URISyntaxException e) {
+////            e.printStackTrace();
+////        }
+//    }else{
+//        LOG.debug("ALREADY LOADED sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId()+",superstep,"+getSuperstep()+",VCOUNT,"+subgraph.getLocalVertexCount());
+//
+////        for (IVertex<LongWritable, NullWritable, LongWritable, NullWritable> v : subgraph.getLocalVertices()) {
+////            LOG.debug("Local_Vertices,Superstep,"+getSuperstep()+",vid,"+v.getVertexId()+",sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId());
+////        }
+//
+//        ShortestPathSubgraphValue  subgraphValue = ( subgraph).getSubgraphValue();
+//        Map<Long, Short> distanceMap = subgraphValue.shortestDistanceMap;
+//
+//        LOG.debug("DISTANCE_MAP,Superstep," + getSuperstep() +",num_entries,"+subgraphValue.shortestDistanceMap.size());
+////        for(Map.Entry<Long,Short>pair:distanceMap.entrySet()){
+////            LOG.debug("DISTANCE_MAP,Superstep,"+getSuperstep()+",vid,"+pair.getKey()+",distance,"+pair.getValue()+",sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+((DefaultSubgraph) subgraph).getPartitionId());
+////        }
+//    }
 
 
       ///////////////////////////////////////////////////////////

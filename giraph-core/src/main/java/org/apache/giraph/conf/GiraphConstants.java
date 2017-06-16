@@ -1210,5 +1210,11 @@ public interface GiraphConstants {
   StrConfOption SERIALIZED_INPUT_PATH = new StrConfOption("giraph.serialized.input.path", "hdfs://orion-00:9000/user/bduser/lazy_loading/ORKT-40/",
           "Path where topology information for each subgraph is stored in serialized file");
 
+
+  /** Override the Hadoop log level and set the desired log level. */
+  StrConfOption PARTITION_LOAD_ASSIGNMENT_PATH = new StrConfOption("giraph.loadassignment.input.path", "hdfs://orion-00:9000/user/bduser/lazy_loading/ORKT-40/",
+          "Path where topology information for each subgraph is stored in serialized file");
+
+
 }
 // CHECKSTYLE: resume InterfaceIsTypeCheck

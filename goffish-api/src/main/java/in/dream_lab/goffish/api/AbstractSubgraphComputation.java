@@ -60,4 +60,6 @@ public abstract class AbstractSubgraphComputation<S extends Writable, V extends 
   public boolean hasVotedToHalt() {
     return subgraphPlatformCompute.hasVotedToHalt();
   }
+
+  public int getMyWorkerID(){return subgraphPlatformCompute.getMyWorkerID();}
 }

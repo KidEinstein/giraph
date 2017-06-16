@@ -109,7 +109,7 @@ public class SubgraphStoreLoader {
 //    1. base directory
 //    2. HashMap
 //    3. Set of partitions
-    public void readPartitionStore(String directory, Set<Integer>partitions, HashMap<Integer,SubgraphVertices>SubgraphStore) throws InterruptedException, IOException, URISyntaxException {
+    public static void readPartitionStore(String directory, Set<Integer>partitions, HashMap<Long,SubgraphVertices>SubgraphStore) throws InterruptedException, IOException, URISyntaxException {
 
 
         InputLoader il=new InputLoader();
@@ -122,29 +122,41 @@ public class SubgraphStoreLoader {
 
         SubgraphLoader.setListoffiles(l);
 
-        ExecutorService executor= Executors.newFixedThreadPool(l.size());
+        ExecutorService executor= Executors.newFixedThreadPool(4);
 
         LOG.debug("Number of files "+l.size());
 //        LOG.debug();
 
         //form the subgraph object here
         for(int i=0;i<l.size();i++){
+
+
             String[] fullpath = l.get(i).split("/");
             String filename = fullpath[fullpath.length-1];
 
 //            int pid= Integer.parseInt(filename.split("_")[0]);
-            int sgid=Integer.parseInt((filename.split("_")[1]).split(".")[0]);
+            LOG.debug("SubgraphStore,filename,"+filename);
 
-            SubgraphVertices sgv=new SubgraphVertices();
+//            if(filename.split("_").length!=0) {
 
-            SubgraphStore.put(sgid,sgv);
+//                LOG.debug((filename.split("_")[1]));
+//                String temp=(filename.split("_")[1]);
+//                LOG.debug(temp);
+                long sgid = Long.parseLong((filename.split("_")[1]).split("\\.")[0]);
 
-            executor.submit(new SubgraphLoader(i,sgv));
+                SubgraphVertices sgv = new SubgraphVertices();
+
+                SubgraphStore.put(sgid, sgv);
+
+                executor.submit(new SubgraphLoader(i, sgv));
+//            }else{
+//                LOG.debug("SubgraphStore,FAILfilename,"+filename);
+//            }
         }
         executor.shutdown();
-
-        executor.awaitTermination(1, TimeUnit.DAYS);
-
+        LOG.debug("EXECUTOR_SERVICE_SHUTDOWN");
+        executor.awaitTermination(1, TimeUnit.HOURS);
+        LOG.debug("EXECUTOR_SERVICE_TERMINATE");
 
     }
 

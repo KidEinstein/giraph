@@ -168,4 +168,8 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
       };
     }
   }
+
+    public int getMyWorkerID(){
+        return super.getMyWorkerIndex();
+    }
 }

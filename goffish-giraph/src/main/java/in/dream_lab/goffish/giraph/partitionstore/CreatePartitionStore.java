@@ -123,7 +123,7 @@ public class CreatePartitionStore {
 
     private static void writeSubgraphs(HashMap<LongWritable, SubgraphInputImpl> inputSubgraphs) throws IOException {
         for (Map.Entry<LongWritable, SubgraphInputImpl> entry : inputSubgraphs.entrySet()) {
-            File outfile = new File(entry.getKey() + ".ser");//TODO:change this to have pid+sgid
+            File outfile = new File(entry.getValue().getSubgraphId().getPartitionId()+"_"+entry.getKey() + ".ser");//TODO:change this to have pid+sgid
 
             System.out.println("SGID,"+entry.getValue().getSubgraphId().getSubgraphId()+",pid,"+entry.getValue().getSubgraphId().getPartitionId()+",has VCOUNT,"+entry.getValue().getVertexLocalCount());
 

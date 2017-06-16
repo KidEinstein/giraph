@@ -137,16 +137,17 @@ public class  SubgraphVertices<S extends Writable, V extends Writable, E extends
   //FIXME: send only subgraphValue(Shortest distance map) in case of the lazy loading
   @Override
   public void write(DataOutput dataOutput) throws IOException {
-    LOG.debug("SGW_VALWrite Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
+//    LOG.debug("SGW_VALWrite Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
     subgraphValue.write(dataOutput);
 
+    //FIXME:comment the following part in case of value migration and uncomment in case of partition store creation
 //    dataOutput.writeInt(vertices.size());
 //    for (IVertex<V, E, I, J> vertex : vertices.values()) {
-//      System.out.println("TEST,SubgraphVertices.write,writing vertex,"+vertex.getVertexId());
+////      System.out.println("TEST,SubgraphVertices.write,writing vertex,"+vertex.getVertexId());
 //      ((DefaultSubgraphVertex) vertex).write(dataOutput);
 //    }
 //    dataOutput.writeInt(remoteVertices.size());
-//    System.out.println("TEST,SubgraphVertices.write,remoteV size,"+remoteVertices.size());
+////    System.out.println("TEST,SubgraphVertices.write,remoteV size,"+remoteVertices.size());
 //    for (IRemoteVertex<V, E, I, J, K> vertex : remoteVertices.values()) {
 //      ((DefaultRemoteSubgraphVertex) vertex).write(dataOutput);
 //    }
@@ -154,7 +155,7 @@ public class  SubgraphVertices<S extends Writable, V extends Writable, E extends
 //      subgraphPartitionMapping = new MapWritable();
 //    }
 //    subgraphPartitionMapping.write(dataOutput);
-//
+
 //    System.out.println("Write Num Vertices:" + vertices.size());
 
   }
@@ -167,9 +168,10 @@ public class  SubgraphVertices<S extends Writable, V extends Writable, E extends
 //      subgraphValue=((S)(new ShortestPathSubgraphValue()));
 //      subgraphValue=(S)ReflectionUtils.newInstance(ShortestPathSubgraphValue.class);
 
-      LOG.debug("SGW_VALRead Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
+//      LOG.debug("SGW_VALRead Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
       subgraphValue.readFields(dataInput);
 
+    //FIXME:comment the following part in case of value migration and uncomment in case of partition store creation
 //    int numVertices = dataInput.readInt();
 ////    System.out.println("Read Subgraph Value:" + subgraphValue + "\t"+ subgraphValue.getClass().getSimpleName());
 ////    System.out.println("Read Num Vertices:" + numVertices);

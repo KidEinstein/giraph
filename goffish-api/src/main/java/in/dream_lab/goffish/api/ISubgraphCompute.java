@@ -13,6 +13,8 @@ public interface ISubgraphCompute<S extends Writable, V extends WritableComparab
 
   long getSuperstep();
 
+  int getMyWorkerID();
+
   void sendMessageToSubgraph(K subgraphId, M message);
 
   void sendToVertex(I vertexID, M message);
