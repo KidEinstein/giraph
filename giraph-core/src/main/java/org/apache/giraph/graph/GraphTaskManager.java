@@ -314,6 +314,7 @@ end[PURE_YARN]*/
     if (collectInputSuperstepStats(finishedSuperstepStats)) {
       return;
     }
+    LOG.debug("GraphTaskManager.execute,call to WorkerContext_preApplication()");
     prepareGraphStateAndWorkerContext();
     List<PartitionStats> partitionStatsList = new ArrayList<PartitionStats>();
     int numComputeThreads = conf.getNumComputeThreads();
@@ -321,6 +322,8 @@ end[PURE_YARN]*/
     // main superstep processing loop
     while (!finishedSuperstepStats.allVerticesHalted()) {
       final long superstep = serviceWorker.getSuperstep();
+
+      LOG.debug("GraphTaskManager.execute,superstep,"+superstep);
       superstepTimerContext = getTimerForThisSuperstep(superstep);
       GraphState graphState = new GraphState(superstep,
           finishedSuperstepStats.getVertexCount(),

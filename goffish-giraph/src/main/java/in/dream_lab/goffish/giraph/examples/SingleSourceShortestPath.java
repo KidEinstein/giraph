@@ -16,6 +16,7 @@
 package in.dream_lab.goffish.giraph.examples;
 
 import in.dream_lab.goffish.api.*;
+import in.dream_lab.goffish.giraph.context.LazyLoadingWorkerContext;
 import in.dream_lab.goffish.giraph.graph.DefaultSubgraph;
 import in.dream_lab.goffish.giraph.graph.SubgraphId;
 import in.dream_lab.goffish.giraph.graph.SubgraphVertices;
@@ -59,7 +60,7 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
   public static final Logger LOG = Logger.getLogger(SingleSourceShortestPath.class);
 
 
-    public static HashMap<Long,SubgraphVertices>SubgraphStore= new HashMap<>();
+//    public static HashMap<Long,SubgraphVertices>SubgraphStore= new HashMap<>();
     public static boolean isSubgraphStoreInitialized=false;
 
   // Output Variables
@@ -107,38 +108,41 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
 
       ISubgraph<ShortestPathSubgraphValue, LongWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = getSubgraph();
 
-    if(getSuperstep()==0) {
-        synchronized (SubgraphStore) {
-            if (!isSubgraphStoreInitialized) {
-                //read the partition ids to be read from hdfs
-                String hdfspath = getConf(PARTITION_LOAD_ASSIGNMENT_PATH);
-                int wid = getMyWorkerID();
-                //file format wid,pid1,pid2,...
-                Set<Integer> partitionsToLoad= LoadMappingReader.readFile(hdfspath,wid);
+//    if(getSuperstep()==0) {
+//        synchronized (SubgraphStore) {
+//            if (!isSubgraphStoreInitialized) {
+//                //read the partition ids to be read from hdfs
+//                String hdfspath = getConf(PARTITION_LOAD_ASSIGNMENT_PATH);
+//                int wid = getMyWorkerID();
+//                //file format wid,pid1,pid2,...
+//                Set<Integer> partitionsToLoad= LoadMappingReader.readFile(hdfspath,wid);
+//
+//
+//                for (Integer pid:partitionsToLoad){
+//                    LOG.debug("LOADP,wid,"+wid+",loading pid,"+pid);
+//                }
+//
+//                hdfspath=getConf(SERIALIZED_INPUT_PATH);
+//                try {
+//                    SubgraphStoreLoader.readPartitionStore(hdfspath,partitionsToLoad,SubgraphStore);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (URISyntaxException e) {
+//                    e.printStackTrace();
+//                }
+//                isSubgraphStoreInitialized = true;
+//            }
+//
+//            LOG.debug("SubgraphStore,wid,"+getMyWorkerID()+",has subgraphCount,"+SubgraphStore.size());
+//        }
+//
+//
+//    }
 
+      //TODO: add support for getWorkerContext in goffish-giraph
+      LazyLoadingWorkerContext context = (LazyLoadingWorkerContext)getWorkerContext();
 
-                for (Integer pid:partitionsToLoad){
-                    LOG.debug("LOADP,wid,"+wid+",loading pid,"+pid);
-                }
-
-                hdfspath=getConf(SERIALIZED_INPUT_PATH);
-                try {
-                    SubgraphStoreLoader.readPartitionStore(hdfspath,partitionsToLoad,SubgraphStore);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
-                isSubgraphStoreInitialized = true;
-            }
-
-            LOG.debug("SubgraphStore,wid,"+getMyWorkerID()+",has subgraphCount,"+SubgraphStore.size());
-        }
-
-
-    }
-
-
+      LOG.debug("SubgraphStore,wid,"+getMyWorkerID()+",has subgraphCount,"+);
 
       if(!((DefaultSubgraph)subgraph).isInitialized()){
 

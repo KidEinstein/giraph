@@ -112,10 +112,10 @@ public class SubgraphStoreLoader {
     public static void readPartitionStore(String directory, Set<Integer>partitions, HashMap<Long,SubgraphVertices>SubgraphStore) throws InterruptedException, IOException, URISyntaxException {
 
 
-        InputLoader il=new InputLoader();
+//        InputLoader il=new InputLoader();
 
 //        List<String> l=il.getListOfFiles(directory);
-        List<String> l=il.getListofFilesFromhdfs(directory);
+        List<String> l=new SubgraphStoreLoader().getListofFilesFromhdfs(directory,partitions);
 //        for(String p: l.getListOfFiles(directory)){
 //            LOG.debug(p);
 //        }
@@ -124,7 +124,7 @@ public class SubgraphStoreLoader {
 
         ExecutorService executor= Executors.newFixedThreadPool(4);
 
-        LOG.debug("Number of files "+l.size());
+        LOG.debug("Number of files "+l.size()+" number_of_partitions,"+partitions.size());
 //        LOG.debug();
 
         //form the subgraph object here

@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public class LazyLoadingWorkerContext extends WorkerContext {
 
-    private Map<Long,SubgraphVertices> SubgraphStore;
+    private HashMap<Long,SubgraphVertices> SubgraphStore;
 
     final String PARTITION_LOAD_ASSIGNMENT_PATH = "giraph.loadassignment.input.path";
     final String SERIALIZED_INPUT_PATH = "giraph.serialized.input.path";
@@ -29,27 +29,38 @@ public class LazyLoadingWorkerContext extends WorkerContext {
 
 
         LOG.debug("CONTEXT_ID,"+getContext().getTaskAttemptID().getTaskID());// returns task_1497157325599_0057_m_000033
-        int id=1;
+
+        String task_id=getContext().getTaskAttemptID().getTaskID().toString();
+
+        int wid=Integer.parseInt(task_id.split("_")[4]);
+
+//        int id=1;
         SubgraphStore=new HashMap<>();
         //read from hdfs
         String hdfspath = getContext().getConfiguration().get(PARTITION_LOAD_ASSIGNMENT_PATH);
-        LOG.debug("CONTEXT,PARTITION_LOAD_ASSIGNMENT_PATH,wid,"+id+",loading pid,"+hdfspath);
+        LOG.debug("CONTEXT,PARTITION_LOAD_ASSIGNMENT_PATH,wid,"+wid+",loading pid,"+hdfspath);
 //        int wid = getMyWorkerID();
         //file format wid,pid1,pid2,...
         try {
-        Set<Integer> partitionsToLoad= LoadMappingReader.readFile(hdfspath,id);
+        Set<Integer> partitionsToLoad= LoadMappingReader.readFile(hdfspath,wid);
 
 
         for (Integer pid:partitionsToLoad){
-            LOG.debug("CONTEXT,LOADP,wid,"+id+",loading pid,"+pid);
+            LOG.debug("CONTEXT,LOADP,wid,"+wid+",loading pid,"+pid);
         }
 
             hdfspath=getContext().getConfiguration().get(SERIALIZED_INPUT_PATH);
 
-            LOG.debug("CONTEXT,SERIALIZED_INPUT_PATH,wid,"+id+",loading pid,"+hdfspath);
+            LOG.debug("CONTEXT,SERIALIZED_INPUT_PATH,wid,"+wid+",loading pid,"+hdfspath);
 
 
-//           SubgraphStoreLoader.readPartitionStore(hdfspath,partitionsToLoad,SubgraphStore);
+            try {
+                SubgraphStoreLoader.readPartitionStore(hdfspath,partitionsToLoad,SubgraphStore);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
 
         }catch (IOException e){
             e.printStackTrace();

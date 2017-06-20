@@ -147,7 +147,7 @@ public class PartitionStoreReader {
     public void readSubgraphValue(String filename, SubgraphVertices sgv) throws IOException, URISyntaxException {
 
         int totaledges=0;
-//        LOG.debug("PartitionStoreReader got argument "+filename);
+        LOG.debug("PartitionStoreReader got argument "+filename);
 
 
 //        String filename=args[0];
@@ -257,7 +257,7 @@ public class PartitionStoreReader {
 
 //        sg.setInitialized();
 
-//        LOG.debug("SGID "+sg.getSubgraphId()+" initialized in pid "+sg.getPartitionId()+" has vertices "+sg.getLocalVertexCount()+",edges,"+totaledges);
+        LOG.debug("Filename,"+filename+",has vertices,"+vertices.size()+",edges,"+totaledges);
     }
 
 
