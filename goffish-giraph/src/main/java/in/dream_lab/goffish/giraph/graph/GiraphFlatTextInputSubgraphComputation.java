@@ -5,6 +5,7 @@ import in.dream_lab.goffish.giraph.examples.ShortestPathSubgraphValue;
 import in.dream_lab.goffish.giraph.master.SubgraphMasterCompute;
 import in.dream_lab.goffish.giraph.partitionstore.PartitionStoreReader;
 import org.apache.giraph.graph.Vertex;
+import org.apache.giraph.worker.WorkerContext;
 import org.apache.hadoop.io.*;
 import org.apache.log4j.Logger;
 
@@ -23,7 +24,7 @@ public class GiraphFlatTextInputSubgraphComputation<S extends WritableComparable
 
     }
 
-  @Override
+    @Override
   public void compute(Vertex vertex, Iterable iterable) throws IOException {
 
 //      final String SERIALIZED_INPUT_PATH = "giraph.serialized.input.path";
@@ -56,4 +57,10 @@ public class GiraphFlatTextInputSubgraphComputation<S extends WritableComparable
   public long getSuperstep() {
     return super.getSuperstep() + 3;
   }
+
+    @Override
+    public WorkerContext getMyWorkerContext() {
+        return super.getMyWorkerContext();
+    }
+
 }

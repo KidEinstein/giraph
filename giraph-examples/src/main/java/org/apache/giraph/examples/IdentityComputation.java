@@ -42,6 +42,8 @@ public class IdentityComputation<I extends WritableComparable,
   @Override
   public void compute(Vertex<I, V, E> vertex,
       Iterable<M> messages) throws IOException {
+
+    getWorkerContext();
     vertex.voteToHalt();
   }
 }

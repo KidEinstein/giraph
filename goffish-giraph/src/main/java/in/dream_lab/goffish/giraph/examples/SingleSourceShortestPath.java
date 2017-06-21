@@ -140,14 +140,15 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
 //    }
 
       //TODO: add support for getWorkerContext in goffish-giraph
-      LazyLoadingWorkerContext context = (LazyLoadingWorkerContext)getWorkerContext();
+      LazyLoadingWorkerContext context = (LazyLoadingWorkerContext)getMyWorkerContext();
 
-      LOG.debug("SubgraphStore,wid,"+getMyWorkerID()+",has subgraphCount,"+);
+      LOG.debug("SubgraphStore,wid,"+getMyWorkerID()+",has subgraphCount,"+context.getNumSubgraphs());
 
+      LOG.debug("Quering for ,sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+(((DefaultSubgraph) subgraph).getPartitionId())+"in superstep,"+getSuperstep());
       if(!((DefaultSubgraph)subgraph).isInitialized()){
 
-          ((DefaultSubgraph)subgraph).setSubgraphValue(SubgraphStore.get(((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()));
-          LOG.debug("SSSPInit,sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",LOCALV,"+( ((DefaultSubgraph) subgraph).getLocalVertexCount()));
+          ((DefaultSubgraph)subgraph).setSubgraphValue(context.getSubgraphStructure(((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()));
+          LOG.debug("SSSPInit,sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+(((DefaultSubgraph) subgraph).getPartitionId())+",LOCALV,"+( ((DefaultSubgraph) subgraph).getLocalVertexCount())+",numV,"+context.getSubgraphStructure(((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()).getNumVertices());
           ((DefaultSubgraph)subgraph).setInitialized();
       }
       // init IDs for logging

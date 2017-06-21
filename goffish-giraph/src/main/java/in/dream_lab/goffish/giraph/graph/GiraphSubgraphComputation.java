@@ -5,6 +5,7 @@ import in.dream_lab.goffish.giraph.master.SubgraphMasterCompute;
 import org.apache.giraph.conf.ClassConfOption;
 import org.apache.giraph.graph.*;
 import org.apache.giraph.utils.ReflectionUtils;
+import org.apache.giraph.worker.WorkerContext;
 import org.apache.hadoop.io.*;
 import org.apache.log4j.Logger;
 
@@ -172,4 +173,6 @@ public class GiraphSubgraphComputation<S extends WritableComparable,
     public int getMyWorkerID(){
         return super.getMyWorkerIndex();
     }
+
+    public WorkerContext getMyWorkerContext(){return  super.getWorkerContext();}
 }

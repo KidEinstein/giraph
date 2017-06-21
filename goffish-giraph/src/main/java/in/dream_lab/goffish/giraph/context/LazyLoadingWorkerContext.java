@@ -5,6 +5,7 @@ import in.dream_lab.goffish.giraph.partitionstore.LoadMappingReader;
 import in.dream_lab.goffish.giraph.partitionstore.SubgraphStoreLoader;
 import org.apache.giraph.worker.WorkerContext;
 import org.apache.log4j.Logger;
+import org.python.antlr.op.Sub;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -69,8 +70,12 @@ public class LazyLoadingWorkerContext extends WorkerContext {
     }
 
     public  SubgraphVertices getSubgraphStructure(long subgraphid) {
+        LOG.debug("LazyLoadingWorkerContext,querying for sgid,"+subgraphid);
+        LOG.debug("LazyLoadingWorkerContext,sgid,"+subgraphid+",has VCOUNT,"+SubgraphStore.get(subgraphid).getNumVertices());
         return SubgraphStore.get(subgraphid);
     }
+
+    public int getNumSubgraphs(){return SubgraphStore.size();}
 
     @Override
 

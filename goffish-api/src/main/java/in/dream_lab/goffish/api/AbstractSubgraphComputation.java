@@ -61,5 +61,9 @@ public abstract class AbstractSubgraphComputation<S extends Writable, V extends 
     return subgraphPlatformCompute.hasVotedToHalt();
   }
 
-  public int getMyWorkerID(){return subgraphPlatformCompute.getMyWorkerID();}
+  public int getMyWorkerID(){return subgraphPlatformCompute.getMyWorkerID(); }
+
+  public Object getMyWorkerContext(){return  subgraphPlatformCompute.getMyWorkerContext();}
+
+
 }

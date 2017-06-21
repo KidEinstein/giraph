@@ -3,6 +3,7 @@ package in.dream_lab.goffish.api;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
+
 /**
  * Created by anirudh on 09/03/17.
  */
@@ -14,6 +15,8 @@ public interface ISubgraphCompute<S extends Writable, V extends WritableComparab
   long getSuperstep();
 
   int getMyWorkerID();
+
+  Object getMyWorkerContext();
 
   void sendMessageToSubgraph(K subgraphId, M message);
 
