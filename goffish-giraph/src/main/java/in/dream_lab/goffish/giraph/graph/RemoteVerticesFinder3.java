@@ -36,6 +36,7 @@ public class RemoteVerticesFinder3 extends GiraphSubgraphComputation<LongWritabl
         remoteVertices.put(rsvId, rsv);
       }
     }
+//    voteToHalt();
   }
 }
 

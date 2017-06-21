@@ -35,8 +35,12 @@ class SubgraphLoader implements Runnable {
 //        this.sgv = sg;
 //    }
 
-    public static void setListoffiles(List<String> listoffiles) {
-        SubgraphLoader.listoffiles = listoffiles;
+    public static void setListoffiles(List<String> l) {
+
+        for(String str:l){
+            listoffiles.add(str);
+        }
+
     }
 
     public SubgraphLoader(int id,SubgraphVertices sg) {
@@ -85,14 +89,14 @@ public class SubgraphStoreLoader {
     *@ partition set of partitions which are to be loaded
     */
     List<String> getListofFilesFromhdfs(String directory,Set<Integer>partitions) throws URISyntaxException, IOException, FileNotFoundException {
-        LOG.debug("Inputloader Listing files:");
+//        LOG.debug("Inputloader Listing files:");
         ArrayList<String> listoffiles=new ArrayList<>();
         Configuration conf = new Configuration();
         FileSystem fs = FileSystem.get(new URI( directory), conf);
         FileStatus[] fileStatus = fs.listStatus(new Path(directory));
         for(FileStatus status : fileStatus){
-            LOG.debug("File: "+status.getPath().toString());
-            System.out.println("File: "+status.getPath().toString());
+//            LOG.debug("File: "+status.getPath().toString());
+//            System.out.println("File: "+status.getPath().toString());
 //            e.g.hdfs://orion-00:9000/user/bduser/lazy_loading/ORKT-40/8589934593.ser
             String[] fullpath = status.getPath().toString().split("/");
             String filename = fullpath[fullpath.length-1];
@@ -122,10 +126,13 @@ public class SubgraphStoreLoader {
 
         SubgraphLoader.setListoffiles(l);
 
-        ExecutorService executor= Executors.newFixedThreadPool(4);
+        ExecutorService executor= Executors.newFixedThreadPool(2);
 
-        LOG.debug("Number of files "+l.size()+" number_of_partitions,"+partitions.size());
+//        LOG.debug("Number of files "+l.size()+" number_of_partitions,"+partitions.size());
 //        LOG.debug();
+        for(int i=0;i<l.size();i++){
+            LOG.debug("FILE2Process,"+l.get(i));
+        }
 
         //form the subgraph object here
         for(int i=0;i<l.size();i++){
@@ -135,7 +142,7 @@ public class SubgraphStoreLoader {
             String filename = fullpath[fullpath.length-1];
 
 //            int pid= Integer.parseInt(filename.split("_")[0]);
-            LOG.debug("SubgraphStore,filename,"+filename);
+            LOG.debug("Submitted for filename,"+filename);
 
 //            if(filename.split("_").length!=0) {
 
@@ -147,14 +154,14 @@ public class SubgraphStoreLoader {
                 SubgraphVertices sgv = new SubgraphVertices();
 
                 SubgraphStore.put(sgid, sgv);
-
+                LOG.debug("SubgraphStoreLoader.put,sgid,"+sgid);
                 executor.submit(new SubgraphLoader(i, sgv));
 //            }else{
 //                LOG.debug("SubgraphStore,FAILfilename,"+filename);
 //            }
         }
-        executor.shutdown();
-        LOG.debug("EXECUTOR_SERVICE_SHUTDOWN");
+//        executor.shutdown();
+//        LOG.debug("EXECUTOR_SERVICE_SHUTDOWN");
         executor.awaitTermination(1, TimeUnit.HOURS);
         LOG.debug("EXECUTOR_SERVICE_TERMINATE");
 

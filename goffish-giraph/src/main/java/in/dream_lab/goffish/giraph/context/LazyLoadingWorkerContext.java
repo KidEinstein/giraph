@@ -33,13 +33,13 @@ public class LazyLoadingWorkerContext extends WorkerContext {
 
         String task_id=getContext().getTaskAttemptID().getTaskID().toString();
 
-        int wid=Integer.parseInt(task_id.split("_")[4]);
+        int wid=Integer.parseInt(task_id.split("_")[4]) ;
 
 //        int id=1;
         SubgraphStore=new HashMap<>();
         //read from hdfs
         String hdfspath = getContext().getConfiguration().get(PARTITION_LOAD_ASSIGNMENT_PATH);
-        LOG.debug("CONTEXT,PARTITION_LOAD_ASSIGNMENT_PATH,wid,"+wid+",loading pid,"+hdfspath);
+//        LOG.debug("CONTEXT,PARTITION_LOAD_ASSIGNMENT_PATH,wid,"+wid+",loading pid,"+hdfspath);
 //        int wid = getMyWorkerID();
         //file format wid,pid1,pid2,...
         try {
@@ -52,7 +52,7 @@ public class LazyLoadingWorkerContext extends WorkerContext {
 
             hdfspath=getContext().getConfiguration().get(SERIALIZED_INPUT_PATH);
 
-            LOG.debug("CONTEXT,SERIALIZED_INPUT_PATH,wid,"+wid+",loading pid,"+hdfspath);
+//            LOG.debug("CONTEXT,SERIALIZED_INPUT_PATH,wid,"+wid+",loading pid,"+hdfspath);
 
 
             try {
@@ -67,6 +67,9 @@ public class LazyLoadingWorkerContext extends WorkerContext {
             e.printStackTrace();
         }
 
+        for(long sgid:SubgraphStore.keySet()){
+            LOG.debug("LazyLoadingWorkerContext_PREAPP,sgid,"+sgid+",has VCOUNT,"+SubgraphStore.get(sgid).getNumVertices());
+        }
     }
 
     public  SubgraphVertices getSubgraphStructure(long subgraphid) {
@@ -76,6 +79,10 @@ public class LazyLoadingWorkerContext extends WorkerContext {
     }
 
     public int getNumSubgraphs(){return SubgraphStore.size();}
+
+    public HashMap<Long, SubgraphVertices> getSubgraphStore() {
+        return SubgraphStore;
+    }
 
     @Override
 

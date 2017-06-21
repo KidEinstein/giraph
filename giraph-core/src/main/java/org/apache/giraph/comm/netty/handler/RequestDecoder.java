@@ -18,21 +18,19 @@
 
 package org.apache.giraph.comm.netty.handler;
 
-import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
-import org.apache.giraph.comm.netty.InboundByteCounter;
-import org.apache.giraph.comm.requests.RequestType;
-import org.apache.giraph.comm.requests.WritableRequest;
-import org.apache.giraph.time.SystemTime;
-import org.apache.giraph.time.Time;
-import org.apache.giraph.time.Times;
-import org.apache.giraph.utils.ReflectionUtils;
-import org.apache.giraph.utils.RequestUtils;
-import org.apache.log4j.Logger;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
+import org.apache.giraph.comm.netty.InboundByteCounter;
+import org.apache.giraph.comm.requests.RequestType;
+import org.apache.giraph.comm.requests.WritableRequest;
+import org.apache.giraph.conf.ImmutableClassesGiraphConfiguration;
+import org.apache.giraph.time.SystemTime;
+import org.apache.giraph.time.Time;
+import org.apache.giraph.utils.ReflectionUtils;
+import org.apache.giraph.utils.RequestUtils;
+import org.apache.log4j.Logger;
 
 /**
  * Decodes encoded requests from the client.
@@ -89,11 +87,11 @@ public class RequestDecoder extends ChannelInboundHandlerAdapter {
     request = RequestUtils.decodeWritableRequest(buf, request);
 
     if (LOG.isDebugEnabled()) {
-      LOG.debug("decode: Client " + request.getClientId() +
-          ", requestId " + request.getRequestId() +
-          ", " +  request.getType() + ", with size " +
-          buf.writerIndex() + " took " +
-          Times.getNanosSince(TIME, startDecodingNanoseconds) + " ns");
+//      LOG.debug("decode: Client " + request.getClientId() +
+//          ", requestId " + request.getRequestId() +
+//          ", " +  request.getType() + ", with size " +
+//          buf.writerIndex() + " took " +
+//          Times.getNanosSince(TIME, startDecodingNanoseconds) + " ns");
     }
     ReferenceCountUtil.release(buf);
     // fire writableRequest object to upstream handlers

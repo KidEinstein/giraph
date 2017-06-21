@@ -66,9 +66,9 @@ public class InboundByteCounter extends ChannelInboundHandlerAdapter implements
       ByteBuf buf = (ByteBuf) msg;
       int receivedBytes = delegate.byteBookkeeper(buf);
       if (LOG.isDebugEnabled()) {
-        LOG.debug("channelRead: " + ctx.channel().toString() + " buffer " +
-            "size = " + receivedBytes + ", total bytes = " +
-            getBytesReceived());
+//        LOG.debug("channelRead: " + ctx.channel().toString() + " buffer " +
+//            "size = " + receivedBytes + ", total bytes = " +
+//            getBytesReceived());
       }
     }
     ctx.fireChannelRead(msg);

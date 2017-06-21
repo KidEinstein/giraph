@@ -36,14 +36,15 @@ public class LoadMappingReader {
         String line;
 
         line = br.readLine();
-        //input format partitionID,superstep,workerID //FIXME: partititon ID for giraph starts from 0
+
+        //input format partitionID,superstep,workerID
         while (line != null) {
             if(line.trim().isEmpty()){
                 line = br.readLine();
                 continue;
             }
             String[] entry = line.split(cvsSplitBy);
-            int wid = Integer.parseInt(entry[0]);
+            int wid =( Integer.parseInt(entry[0])+1); //FIXME: in MappingReader we have done +1 for wid as script starts vmid from 0 but task 0 is master
             if(wid==worker_id){
 
                 for(int i=1;i<entry.length;i++){

@@ -99,11 +99,11 @@ public class RequestEncoder extends ChannelOutboundHandlerAdapter {
     // Set the correct size at the end
     buf.setInt(0, buf.writerIndex() - SIZE_OF_INT);
     if (LOG.isDebugEnabled()) {
-      LOG.debug("write: Client " + request.getClientId() + ", " +
-          "requestId " + request.getRequestId() +
-          ", size = " + buf.readableBytes() + ", " +
-          request.getType() + " took " +
-          Times.getNanosSince(TIME, startEncodingNanoseconds) + " ns");
+//      LOG.debug("write: Client " + request.getClientId() + ", " +
+//          "requestId " + request.getRequestId() +
+//          ", size = " + buf.readableBytes() + ", " +
+//          request.getType() + " took " +
+//          Times.getNanosSince(TIME, startEncodingNanoseconds) + " ns");
     }
     ctx.write(buf, promise);
   }

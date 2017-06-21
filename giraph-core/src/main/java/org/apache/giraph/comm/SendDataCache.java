@@ -28,7 +28,6 @@ import org.apache.giraph.worker.WorkerInfo;
 import org.apache.log4j.Logger;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -107,11 +106,11 @@ public abstract class SendDataCache<D> {
 
           WorkerInfo key = entry.getKey();
           List value = entry.getValue();
-          LOG.debug("TEST,SendDataCache.SendDataCache,workerID,"+key.getTaskId()+",partitions,"+ Arrays.toString(value.toArray()));
+//          LOG.debug("TEST,SendDataCache.SendDataCache,workerID,"+key.getTaskId()+",partitions,"+ Arrays.toString(value.toArray()));
       }
 
     for (WorkerInfo workerInfo : serviceWorker.getWorkerInfoList()) {
-        LOG.debug("TEST,SendDataCache.SendDataCache,workerInfo,"+workerInfo+",initialSize,"+initialRequestSize);
+//        LOG.debug("TEST,SendDataCache.SendDataCache,workerInfo,"+workerInfo+",initialSize,"+initialRequestSize);
 
       if(workerPartitions.containsKey(workerInfo))
       initialBufferSizes[workerInfo.getTaskId()] =

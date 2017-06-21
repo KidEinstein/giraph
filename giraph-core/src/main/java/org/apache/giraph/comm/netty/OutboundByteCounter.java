@@ -66,9 +66,9 @@ public class OutboundByteCounter extends ChannelOutboundHandlerAdapter
       ByteBuf buf = (ByteBuf) msg;
       int sentBytes = delegate.byteBookkeeper(buf);
       if (LOG.isDebugEnabled()) {
-        LOG.debug("write: " + ctx.channel().toString() +
-            " buffer size = " + sentBytes + ", total bytes = " + getBytesSent()
-        );
+//        LOG.debug("write: " + ctx.channel().toString() +
+//            " buffer size = " + sentBytes + ", total bytes = " + getBytesSent()
+//        );
       }
     }
     ctx.writeAndFlush(msg, promise);

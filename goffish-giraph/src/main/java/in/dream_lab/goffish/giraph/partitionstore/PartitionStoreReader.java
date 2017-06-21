@@ -173,7 +173,7 @@ public class PartitionStoreReader {
 
         ByteBufInputStream dataInput=new ByteBufInputStream(buffer);
 
-        SubgraphVertices v=new SubgraphVertices();
+//        SubgraphVertices v=new SubgraphVertices();
 
 //        GiraphSubgraphConfiguration<K, I, V, E, S, J> giraphSubgraphConfiguration = new GiraphSubgraphConfiguration(conf);
 
