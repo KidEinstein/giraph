@@ -37,6 +37,7 @@ class SubgraphLoader implements Runnable {
 
     public static void setListoffiles(List<String> l) {
 
+        listoffiles=new ArrayList<>();
         for(String str:l){
             listoffiles.add(str);
         }
@@ -160,8 +161,8 @@ public class SubgraphStoreLoader {
 //                LOG.debug("SubgraphStore,FAILfilename,"+filename);
 //            }
         }
-//        executor.shutdown();
-//        LOG.debug("EXECUTOR_SERVICE_SHUTDOWN");
+        executor.shutdown();
+        LOG.debug("EXECUTOR_SERVICE_SHUTDOWN");
         executor.awaitTermination(1, TimeUnit.HOURS);
         LOG.debug("EXECUTOR_SERVICE_TERMINATE");
 
