@@ -307,23 +307,40 @@ end[PURE_YARN]*/
     if (checkTaskState()) {
       return;
     }
+
+    long startTime2;
+    long startTime=System.currentTimeMillis();
     preLoadOnWorkerObservers();
+
+    LOG.debug("GraphTaskManager.execute,wid,"+getWorkerContext().getMyWorkerIndex()+",preLoadOnWorkerObservers(),took,"+(System.currentTimeMillis()-startTime));
+
+     startTime=System.currentTimeMillis();
+
     GiraphTimerContext superstepTimerContext = superstepTimer.time();
-    finishedSuperstepStats = serviceWorker.setup();
+    finishedSuperstepStats = serviceWorker.setup(); //input superstep
     superstepTimerContext.stop();
+
+      LOG.debug("GraphTaskManager.execute,wid,"+getWorkerContext().getMyWorkerIndex()+",LOADING,took,"+(System.currentTimeMillis()-startTime));
+
     if (collectInputSuperstepStats(finishedSuperstepStats)) {
       return;
     }
-    LOG.debug("GraphTaskManager.execute,call to WorkerContext_preApplication()");
+
+      startTime=System.currentTimeMillis();
+
     prepareGraphStateAndWorkerContext();
+
+      LOG.debug("GraphTaskManager.execute,wid,"+getWorkerContext().getMyWorkerIndex()+",prepareGraphStateAndWorkerContext(),took,"+(System.currentTimeMillis()-startTime));
+
     List<PartitionStats> partitionStatsList = new ArrayList<PartitionStats>();
     int numComputeThreads = conf.getNumComputeThreads();
 
+    startTime=System.currentTimeMillis();
     // main superstep processing loop
     while (!finishedSuperstepStats.allVerticesHalted()) {
       final long superstep = serviceWorker.getSuperstep();
 
-      LOG.debug("GraphTaskManager.execute,superstep,"+superstep);
+      startTime2=System.currentTimeMillis();
       superstepTimerContext = getTimerForThisSuperstep(superstep);
       GraphState graphState = new GraphState(superstep,
           finishedSuperstepStats.getVertexCount(),
@@ -331,17 +348,24 @@ end[PURE_YARN]*/
           context);
       Collection<? extends PartitionOwner> masterAssignedPartitionOwners =
         serviceWorker.startSuperstep();
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("execute: " + MemoryUtils.getRuntimeMemoryStats());
-        LOG.debug("TEST,GraphTaskManager.execute,done masterAssignedPartitionOwners,"+superstep);
-      }
-      long startime=System.currentTimeMillis();
+
+        LOG.debug("GraphTaskManager.execute,wid,"+getWorkerContext().getMyWorkerIndex()+",superstep,"+superstep+",masterAssignment,took,"+(System.currentTimeMillis()-startTime2));
+
+//      if (LOG.isDebugEnabled()) {
+//        LOG.debug("execute: " + MemoryUtils.getRuntimeMemoryStats());
+//        LOG.debug("TEST,GraphTaskManager.execute,done masterAssignedPartitionOwners,"+superstep);
+//      }
+
+        startTime2=System.currentTimeMillis();
       context.progress();
       serviceWorker.exchangeVertexPartitions(masterAssignedPartitionOwners);
       context.progress();
       boolean hasBeenRestarted = checkSuperstepRestarted(superstep);
 
-        LOG.debug("TEST,GraphTaskManager.execute,done partitionExchange,superstep,"+superstep+",took,"+(System.currentTimeMillis()-startime));
+        LOG.debug("GraphTaskManager.execute,wid,"+getWorkerContext().getMyWorkerIndex()+",superstep,"+superstep+",exchangePartitions,took,"+(System.currentTimeMillis()-startTime2));
+
+
+       startTime2=System.currentTimeMillis();
 
       GlobalStats globalStats = serviceWorker.getGlobalStats();
 
@@ -357,6 +381,11 @@ end[PURE_YARN]*/
       context.progress();
       prepareForSuperstep(graphState);
       context.progress();
+
+        LOG.debug("GraphTaskManager.execute,wid,"+getWorkerContext().getMyWorkerIndex()+",superstep,"+superstep+",prepareForSuperstep,took,"+(System.currentTimeMillis()-startTime2));
+
+        startTime2=System.currentTimeMillis();
+
       MessageStore<I, Writable> messageStore =
           serviceWorker.getServerData().getCurrentMessageStore();
       int numPartitions = serviceWorker.getPartitionStore().getNumPartitions();
@@ -372,18 +401,26 @@ end[PURE_YARN]*/
         processGraphPartitions(context, partitionStatsList, graphState,
           messageStore, numThreads);
       }
+        LOG.debug("GraphTaskManager.execute,wid,"+getWorkerContext().getMyWorkerIndex()+",superstep,"+superstep+",processGraphPartitions,took,"+(System.currentTimeMillis()-startTime2));
+
+        startTime2=System.currentTimeMillis();
       finishedSuperstepStats = completeSuperstepAndCollectStats(
         partitionStatsList, superstepTimerContext);
 
+        LOG.debug("GraphTaskManager.execute,wid,"+getWorkerContext().getMyWorkerIndex()+",superstep,"+superstep+",collectStats,took,"+(System.currentTimeMillis()-startTime2));
       // END of superstep compute loop
     }
 
-      LOG.debug("TEST,GraphTaskManager.execute,done compute"+serviceWorker.getSuperstep());
+      LOG.debug("GraphTaskManager.execute,wid,"+getWorkerContext().getMyWorkerIndex()+",SuperstepLoop,took,"+(System.currentTimeMillis()-startTime));
     if (LOG.isInfoEnabled()) {
       LOG.info("execute: BSP application done (global vertices marked done)");
     }
+    startTime=System.currentTimeMillis();
     updateSuperstepGraphState();
-    postApplication();
+      LOG.debug("GraphTaskManager.execute,wid,"+getWorkerContext().getMyWorkerIndex()+",UpdateGraphState,took,"+(System.currentTimeMillis()-startTime));
+      startTime=System.currentTimeMillis();
+      postApplication();
+      LOG.debug("GraphTaskManager.execute,wid,"+getWorkerContext().getMyWorkerIndex()+",postApplication,took,"+(System.currentTimeMillis()-startTime));
   }
 
   /**
@@ -800,12 +837,12 @@ end[PURE_YARN]*/
     ConcurrentMap map = ((SimpleMessageStore)messageStore).getMap();
     ConcurrentMap incomingMessageStoreMap = ((SimpleMessageStore)serviceWorker.getServerData().getIncomingMessageStore()).getMap();
     for (Integer partitionId : partitionStore.getPartitionIds()) {
-      LOG.debug("TEST,GraphTaskManger.processGraphPartitions,wid,"+serviceWorker.getWorkerInfo().getTaskId()+",pid,"+partitionId+",superstep,"+serviceWorker.getWorkerContext().getSuperstep());
+//      LOG.debug("TEST,GraphTaskManger.processGraphPartitions,wid,"+serviceWorker.getWorkerInfo().getTaskId()+",pid,"+partitionId+",superstep,"+serviceWorker.getWorkerContext().getSuperstep());
       map.putIfAbsent(partitionId, Maps.newConcurrentMap());
       incomingMessageStoreMap.putIfAbsent(partitionId, Maps.newConcurrentMap());
       verticesToCompute += partitionStore.getPartitionVertexCount(partitionId);
     }
-    LOG.info("Message store class: " + serviceWorker.getServerData().getIncomingMessageStore().getClass());
+//    LOG.info("Message store class: " + serviceWorker.getServerData().getIncomingMessageStore().getClass());
     WorkerProgress.get().startSuperstep(
         serviceWorker.getSuperstep(), verticesToCompute,
         serviceWorker.getPartitionStore().getNumPartitions());

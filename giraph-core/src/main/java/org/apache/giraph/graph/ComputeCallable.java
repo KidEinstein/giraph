@@ -333,7 +333,8 @@ public class ComputeCallable<I extends WritableComparable, V extends Writable,
 
       messageStore.clearPartition(partition.getId());
     }
-    LOG.info("Superstep,PartitionID,Time:" + serviceWorker.getSuperstep() + "," + partition.getId() + "," + (System.currentTimeMillis() - startTime));
+//    LOG.info("Superstep,PartitionID,Time:" + serviceWorker.getSuperstep() + "," + partition.getId() + "," + (System.currentTimeMillis() - startTime));
+    LOG.debug("ComputeCallable,wid,"+serviceWorker.getWorkerInfo().getTaskId()+",superstep,"+serviceWorker.getWorkerContext().getSuperstep()+",pid"+partition.getId()+",took,"+(System.currentTimeMillis()-startTime));
     WorkerProgress.get().addVerticesComputed(verticesComputedProgress);
     WorkerProgress.get().incrementPartitionsComputed();
     return partitionStats;

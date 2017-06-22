@@ -106,7 +106,7 @@ public class SendWorkerVerticesRequest<I extends WritableComparable,
       serverData.getPartitionStore()
           .addPartitionVertices(iterator.getCurrentFirst(),
               iterator.getCurrentSecond());
-    }
+         }
   }
 
   @Override
