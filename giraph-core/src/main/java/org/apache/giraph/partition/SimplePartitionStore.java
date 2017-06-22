@@ -25,6 +25,7 @@ import org.apache.giraph.utils.VertexIterator;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.log4j.Logger;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -52,7 +53,10 @@ public class SimplePartitionStore<I extends WritableComparable,
   /** Queue of partitions to be precessed in a superstep */
   private BlockingQueue<Partition<I, V, E>> partitionQueue;
 
-  /**
+   /** Class logger */
+    private static final Logger LOG = Logger.getLogger(SimplePartition.class);
+
+    /**
    * Constructor.
    * @param conf Configuration
    * @param context Mapper context
@@ -160,6 +164,7 @@ public class SimplePartitionStore<I extends WritableComparable,
         new VertexIterator<I, V, E>(extendedDataOutput, conf);
 
     Partition<I, V, E> partition = getOrCreatePartition(partitionId);
+    LOG.debug("ADDED_PARTITION,"+partitionId);
     partition.addPartitionVertices(vertexIterator);
     putPartition(partition);
   }

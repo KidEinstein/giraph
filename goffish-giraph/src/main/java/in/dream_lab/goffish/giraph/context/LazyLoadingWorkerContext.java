@@ -73,8 +73,8 @@ public class LazyLoadingWorkerContext extends WorkerContext {
     }
 
     public  SubgraphVertices getSubgraphStructure(long subgraphid) {
-        LOG.debug("LazyLoadingWorkerContext,querying for sgid,"+subgraphid);
-        LOG.debug("LazyLoadingWorkerContext,sgid,"+subgraphid+",has VCOUNT,"+SubgraphStore.get(subgraphid).getNumVertices());
+//        LOG.debug("LazyLoadingWorkerContext,querying for sgid,"+subgraphid);
+//        LOG.debug("LazyLoadingWorkerContext,sgid,"+subgraphid+",has VCOUNT,"+SubgraphStore.get(subgraphid).getNumVertices());
         return SubgraphStore.get(subgraphid);
     }
 

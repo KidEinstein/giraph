@@ -251,14 +251,17 @@ public class PartitionBalancer {
       }
     });
 
-    LOG.debug("Before Assignment in superstep,"+superstep);
-        for (PartitionOwner partitionOwner : partitionOwners) {
-      int taskId = partitionOwner.getWorkerInfo().getTaskId();
-      int partitionId = partitionOwner.getPartitionId();
-//      if(superstep>=3)
-      LOG.debug("TEST,Mapping,Superstep,TaskId,PartitionId"+superstep+"," + taskId + "," + partitionId);
-    }
+//    LOG.debug("Before Assignment in superstep,"+superstep);
+//        for (PartitionOwner partitionOwner : partitionOwners) {
+//      int taskId = partitionOwner.getWorkerInfo().getTaskId();
+//      int partitionId = partitionOwner.getPartitionId();
+////      if(superstep>=3)
+//      LOG.debug("TEST,Mapping,Superstep,TaskId,PartitionId"+superstep+"," + taskId + "," + partitionId);
+//    }
 
+      for(PartitionOwner p:partitionOwners){
+        p.setPreviousWorkerInfo(null);
+      }
 
     for (Map.Entry<Integer, Set<Integer>> entry : newWorkerPartitionMap.entrySet()) {
       int taskId = entry.getKey();
@@ -277,21 +280,29 @@ public class PartitionBalancer {
           LOG.debug("Updating for pid,"+partitionId+" got "+partitionOwner.getWorkerInfo().getTaskId());
       }
     }
-
-    LOG.debug("After Assignment in superstep,"+superstep);
-    for (PartitionOwner partitionOwner : partitionOwners) {
-      int taskId = partitionOwner.getWorkerInfo().getTaskId();
-      int partitionId = partitionOwner.getPartitionId();
-//      if(superstep>=3)
-      LOG.debug("TEST,Mapping,Superstep,TaskId,PartitionId"+superstep+"," + taskId + "," + partitionId);
-    }
+//
+//    LOG.debug("After Assignment in superstep,"+superstep);
+//    for (PartitionOwner partitionOwner : partitionOwners) {
+//      int taskId = partitionOwner.getWorkerInfo().getTaskId();
+//      int partitionId = partitionOwner.getPartitionId();
+////      if(superstep>=3)
+//      LOG.debug("TEST,Mapping,Superstep,TaskId,PartitionId"+superstep+"," + taskId + "," + partitionId);
+//    }
 
       for(PartitionOwner p:partitionOwners){
 //          PartitionOwner p=partitionOwnerList.get(i);
           LOG.debug("TEST,PartitionBalancer.balancePartitionsAcrossWorkersImproved,partitionOwners,superstep,"+superstep+",pid,"+p.getPartitionId()+",wid,"+p.getWorkerInfo().getTaskId());
 
       }
-    return partitionOwners;
+
+      Collections.sort(partitionOwnerList, new Comparator<PartitionOwner>() {
+          @Override
+          public int compare(PartitionOwner o1, PartitionOwner o2) {
+              return o1.getPartitionId() - o2.getPartitionId();
+          }
+      });
+
+      return partitionOwners;
   }
 
 

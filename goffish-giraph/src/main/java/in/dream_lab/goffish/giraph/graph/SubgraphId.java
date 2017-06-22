@@ -44,7 +44,7 @@ public class SubgraphId<S extends WritableComparable> implements WritableCompara
     public void write(DataOutput dataOutput) throws IOException {
         subgraphId.write(dataOutput);
         dataOutput.writeInt(partitionId);
-        LOG.debug("SGW_ID,sgid,"+subgraphId+",pid,"+partitionId);
+//        LOG.debug("SGW_ID,sgid,"+subgraphId+",pid,"+partitionId);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class SubgraphId<S extends WritableComparable> implements WritableCompara
       subgraphId = conf.createSubgraphId();
       subgraphId.readFields(dataInput);
       partitionId = dataInput.readInt();
-        LOG.debug("SGR_ID,sgid,"+subgraphId+",pid,"+partitionId);
+//        LOG.debug("SGR_ID,sgid,"+subgraphId+",pid,"+partitionId);
     }
 
     @Override

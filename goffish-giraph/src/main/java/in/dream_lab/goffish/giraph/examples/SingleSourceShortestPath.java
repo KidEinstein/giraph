@@ -149,12 +149,12 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
 //
 //      LOG.debug("SubgraphStore,wid,"+getMyWorkerID()+",has subgraphCount,"+context.getNumSubgraphs());
 //
-//      LOG.debug("Quering for ,sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+(((DefaultSubgraph) subgraph).getPartitionId())+"in superstep,"+getSuperstep());
+      LOG.debug("Quering for ,sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()+",pid,"+(((DefaultSubgraph) subgraph).getPartitionId())+"in superstep,"+getSuperstep());
       if(!((DefaultSubgraph)subgraph).isInitialized()){
 
           LazyLoadingWorkerContext context = (LazyLoadingWorkerContext)getMyWorkerContext();
 
-//          HashMap<Long,SubgraphVertices>SubgraphStore=context.getSubgraphStore();
+          HashMap<Long,SubgraphVertices>SubgraphStore=context.getSubgraphStore();
 
           SubgraphVertices sgv= context.getSubgraphStructure(((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get());
           ((DefaultSubgraph)subgraph).lazyload(sgv.getLocalVertices(),sgv.getRemoteVertices(),sgv.getSubgraphPartitionMapping());

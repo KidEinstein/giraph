@@ -1593,6 +1593,8 @@ else[HADOOP_NON_SECURE]*/
       for (Integer partitionId : workerPartitionList.getValue()) {
         Partition<I, V, E> partition =
             getPartitionStore().removePartition(partitionId);
+
+        LOG.debug("REMOVED_PARTITION,superstep,"+getSuperstep()+",wid,"+getWorkerInfo().getTaskId()+",pid,"+partitionId);
         if (partition == null) {
           throw new IllegalStateException(
               "sendWorkerPartitions: Couldn't find partition " +
@@ -1654,7 +1656,10 @@ else[HADOOP_NON_SECURE]*/
 
       for(PartitionOwner p:masterSetPartitionOwners){
 //          PartitionOwner p=partitionOwnerList.get(i);
-          LOG.debug("TEST,BspServiceWorker.exchangeVertexPartitions,superstep,"+getSuperstep()+",masterSetPartitionOwners,pid,"+p.getPartitionId()+",wid,"+p.getWorkerInfo().getTaskId());
+          if(p.getPreviousWorkerInfo()!=null)
+              LOG.debug("TEST,BspServiceWorker.exchangeVertexPartitions,superstep,"+getSuperstep()+",pid,"+p.getPartitionId()+",wid,"+p.getWorkerInfo().getTaskId()+",prevWID,"+p.getPreviousWorkerInfo().getTaskId());
+          else
+              LOG.debug("TEST,BspServiceWorker.exchangeVertexPartitions,superstep,"+getSuperstep()+",pid,"+p.getPartitionId()+",wid,"+p.getWorkerInfo().getTaskId());
 
 
           if((p.getPreviousWorkerInfo()!=null)  &&  p.getPreviousWorkerInfo().getTaskId()==workerInfo.getTaskId() ){
