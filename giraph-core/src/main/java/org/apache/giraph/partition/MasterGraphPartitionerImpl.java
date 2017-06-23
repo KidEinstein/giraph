@@ -70,18 +70,51 @@ public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
   @Override
   public Collection<PartitionOwner> createInitialPartitionOwners(
       Collection<WorkerInfo> availableWorkerInfos, int maxWorkers) {
+
+    if (partitionWorkerMapping == null) {
+      try {
+        partitionWorkerMapping = MappingReader.readFile(conf);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+
+    Map<Integer, Set<Integer>> newWorkerPartitionMap= partitionWorkerMapping.get(0);
+
+    Map<Integer,Integer>reverseMap=new HashMap<>();
+
+
+    for(int wid:newWorkerPartitionMap.keySet()){
+
+      for(int pid:newWorkerPartitionMap.get(wid)){
+
+        reverseMap.put(pid,wid);
+      }
+    }
+
+
     int partitionCount = PartitionUtils.computePartitionCount(
         availableWorkerInfos.size(), conf);
     ArrayList<WorkerInfo> workerList =
         new ArrayList<WorkerInfo>(availableWorkerInfos);
 
     partitionOwnerList = new ArrayList<PartitionOwner>();
+//    for (int i = 0; i < partitionCount; i++) {
+//      partitionOwnerList.add(new BasicPartitionOwner(i, workerList.get(
+//          getWorkerIndex(i, partitionCount, workerList.size()))));
+//
+//      LOG.debug("TEST,MasterGraphPartitionerImpl.createInitialPartitionOwners,pid,"+i+",wid,"+partitionOwnerList.get(i).getWorkerInfo().getTaskId());
+//    }
+
     for (int i = 0; i < partitionCount; i++) {
+
       partitionOwnerList.add(new BasicPartitionOwner(i, workerList.get(
-          getWorkerIndex(i, partitionCount, workerList.size()))));
+              getWorkerIndex(reverseMap.get(i)-1, partitionCount, workerList.size()))));
 
       LOG.debug("TEST,MasterGraphPartitionerImpl.createInitialPartitionOwners,pid,"+i+",wid,"+partitionOwnerList.get(i).getWorkerInfo().getTaskId());
+
     }
+
 
     return partitionOwnerList;
   }
@@ -98,15 +131,16 @@ public abstract class MasterGraphPartitionerImpl<I extends WritableComparable,
       int maxWorkers,
       long superstep) {
 
-    LOG.debug("TEST,MasterGraphPartitionerImpl.generateChangedPartitionOwners,superstep,"+superstep);
-    if (MappingReader.MAPPING_FILE.get(conf) != null && superstep >= 0) {
-      if (partitionWorkerMapping == null) {
-        try {
-          partitionWorkerMapping = MappingReader.readFile(conf);
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
+//    LOG.debug("TEST,MasterGraphPartitionerImpl.generateChangedPartitionOwners,superstep,"+superstep);
+//    if (MappingReader.MAPPING_FILE.get(conf) != null && superstep >= 0) {
+        if (superstep >= 0) {
+//      if (partitionWorkerMapping == null) {
+//        try {
+//          partitionWorkerMapping = MappingReader.readFile(conf);
+//        } catch (IOException e) {
+//          e.printStackTrace();
+//        }
+//      }
       if (partitionWorkerMapping.get((int) superstep ) == null) {
         return PartitionBalancer.balancePartitionsAcrossWorkers2(conf,
             partitionOwnerList, allPartitionStatsList, availableWorkers,superstep);

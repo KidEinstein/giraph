@@ -244,12 +244,17 @@ public class PartitionBalancer {
       int superstep) {
     List<WorkerInfo> availableWorkerInfosList = (List<WorkerInfo>) availableWorkerInfos;
     List<PartitionOwner> partitionOwnerList = (List<PartitionOwner>) partitionOwners;
+
+
+    long startTime=System.currentTimeMillis();
     Collections.sort(partitionOwnerList, new Comparator<PartitionOwner>() {
       @Override
       public int compare(PartitionOwner o1, PartitionOwner o2) {
         return o1.getPartitionId() - o2.getPartitionId();
       }
     });
+
+      LOG.debug("PartitionBalancer,SORT,"+superstep+","+(System.currentTimeMillis()-startTime));
 
 //    LOG.debug("Before Assignment in superstep,"+superstep);
 //        for (PartitionOwner partitionOwner : partitionOwners) {
@@ -259,27 +264,32 @@ public class PartitionBalancer {
 //      LOG.debug("TEST,Mapping,Superstep,TaskId,PartitionId"+superstep+"," + taskId + "," + partitionId);
 //    }
 
+      startTime=System.currentTimeMillis();
+
       for(PartitionOwner p:partitionOwners){
         p.setPreviousWorkerInfo(null);
       }
+
 
     for (Map.Entry<Integer, Set<Integer>> entry : newWorkerPartitionMap.entrySet()) {
       int taskId = entry.getKey();
       WorkerInfo info = availableWorkerInfosList.get(taskId-1);
 
-        LOG.debug("UPDATEOWNER,updating for taskID,"+taskId+",got,"+info.getTaskId());
+//        LOG.debug("UPDATEOWNER,updating for taskID,"+taskId+",got,"+info.getTaskId());
 
       for (Integer partitionId : entry.getValue()) {
         PartitionOwner partitionOwner = partitionOwnerList.get(partitionId);
 
         if(partitionOwner.getWorkerInfo().getTaskId()!=taskId) {
-          LOG.debug("TEST,PartitionBalancer.balancePartitionsAcrossWorkersImproved,updated mapping for pid,"+partitionId+",oldWid,"+partitionOwner.getWorkerInfo().getTaskId()+",newWid,"+taskId+","+info.getTaskId());
+//          LOG.debug("TEST,PartitionBalancer.balancePartitionsAcrossWorkersImproved,updated mapping for pid,"+partitionId+",oldWid,"+partitionOwner.getWorkerInfo().getTaskId()+",newWid,"+taskId+","+info.getTaskId());
           partitionOwner.setPreviousWorkerInfo(partitionOwner.getWorkerInfo());
           partitionOwner.setWorkerInfo(info);
         }
-          LOG.debug("Updating for pid,"+partitionId+" got "+partitionOwner.getWorkerInfo().getTaskId());
+//          LOG.debug("Updating for pid,"+partitionId+" got "+partitionOwner.getWorkerInfo().getTaskId());
       }
     }
+
+      LOG.debug("PartitionBalancer,ASSIGN,"+superstep+","+(System.currentTimeMillis()-startTime));
 //
 //    LOG.debug("After Assignment in superstep,"+superstep);
 //    for (PartitionOwner partitionOwner : partitionOwners) {
@@ -289,18 +299,18 @@ public class PartitionBalancer {
 //      LOG.debug("TEST,Mapping,Superstep,TaskId,PartitionId"+superstep+"," + taskId + "," + partitionId);
 //    }
 
-      for(PartitionOwner p:partitionOwners){
-//          PartitionOwner p=partitionOwnerList.get(i);
-          LOG.debug("TEST,PartitionBalancer.balancePartitionsAcrossWorkersImproved,partitionOwners,superstep,"+superstep+",pid,"+p.getPartitionId()+",wid,"+p.getWorkerInfo().getTaskId());
+//      for(PartitionOwner p:partitionOwners){
+////          PartitionOwner p=partitionOwnerList.get(i);
+//          LOG.debug("TEST,PartitionBalancer.balancePartitionsAcrossWorkersImproved,partitionOwners,superstep,"+superstep+",pid,"+p.getPartitionId()+",wid,"+p.getWorkerInfo().getTaskId());
+//
+//      }
 
-      }
-
-      Collections.sort(partitionOwnerList, new Comparator<PartitionOwner>() {
-          @Override
-          public int compare(PartitionOwner o1, PartitionOwner o2) {
-              return o1.getPartitionId() - o2.getPartitionId();
-          }
-      });
+//      Collections.sort(partitionOwnerList, new Comparator<PartitionOwner>() {
+//          @Override
+//          public int compare(PartitionOwner o1, PartitionOwner o2) {
+//              return o1.getPartitionId() - o2.getPartitionId();
+//          }
+//      });
 
       return partitionOwners;
   }
@@ -328,10 +338,14 @@ public class PartitionBalancer {
 //            partitionOwner.setWorkerInfo((partitionOwnerList.get(2)).getWorkerInfo());
 //        }
 ///////////////////////////////////////////////////////////
-        for(PartitionOwner p:partitionOwners){
-//            PartitionOwner p=partitionOwnerList.get(i);
-            LOG.debug("TEST,PartitionBalancer.balancePartitionsAcrossWorkers2,partitionOwners,pid,"+p.getPartitionId()+",wid,"+p.getWorkerInfo().getTaskId()+",superstep,"+superstep);
-        }
+      for(PartitionOwner p:partitionOwners){
+        p.setPreviousWorkerInfo(null);
+      }
+
+//      for(PartitionOwner p:partitionOwners){
+////            PartitionOwner p=partitionOwnerList.get(i);
+//            LOG.debug("TEST,PartitionBalancer.balancePartitionsAcrossWorkers2,partitionOwners,pid,"+p.getPartitionId()+",wid,"+p.getWorkerInfo().getTaskId()+",superstep,"+superstep);
+//        }
         return partitionOwners;
     }
 

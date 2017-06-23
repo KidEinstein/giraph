@@ -1084,7 +1084,8 @@ public class BspServiceMaster<I extends WritableComparable,
         throw new IllegalStateException(
             "assignAndExchangePartitions: No partition owners set");
       }
-    } else if (getRestartedSuperstep() == getSuperstep()) {
+    }
+    else if (getRestartedSuperstep() == getSuperstep()) {
       // If restarted, prepare the checkpoint restart
       try {
         partitionOwners = prepareCheckpointRestart(getSuperstep());
@@ -1101,6 +1102,8 @@ public class BspServiceMaster<I extends WritableComparable,
       }
       masterGraphPartitioner.setPartitionOwners(partitionOwners);
     } else {
+
+      long startTime=System.currentTimeMillis();
       partitionOwners =
           masterGraphPartitioner.generateChangedPartitionOwners(
               allPartitionStatsList,
@@ -1108,13 +1111,14 @@ public class BspServiceMaster<I extends WritableComparable,
               maxWorkers,
               getSuperstep());
 
-      PartitionUtils.analyzePartitionStats(partitionOwners,
-          allPartitionStatsList);
+      LOG.debug("BspServiceWorker.generateChangedPartitionOwners,superstep,"+getSuperstep()+","+(System.currentTimeMillis()-startTime));
+//      PartitionUtils.analyzePartitionStats(partitionOwners,
+//          allPartitionStatsList);
     }
     checkPartitions(masterGraphPartitioner.getCurrentPartitionOwners());
 
 
-
+    long startTime=System.currentTimeMillis();
     // There will be some exchange of partitions
     if (!partitionOwners.isEmpty()) {
       String vertexExchangePath =
@@ -1136,17 +1140,23 @@ public class BspServiceMaster<I extends WritableComparable,
                 vertexExchangePath);
       }
     }
+    LOG.debug("BspServiceWorker.getPartitionExchangePath,superstep,"+getSuperstep()+","+(System.currentTimeMillis()-startTime));
 
+    startTime=System.currentTimeMillis();
     AddressesAndPartitionsWritable addressesAndPartitions =
         new AddressesAndPartitionsWritable(masterInfo, chosenWorkerInfoList,
             partitionOwners);
+
+    LOG.debug("BspServiceWorker.AddressesAndPartitionsWritable,superstep,"+getSuperstep()+","+(System.currentTimeMillis()-startTime));
     // Send assignments to every worker
     // TODO for very large number of partitions we might want to split this
     // across multiple requests
+    startTime=System.currentTimeMillis();
     for (WorkerInfo workerInfo : chosenWorkerInfoList) {
       masterClient.sendWritableRequest(workerInfo.getTaskId(),
           new AddressesAndPartitionsRequest(addressesAndPartitions));
     }
+    LOG.debug("BspServiceWorker.sendWritableRequest,superstep,"+getSuperstep()+","+(System.currentTimeMillis()-startTime));
   }
 
   /**
