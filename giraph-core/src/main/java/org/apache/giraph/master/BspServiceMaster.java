@@ -1548,10 +1548,14 @@ public class BspServiceMaster<I extends WritableComparable,
     // 5. Create superstep finished node
     // 6. If the checkpoint frequency is met, finalize the checkpoint
 
+      long startTime=System.currentTimeMillis();
     for (MasterObserver observer : observers) {
       observer.preSuperstep(getSuperstep());
       getContext().progress();
     }
+
+      LOG.debug("Master.coordinateSS,observer,superstep,"+getSuperstep()+","+(System.currentTimeMillis()-startTime));
+      startTime=System.currentTimeMillis();
 
     chosenWorkerInfoList = checkWorkers();
     if (chosenWorkerInfoList == null) {
@@ -1578,18 +1582,31 @@ public class BspServiceMaster<I extends WritableComparable,
       }
     }
 
+
+      LOG.debug("Master.coordinateSS,healthCheck,superstep,"+getSuperstep()+","+(System.currentTimeMillis()-startTime));
+      startTime=System.currentTimeMillis();
     // We need to finalize aggregators from previous superstep
     if (getSuperstep() >= 0) {
       aggregatorTranslation.postMasterCompute();
       globalCommHandler.getAggregatorHandler().finishSuperstep();
     }
 
+
+      LOG.debug("Master.coordinateSS,Aggregate,superstep,"+getSuperstep()+","+(System.currentTimeMillis()-startTime));
+      startTime=System.currentTimeMillis();
+
     masterClient.openConnections();
 
+
+      LOG.debug("Master.coordinateSS,openConnections,superstep,"+getSuperstep()+","+(System.currentTimeMillis()-startTime));
+      startTime=System.currentTimeMillis();
     GiraphStats.getInstance().
         getCurrentWorkers().setValue(chosenWorkerInfoList.size());
     assignPartitionOwners();
 
+
+      LOG.debug("Master.coordinateSS,AssignOwners,superstep,"+getSuperstep()+","+(System.currentTimeMillis()-startTime));
+      startTime=System.currentTimeMillis();
     // Finalize the valid checkpoint file prefixes and possibly
     // the aggregators.
     if (checkpointStatus != CheckpointStatus.NONE) {
@@ -1615,11 +1632,17 @@ public class BspServiceMaster<I extends WritableComparable,
       }
     }
 
+
+      LOG.debug("Master.coordinateSS,checkPoint,superstep,"+getSuperstep()+","+(System.currentTimeMillis()-startTime));
+      startTime=System.currentTimeMillis();
     // We need to send aggregators to worker owners after new worker assignments
     if (getSuperstep() >= 0) {
       globalCommHandler.getAggregatorHandler().sendDataToOwners(masterClient);
     }
 
+
+      LOG.debug("Master.coordinateSS,sendAggr,superstep,"+getSuperstep()+","+(System.currentTimeMillis()-startTime));
+      startTime=System.currentTimeMillis();
     if (getSuperstep() == INPUT_SUPERSTEP) {
       // Initialize aggregators before coordinating
       initializeAggregatorInputSuperstep();
@@ -1635,6 +1658,9 @@ public class BspServiceMaster<I extends WritableComparable,
       return SuperstepState.WORKER_FAILURE;
     }
 
+
+      LOG.debug("Master.coordinateSS,getFinishedPath,superstep,"+getSuperstep()+","+(System.currentTimeMillis()-startTime));
+      startTime=System.currentTimeMillis();
     // Collect aggregator values, then run the master.compute() and
     // finally save the aggregator values
     globalCommHandler.getAggregatorHandler().prepareSuperstep();
