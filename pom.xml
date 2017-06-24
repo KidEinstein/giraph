@@ -601,8 +601,8 @@ under the License.
           <configuration>
             <source>${project.build.targetJdk}</source>
             <target>${project.build.targetJdk}</target>
-            <executable>${project.build.javaHome}/bin/javac</executable>
-            <fork>true</fork> 
+            <!--<executable>${project.build.javaHome}/bin/javac</executable>-->
+            <!--<fork>true</fork> -->
          </configuration>
         </plugin>
         <plugin>

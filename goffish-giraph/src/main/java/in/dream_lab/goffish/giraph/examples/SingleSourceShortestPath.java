@@ -99,6 +99,7 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
 
 //      log("START superstep with received input messages count = " + packedSubGraphMessages.size());
 
+      LOG.info("TEST,compute,"+getSuperstep());
       Set<IVertex<LongWritable, NullWritable, LongWritable, NullWritable>> rootVertices = null;
 
       ///////////////////////////////////////////////////////////
