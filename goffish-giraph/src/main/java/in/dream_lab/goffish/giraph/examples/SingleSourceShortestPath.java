@@ -104,7 +104,8 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
    */
   @Override
   public void compute(Iterable<IMessage<LongWritable,BytesWritable>> subgraphMessages) throws IOException {
-//    long subgraphStartTime = System.currentTimeMillis();
+    long subgraphStartTime = System.currentTimeMillis();
+
 
       ISubgraph<ShortestPathSubgraphValue, LongWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = getSubgraph();
 
@@ -362,12 +363,16 @@ public class SingleSourceShortestPath extends AbstractSubgraphComputation<Shorte
 //        if(changeCount == 0) {
       // we're done
       voteToHalt();
+
+    LOG.debug("COMPUTE,superstep,"+getSuperstep()+",sgid,"+((LongWritable)((DefaultSubgraph) subgraph).getSubgraphId()).get()
+            +",pid,"+(((DefaultSubgraph) subgraph).getPartitionId())+",computeTime,"+(System.currentTimeMillis()-subgraphStartTime));
+
 //        }
 
 
 
 
-    long subgraphEndTime = System.currentTimeMillis();
+//    long subgraphEndTime = System.currentTimeMillis();
 
 //    logPerfString("SUBGRAPH_PERF ,"+subgraph.getVertexId() +" ," + getSuperStep() + " ," +getIteration() + " ,"+  subgraphStartTime
 //        + " ,"+subgraphEndTime + " ," +  (subgraphEndTime - subgraphStartTime)+ " ,"+subgraph.numVertices() + " ," + subgraph.numEdges());

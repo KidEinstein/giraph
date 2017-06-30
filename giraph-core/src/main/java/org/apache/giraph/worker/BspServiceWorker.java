@@ -711,9 +711,12 @@ else[HADOOP_NON_SECURE]*/
       workerServer.prepareSuperstep();
     }
 
+      long startTime=System.currentTimeMillis();
+
     registerHealth(getSuperstep());
 
-    long startTime=System.currentTimeMillis();
+      LOG.debug("BspServiceWorker.registerHealth,superstep,"+getSuperstep()+","+(System.currentTimeMillis()-startTime));
+    startTime=System.currentTimeMillis();
 
     AddressesAndPartitionsWritable addressesAndPartitions =
         addressesAndPartitionsHolder.getElement(getContext());

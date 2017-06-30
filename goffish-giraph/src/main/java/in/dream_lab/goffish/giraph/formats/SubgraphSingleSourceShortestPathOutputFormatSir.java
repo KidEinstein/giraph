@@ -26,16 +26,16 @@ public class SubgraphSingleSourceShortestPathOutputFormatSir extends
   private class SimpleTextVertexWriter extends TextVertexWriter {
     @Override
     public void writeVertex(Vertex<SubgraphId<LongWritable>, SubgraphVertices, NullWritable> vertex) throws IOException, InterruptedException {
-      ISubgraph<ShortestPathSubgraphValue, LongWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = (ISubgraph) vertex;
-      Map<Long, Short> shortestDistanceMap = subgraph.getSubgraphValue().shortestDistanceMap;
-      for (Map.Entry<Long, Short> entry : shortestDistanceMap.entrySet()) {
-        IVertex<LongWritable, NullWritable, LongWritable, NullWritable> subgraphVertex = subgraph.getVertexById(new LongWritable(entry.getKey()));
-        if (!subgraphVertex.isRemote()) {
-          getRecordWriter().write(
-              new Text(entry.getKey().toString()),
-              new Text(entry.getValue().toString()));
-        }
-      }
+//      ISubgraph<ShortestPathSubgraphValue, LongWritable, NullWritable, LongWritable, NullWritable, LongWritable> subgraph = (ISubgraph) vertex;
+//      Map<Long, Short> shortestDistanceMap = subgraph.getSubgraphValue().shortestDistanceMap;
+//      for (Map.Entry<Long, Short> entry : shortestDistanceMap.entrySet()) {
+//        IVertex<LongWritable, NullWritable, LongWritable, NullWritable> subgraphVertex = subgraph.getVertexById(new LongWritable(entry.getKey()));
+//        if (!subgraphVertex.isRemote()) {
+//          getRecordWriter().write(
+//              new Text(entry.getKey().toString()),
+//              new Text(entry.getValue().toString()));
+//        }
+//      }
     }
   }
 
